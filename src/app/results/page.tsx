@@ -382,12 +382,13 @@ export default function ResultsPage() {
                   <div><strong className="text-slate-700">Apartment:</strong> {selectedApt.title}</div>
                   <div><strong className="text-slate-700">Schedule:</strong> {tourType} • {tourDate || "Next Available"} at {tourTime}</div>
                 </div>
-                <button
+                <Link
+                  href="/"
                   onClick={() => setSelectedApt(null)}
-                  className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition cursor-pointer"
+                  className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition text-center block cursor-pointer"
                 >
-                  Return to Matches
-                </button>
+                  Return to Home
+                </Link>
               </div>
             ) : (
               <form onSubmit={handleBookTour}>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import {
   Calendar,
@@ -181,12 +182,13 @@ export default function ApartmentBookingModal({
                 <div><strong>Renter Name:</strong> {fullName}</div>
               </div>
 
-              <button
+              <Link
+                href="/"
                 onClick={handleModalClose}
-                className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition cursor-pointer"
+                className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition text-center block cursor-pointer"
               >
-                Close & Return
-              </button>
+                Return to Home
+              </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
