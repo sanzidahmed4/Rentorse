@@ -167,12 +167,37 @@ export async function getApartments(filter?: {
       if (filter?.bathrooms) query.bathrooms = filter.bathrooms;
       if (typeof filter?.isActive === "boolean") query.isActive = filter.isActive;
 
-      const items = await Apartment.find(query).lean().exec();
+      const items = await Apartment.find(query).sort({ createdAt: 1, _id: 1 }).lean().exec();
       if (items.length > 0) {
-        return items.map((item) => ({
-          ...item,
-          _id: (item as { _id?: unknown })._id?.toString(),
-        })) as unknown as IApartment[];
+        let hasMissingSerial = false;
+        const result = items.map((item, idx) => {
+          const serial =
+            typeof item.serialNumber === "number" && item.serialNumber > 0
+              ? item.serialNumber
+              : idx + 1;
+          if (!item.serialNumber) hasMissingSerial = true;
+          return {
+            ...item,
+            _id: (item as { _id?: unknown })._id?.toString(),
+            serialNumber: serial,
+          };
+        }) as unknown as IApartment[];
+
+        if (hasMissingSerial) {
+          Promise.all(
+            items.map((item, idx) => {
+              if (!item.serialNumber) {
+                return Apartment.findByIdAndUpdate(
+                  (item as any)._id,
+                  { $set: { serialNumber: idx + 1 } }
+                ).exec();
+              }
+              return Promise.resolve();
+            })
+          ).catch((e) => console.error("Error auto-healing apartment serial numbers in MongoDB:", e));
+        }
+
+        return result;
       }
     } catch (e) {
       console.error("Error querying MongoDB apartments, fallback to memory:", e);
@@ -306,9 +331,13 @@ export async function seedApartmentsIfEmpty(): Promise<number> {
     try {
       const count = await Apartment.countDocuments();
       if (count === 0) {
-        await Apartment.insertMany(SEED_APARTMENTS);
-        console.log(`Seeded ${SEED_APARTMENTS.length} apartments into MongoDB.`);
-        return SEED_APARTMENTS.length;
+        const seededWithSerials = SEED_APARTMENTS.map((apt, idx) => ({
+          ...apt,
+          serialNumber: idx + 1,
+        }));
+        await Apartment.insertMany(seededWithSerials);
+        console.log(`Seeded ${seededWithSerials.length} apartments into MongoDB.`);
+        return seededWithSerials.length;
       }
       return count;
     } catch (e) {
@@ -317,7 +346,7 @@ export async function seedApartmentsIfEmpty(): Promise<number> {
   }
 
   if (memoryApartments.length === 0) {
-    memoryApartments = [...SEED_APARTMENTS.map((apt, idx) => ({ ...apt, _id: `apt_${idx + 1}` }))];
+    memoryApartments = [...SEED_APARTMENTS.map((apt, idx) => ({ ...apt, _id: `apt_${idx + 1}`, serialNumber: idx + 1 }))];
   }
   return memoryApartments.length;
 }

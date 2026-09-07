@@ -1166,11 +1166,11 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {filteredApartments.map((apt) => (
+                      {filteredApartments.map((apt, index) => (
                         <tr key={apt._id || apt.id} className="hover:bg-slate-50/70 transition">
                           {/* Sequential SL Number (Descending) */}
                           <td className="py-3.5 px-4 text-center font-bold text-slate-900 text-sm">
-                            {apt.serialNumber || "-"}
+                            {apt.serialNumber || filteredApartments.length - index}
                           </td>
 
                           <td className="py-3.5 px-4">
