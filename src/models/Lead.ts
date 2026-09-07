@@ -25,6 +25,7 @@ const LeadSchema = new Schema<ILeadDocument>(
     budgetMin: { type: Number, required: true },
     budgetMax: { type: Number, required: true },
     creditScore: { type: String, default: "Good (660 - 719)" },
+    desiredLocation: { type: String, default: "USA" },
     matchedApartments: [{ type: String }],
     selectedApartmentId: { type: String },
     selectedApartmentTitle: { type: String, default: "" },

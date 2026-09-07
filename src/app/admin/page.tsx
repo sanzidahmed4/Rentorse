@@ -448,7 +448,7 @@ export default function AdminDashboardPage() {
           `"${l.email}"`,
           `"${l.phone}"`,
           l.status,
-          `"${l.desiredLocation}"`,
+          `"${l.desiredLocation || "United States"}"`,
           `"${aptInfo?.title || ""}"`,
           aptInfo ? aptInfo.price : `${l.budgetMin}-${l.budgetMax}`,
           l.bedrooms,
@@ -702,7 +702,9 @@ export default function AdminDashboardPage() {
                               {lead.phone}
                             </span>
                           </td>
-                          <td className="py-3.5 px-4 font-medium text-slate-700">{lead.desiredLocation}</td>
+                          <td className="py-3.5 px-4 font-medium text-slate-700">
+                            {lead.desiredLocation || "United States"}
+                          </td>
                           <td className="py-3.5 px-4">{lead.bedrooms}B / {lead.bathrooms}Ba</td>
                           <td className="py-3.5 px-4">
                             {aptInfo ? (
@@ -861,7 +863,7 @@ export default function AdminDashboardPage() {
                           </td>
 
                           <td className="py-3.5 px-4">
-                            <span className="font-medium text-slate-700">{lead.desiredLocation}</span>
+                            <span className="font-medium text-slate-700">{lead.desiredLocation || "United States"}</span>
                           </td>
 
                           <td className="py-3.5 px-4">
@@ -1457,7 +1459,7 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
                   <span className="text-slate-500 block font-medium">Location:</span>
-                  <span className="font-semibold text-slate-800">{selectedLead.desiredLocation}</span>
+                  <span className="font-semibold text-slate-800">{selectedLead.desiredLocation || "United States"}</span>
                 </div>
                 <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
                   <span className="text-slate-500 block font-medium">Budget Range:</span>

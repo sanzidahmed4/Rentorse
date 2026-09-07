@@ -326,19 +326,51 @@ export async function seedApartmentsIfEmpty(): Promise<number> {
 
 export async function createLead(data: Partial<ILead>): Promise<ILead> {
   const leadId = `lead_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  const currentLeads = loadPersistedLeads();
-  const maxSerial = currentLeads.reduce((max, l) => Math.max(max, l.serialNumber || 0), 0);
-  const serialNumber = maxSerial + 1;
 
   let selectedApartmentTitle = data.selectedApartmentTitle || "";
   let selectedApartmentPrice = data.selectedApartmentPrice;
-  if (data.selectedApartmentId && (!selectedApartmentTitle || !selectedApartmentPrice)) {
-    const apts = loadPersistedApartments();
-    const apt = apts.find((a) => a._id === data.selectedApartmentId || a.id === data.selectedApartmentId);
+  let apartmentLocation = "";
+
+  if (data.selectedApartmentId) {
+    const apt = await getApartmentByIdOrSlug(data.selectedApartmentId);
     if (apt) {
-      selectedApartmentTitle = apt.title;
-      selectedApartmentPrice = apt.baseRent;
+      if (!selectedApartmentTitle) selectedApartmentTitle = apt.title;
+      if (!selectedApartmentPrice) selectedApartmentPrice = apt.baseRent;
+      apartmentLocation = apt.addressTemplate || "";
     }
+  }
+
+  const effectiveLocation =
+    (data.desiredLocation && data.desiredLocation.trim()) ||
+    apartmentLocation ||
+    "United States";
+
+  const db = await connectToDatabase();
+  let serialNumber = 1;
+
+  if (db) {
+    try {
+      const highestLead = await Lead.findOne()
+        .sort({ serialNumber: -1 })
+        .select("serialNumber")
+        .lean()
+        .exec();
+      if (highestLead && typeof highestLead.serialNumber === "number" && highestLead.serialNumber > 0) {
+        serialNumber = highestLead.serialNumber + 1;
+      } else {
+        const count = await Lead.countDocuments();
+        serialNumber = count + 1;
+      }
+    } catch (e) {
+      console.error("Error calculating serialNumber from MongoDB:", e);
+      const currentLeads = loadPersistedLeads();
+      const maxSerial = currentLeads.reduce((max, l) => Math.max(max, l.serialNumber || 0), 0);
+      serialNumber = maxSerial + 1;
+    }
+  } else {
+    const currentLeads = loadPersistedLeads();
+    const maxSerial = currentLeads.reduce((max, l) => Math.max(max, l.serialNumber || 0), 0);
+    serialNumber = maxSerial + 1;
   }
 
   const newLead: ILead = {
@@ -361,7 +393,7 @@ export async function createLead(data: Partial<ILead>): Promise<ILead> {
     budgetMin: data.budgetMin || 800,
     budgetMax: data.budgetMax || 1500,
     creditScore: data.creditScore || "Good (660 - 719)",
-    desiredLocation: data.desiredLocation || "USA",
+    desiredLocation: effectiveLocation,
     matchedApartments: data.matchedApartments || [],
     selectedApartmentId: data.selectedApartmentId,
     selectedApartmentTitle,
@@ -372,7 +404,6 @@ export async function createLead(data: Partial<ILead>): Promise<ILead> {
     updatedAt: new Date(),
   };
 
-  const db = await connectToDatabase();
   if (db) {
     try {
       const { _id, id, ...leadPayload } = newLead;

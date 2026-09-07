@@ -105,6 +105,7 @@ export default function ResultsPage() {
             fullName: effectiveName,
             phone: effectivePhone,
             email: effectiveEmail,
+            desiredLocation: selectedApt.displayLocation || searchCriteria?.desiredLocation || "United States",
             selectedApartmentId: selectedApt._id || selectedApt.id,
             selectedApartmentTitle: selectedApt.title,
             selectedApartmentPrice: selectedApt.displayRent || selectedApt.baseRent,
