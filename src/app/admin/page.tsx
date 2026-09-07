@@ -1052,12 +1052,13 @@ export default function AdminDashboardPage() {
                       setEditingApt({
                         title: "",
                         slug: `apt-${Date.now()}`,
+                        addressTemplate: "",
                         description: "",
                         category: "1B1B",
                         bedrooms: 1,
                         bathrooms: 1,
-                        baseRent: 890,
-                        squareFeet: 680,
+                        baseRent: 0,
+                        squareFeet: 0,
                         furnished: "Either",
                         hasKitchen: true,
                         petPolicy: "Dogs & Cats Allowed",
@@ -1628,13 +1629,28 @@ export default function AdminDashboardPage() {
 
             <form onSubmit={handleSaveApartment} className="space-y-3 text-xs">
               <div>
-                <label className="block text-slate-600 font-medium mb-1">Title</label>
+                <label className="block text-slate-600 font-medium mb-1">Apartment Title</label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. The Lexington Modern Suite"
                   value={editingApt.title}
                   onChange={(e) => setEditingApt({ ...editingApt, title: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
+                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium outline-none focus:bg-white focus:border-blue-500 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-slate-600 font-medium mb-1 flex items-center justify-between">
+                  <span>Location / Area Corridor</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Neighborhood or corridor</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Parkview & Green Oaks Promenade, Chicago, IL"
+                  value={editingApt.addressTemplate || ""}
+                  onChange={(e) => setEditingApt({ ...editingApt, addressTemplate: e.target.value })}
+                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium"
                 />
               </div>
 
@@ -1653,13 +1669,29 @@ export default function AdminDashboardPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-600 font-medium mb-1">Base Monthly Rent ($)</label>
-                  <input
-                    type="number"
-                    value={editingApt.baseRent}
-                    onChange={(e) => setEditingApt({ ...editingApt, baseRent: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
-                  />
+                  <label className="block text-slate-600 font-medium mb-1 flex items-center justify-between">
+                    <span>Base Monthly Rent ($)</span>
+                    <span className="text-[10px] text-blue-600 font-bold">Manual Input</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">$</span>
+                    <input
+                      type="number"
+                      required
+                      min={50}
+                      max={50000}
+                      step={10}
+                      placeholder="e.g. 1250"
+                      value={editingApt.baseRent ? editingApt.baseRent : ""}
+                      onChange={(e) =>
+                        setEditingApt({
+                          ...editingApt,
+                          baseRent: e.target.value === "" ? 0 : Number(e.target.value),
+                        })
+                      }
+                      className="w-full pl-7 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1668,7 +1700,9 @@ export default function AdminDashboardPage() {
                   <label className="block text-slate-600 font-medium mb-1">Bedrooms</label>
                   <input
                     type="number"
-                    value={editingApt.bedrooms}
+                    min={0}
+                    max={10}
+                    value={editingApt.bedrooms ?? 1}
                     onChange={(e) => setEditingApt({ ...editingApt, bedrooms: Number(e.target.value) })}
                     className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
                   />
@@ -1677,18 +1711,33 @@ export default function AdminDashboardPage() {
                   <label className="block text-slate-600 font-medium mb-1">Bathrooms</label>
                   <input
                     type="number"
-                    value={editingApt.bathrooms}
+                    min={1}
+                    max={10}
+                    value={editingApt.bathrooms ?? 1}
                     onChange={(e) => setEditingApt({ ...editingApt, bathrooms: Number(e.target.value) })}
                     className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-600 font-medium mb-1">Square Feet</label>
+                  <label className="block text-slate-600 font-medium mb-1 flex items-center justify-between">
+                    <span>Square Feet</span>
+                    <span className="text-[10px] text-blue-600 font-bold">Manual Input</span>
+                  </label>
                   <input
                     type="number"
-                    value={editingApt.squareFeet}
-                    onChange={(e) => setEditingApt({ ...editingApt, squareFeet: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
+                    required
+                    min={50}
+                    max={20000}
+                    step={10}
+                    placeholder="e.g. 750"
+                    value={editingApt.squareFeet ? editingApt.squareFeet : ""}
+                    onChange={(e) =>
+                      setEditingApt({
+                        ...editingApt,
+                        squareFeet: e.target.value === "" ? 0 : Number(e.target.value),
+                      })
+                    }
+                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
                   />
                 </div>
               </div>
