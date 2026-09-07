@@ -785,7 +785,7 @@ export default function AdminDashboardPage() {
                               {lead.status}
                             </span>
                           </td>
-                          <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                          <td className="py-3.5 px-4 text-center">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -796,16 +796,6 @@ export default function AdminDashboardPage() {
                               className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white transition shadow-sm border border-blue-200 inline-flex items-center justify-center cursor-pointer"
                             >
                               <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteLead(leadIdStr);
-                              }}
-                              title="Delete Lead"
-                              className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition shadow-sm border border-rose-200 inline-flex items-center justify-center cursor-pointer ml-1.5"
-                            >
-                              <Trash2 className="w-4 h-4" />
                             </button>
                           </td>
                         </tr>
@@ -989,7 +979,7 @@ export default function AdminDashboardPage() {
                             </select>
                           </td>
 
-                          <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                          <td className="py-3.5 px-4 text-center">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1000,16 +990,6 @@ export default function AdminDashboardPage() {
                               className="p-2 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white transition shadow-sm border border-blue-200 inline-flex items-center justify-center cursor-pointer"
                             >
                               <Eye className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteLead(leadIdStr);
-                              }}
-                              title="Delete Lead"
-                              className="p-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition shadow-sm border border-rose-200 inline-flex items-center justify-center cursor-pointer ml-1.5"
-                            >
-                              <Trash2 className="w-4 h-4" />
                             </button>
                           </td>
                         </tr>
