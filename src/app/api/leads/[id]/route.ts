@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getLeadById, updateLead } from "@/lib/store";
+import { getLeadById, updateLead, deleteLead } from "@/lib/store";
 
 export async function GET(
   req: Request,
@@ -35,3 +35,21 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to update lead" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const deleted = await deleteLead(id);
+    if (!deleted) {
+      return NextResponse.json({ error: "Lead not found or already deleted" }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, message: "Lead deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting lead:", error);
+    return NextResponse.json({ error: "Failed to delete lead" }, { status: 500 });
+  }
+}
+

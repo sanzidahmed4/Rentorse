@@ -552,6 +552,45 @@ export async function updateLead(id: string, data: Partial<ILead>): Promise<ILea
   return null;
 }
 
+export async function deleteLead(id: string): Promise<boolean> {
+  const db = await connectToDatabase();
+  let deleted = false;
+  if (db) {
+    try {
+      const res = await Lead.deleteOne({ $or: [{ _id: id }, { id }] });
+      deleted = (res.deletedCount || 0) > 0;
+    } catch (e) {
+      console.error("Error deleting lead from MongoDB:", e);
+    }
+  }
+
+  const current = loadPersistedLeads();
+  const filtered = current.filter((l) => l._id !== id && l.id !== id);
+  if (filtered.length !== current.length) {
+    deleted = true;
+    memoryLeads = filtered;
+    globalThis.__apartmento_memory_leads = filtered;
+    savePersistedLeads(filtered);
+  }
+  return deleted;
+}
+
+export async function clearAllLeads(): Promise<boolean> {
+  const db = await connectToDatabase();
+  if (db) {
+    try {
+      await Lead.deleteMany({});
+    } catch (e) {
+      console.error("Error clearing leads in MongoDB:", e);
+    }
+  }
+
+  memoryLeads = [];
+  globalThis.__apartmento_memory_leads = [];
+  savePersistedLeads([]);
+  return true;
+}
+
 // ================= SITE STATS =================
 
 export async function getSiteStats(): Promise<ISiteStat> {

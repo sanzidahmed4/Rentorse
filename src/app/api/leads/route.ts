@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getLeads, createLead } from "@/lib/store";
+import { getLeads, createLead, clearAllLeads } from "@/lib/store";
 
 export async function GET(req: Request) {
   try {
@@ -25,3 +25,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to create lead" }, { status: 500 });
   }
 }
+
+export async function DELETE() {
+  try {
+    await clearAllLeads();
+    return NextResponse.json({ success: true, message: "All leads cleared successfully" });
+  } catch (error) {
+    console.error("Error clearing all leads:", error);
+    return NextResponse.json({ error: "Failed to clear leads" }, { status: 500 });
+  }
+}
+

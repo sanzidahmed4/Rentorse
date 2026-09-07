@@ -374,6 +374,51 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleDeleteLead = async (leadId: string) => {
+    if (!window.confirm("Are you sure you want to delete this lead? This action cannot be undone.")) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/leads/${leadId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setLeads((prev) => prev.filter((l) => (l._id || l.id) !== leadId));
+        if (selectedLead && (selectedLead._id === leadId || selectedLead.id === leadId)) {
+          setSelectedLead(null);
+        }
+        showToast("Lead deleted successfully!");
+      } else {
+        showToast("Failed to delete lead.");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error deleting lead.");
+    }
+  };
+
+  const handleClearAllLeads = async () => {
+    if (!window.confirm("WARNING: Are you sure you want to delete ALL captured leads? This cannot be undone.")) {
+      return;
+    }
+    try {
+      const res = await fetch("/api/leads", {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setLeads([]);
+        setSelectedLead(null);
+        showToast("All leads cleared successfully!");
+      } else {
+        showToast("Failed to clear leads.");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error clearing leads.");
+    }
+  };
+
+
   // Helper to resolve apartment info and price for a lead
   const getLeadApartmentInfo = (lead: ILead) => {
     if (lead.selectedApartmentPrice && lead.selectedApartmentTitle) {
@@ -740,7 +785,7 @@ export default function AdminDashboardPage() {
                               {lead.status}
                             </span>
                           </td>
-                          <td className="py-3.5 px-4 text-center">
+                          <td className="py-3.5 px-4 text-center whitespace-nowrap">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -751,6 +796,16 @@ export default function AdminDashboardPage() {
                               className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white transition shadow-sm border border-blue-200 inline-flex items-center justify-center cursor-pointer"
                             >
                               <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteLead(leadIdStr);
+                              }}
+                              title="Delete Lead"
+                              className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition shadow-sm border border-rose-200 inline-flex items-center justify-center cursor-pointer ml-1.5"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </td>
                         </tr>
@@ -802,7 +857,17 @@ export default function AdminDashboardPage() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+              <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
+                {leads.length > 0 && (
+                  <button
+                    onClick={handleClearAllLeads}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs border border-rose-200 transition cursor-pointer"
+                    title="Delete and reset all leads"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Reset All Leads
+                  </button>
+                )}
                 <button
                   onClick={exportLeadsToCSV}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition cursor-pointer"
@@ -924,7 +989,7 @@ export default function AdminDashboardPage() {
                             </select>
                           </td>
 
-                          <td className="py-3.5 px-4 text-center">
+                          <td className="py-3.5 px-4 text-center whitespace-nowrap">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -935,6 +1000,16 @@ export default function AdminDashboardPage() {
                               className="p-2 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white transition shadow-sm border border-blue-200 inline-flex items-center justify-center cursor-pointer"
                             >
                               <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteLead(leadIdStr);
+                              }}
+                              title="Delete Lead"
+                              className="p-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white transition shadow-sm border border-rose-200 inline-flex items-center justify-center cursor-pointer ml-1.5"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </td>
                         </tr>
@@ -1517,24 +1592,35 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                <span className="text-xs text-slate-600 font-medium">Current Status:</span>
-                <select
-                  value={selectedLead.status}
-                  onChange={(e) =>
-                    handleUpdateLeadStatus(
-                      (selectedLead._id || selectedLead.id) as string,
-                      e.target.value as LeadStatus
-                    )
-                  }
-                  className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer"
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-600 font-medium">Current Status:</span>
+                  <select
+                    value={selectedLead.status}
+                    onChange={(e) =>
+                      handleUpdateLeadStatus(
+                        (selectedLead._id || selectedLead.id) as string,
+                        e.target.value as LeadStatus
+                      )
+                    }
+                    className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer"
+                  >
+                    <option value="New">New</option>
+                    <option value="Contacted">Contacted</option>
+                    <option value="Qualified">Qualified</option>
+                    <option value="Matched">Matched</option>
+                    <option value="Converted">Converted</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleDeleteLead((selectedLead._id || selectedLead.id) as string)}
+                  className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs border border-rose-200 transition cursor-pointer flex items-center gap-1.5"
                 >
-                  <option value="New">New</option>
-                  <option value="Contacted">Contacted</option>
-                  <option value="Qualified">Qualified</option>
-                  <option value="Matched">Matched</option>
-                  <option value="Converted">Converted</option>
-                  <option value="Closed">Closed</option>
-                </select>
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Lead</span>
+                </button>
               </div>
             </div>
           </div>
