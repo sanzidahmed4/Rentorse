@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Sparkles, ArrowRight, Calendar, Star } from "lucide-react";
@@ -11,7 +11,7 @@ interface ApartmentUnlockBannerProps {
   apartment: IApartment;
 }
 
-export default function ApartmentUnlockBanner({ apartment }: ApartmentUnlockBannerProps) {
+function ApartmentUnlockBannerContent({ apartment }: ApartmentUnlockBannerProps) {
   const searchParams = useSearchParams();
   const [isUnlocked, setIsUnlocked] = useState(false);
 
@@ -99,5 +99,13 @@ export default function ApartmentUnlockBanner({ apartment }: ApartmentUnlockBann
         <ArrowRight className="w-3.5 h-3.5" />
       </Link>
     </div>
+  );
+}
+
+export default function ApartmentUnlockBanner(props: ApartmentUnlockBannerProps) {
+  return (
+    <Suspense fallback={null}>
+      <ApartmentUnlockBannerContent {...props} />
+    </Suspense>
   );
 }
