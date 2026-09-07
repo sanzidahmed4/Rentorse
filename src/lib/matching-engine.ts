@@ -18,9 +18,11 @@ export async function matchApartments(
   // 1. Fetch base inventory from store (MongoDB or memory)
   const allApartments = await getApartments({ isActive: true });
 
-  // 2. CHECK FOR REAL / MANUAL APARTMENT MATCHES (Exact ZIP, City, State, or Address)
+  // 2. CHECK FOR REAL / MANUAL APARTMENT MATCHES (Only those with a specified location/address)
   const matchedManualUnits: MatchedApartmentResult[] = [];
-  const manualApartments = allApartments.filter((apt) => apt.isManual);
+  const manualApartments = allApartments.filter(
+    (apt) => apt.isManual && apt.addressTemplate && apt.addressTemplate.trim().length > 0
+  );
 
   for (const apt of manualApartments) {
     const locMatch = matchLocation(apt.addressTemplate || "", queryLocation);
@@ -72,9 +74,12 @@ export async function matchApartments(
   const targetTotalCount = 7;
   const remainingSlots = Math.max(0, targetTotalCount - matchedManualUnits.length);
 
-  // Exclude already matched manual apartments from chameleon pool
+  // Chameleon Pool:
+  // Any active apartment that is NOT in matchedManualUnits, and either has NO fixed location or is marked as chameleon
   const matchedIds = new Set(matchedManualUnits.map((m) => m._id || m.id));
-  const chameleonPool = allApartments.filter((apt) => !matchedIds.has(apt._id || apt.id) && !apt.isManual);
+  const chameleonPool = allApartments.filter(
+    (apt) => !matchedIds.has(apt._id || apt.id) && (!apt.isManual || !apt.addressTemplate || !apt.addressTemplate.trim())
+  );
 
   // Filter chameleon candidates by preferred bedroom count
   let candidatePool = chameleonPool.filter((apt) => apt.bedrooms === criteria.bedrooms);

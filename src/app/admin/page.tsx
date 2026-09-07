@@ -233,15 +233,23 @@ export default function AdminDashboardPage() {
     if (!editingApt) return;
 
     try {
+      const trimmedAddress = editingApt.addressTemplate ? editingApt.addressTemplate.trim() : "";
+      const hasAddress = trimmedAddress.length > 0;
+      const payload = {
+        ...editingApt,
+        addressTemplate: trimmedAddress,
+        isManual: hasAddress,
+      };
+
       if (isNewAptModal) {
         const res = await fetch("/api/apartments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editingApt),
+          body: JSON.stringify(payload),
         });
         const data = await res.json();
         if (data.success) {
-          showToast("New apartment created!");
+          showToast(hasAddress ? "New real apartment created!" : "New chameleon apartment created!");
           setIsNewAptModal(false);
           setEditingApt(null);
           fetchDashboardData();
@@ -251,10 +259,10 @@ export default function AdminDashboardPage() {
         const res = await fetch(`/api/apartments/${aptId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editingApt),
+          body: JSON.stringify(payload),
         });
         if (res.ok) {
-          showToast("Apartment updated!");
+          showToast(hasAddress ? "Apartment updated with real location!" : "Apartment updated (Chameleon mode active)!");
           setEditingApt(null);
           fetchDashboardData();
         }
@@ -1193,13 +1201,13 @@ export default function AdminDashboardPage() {
                               <div>
                                 <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5 flex-wrap">
                                   <span>{apt.title}</span>
-                                  {apt.isManual ? (
+                                  {apt.isManual && apt.addressTemplate ? (
                                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold">
                                       <Star className="w-2.5 h-2.5 fill-blue-600 text-blue-600" /> Real Listing
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-medium">
-                                      Chameleon Base
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-medium">
+                                      Chameleon Base (Dynamic Location)
                                     </span>
                                   )}
                                   {apt.featured && (
