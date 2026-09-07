@@ -27,10 +27,12 @@ export interface IApartment {
   rating: number;
   reviewsCount: number;
   addressTemplate?: string;
+  isManual?: boolean;
   // Dynamically populated chameleon fields for user search:
   displayLocation?: string;
   displayRent?: number;
   matchScore?: number;
+  isExactMatch?: boolean;
 }
 
 export interface ILead {

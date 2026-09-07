@@ -38,6 +38,7 @@ const ApartmentSchema = new Schema<IApartmentDocument>(
     rating: { type: Number, default: 4.8 },
     reviewsCount: { type: Number, default: 24 },
     addressTemplate: { type: String, default: "Main St Suite" },
+    isManual: { type: Boolean, default: false },
   },
   {
     timestamps: true,

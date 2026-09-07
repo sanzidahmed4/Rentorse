@@ -81,7 +81,7 @@ function loadPersistedApartments(): IApartment[] {
         // Sync any updated addressTemplate and assign sequential serialNumber if missing
         const synced = parsed.map((apt, idx) => {
           const seed = SEED_APARTMENTS.find((s) => s.id === apt.id || s.slug === apt.slug);
-          let updated = seed ? { ...apt, addressTemplate: seed.addressTemplate } : apt;
+          let updated = seed ? { ...apt, isManual: apt.isManual !== undefined ? apt.isManual : false } : { ...apt, isManual: apt.isManual !== undefined ? apt.isManual : true };
           if (!updated.serialNumber) {
             updated = { ...updated, serialNumber: idx + 1 };
             needsSave = true;
@@ -97,7 +97,7 @@ function loadPersistedApartments(): IApartment[] {
   } catch (e) {
     console.error("Error loading apartments from file:", e);
   }
-  const defaults = [...SEED_APARTMENTS.map((apt, idx) => ({ ...apt, _id: `apt_${idx + 1}`, serialNumber: idx + 1 }))];
+  const defaults = [...SEED_APARTMENTS.map((apt, idx) => ({ ...apt, _id: `apt_${idx + 1}`, serialNumber: idx + 1, isManual: false }))];
   savePersistedApartments(defaults);
   return defaults;
 }
@@ -248,11 +248,13 @@ export async function createApartment(data: Partial<IApartment>): Promise<IApart
   const nextSerial = data.serialNumber || maxSerial + 1;
 
   const db = await connectToDatabase();
+  const isManualListing = data.isManual !== undefined ? Boolean(data.isManual) : true;
   if (db) {
     try {
       const created = await Apartment.create({
         ...data,
         serialNumber: nextSerial,
+        isManual: isManualListing,
       });
       return {
         ...created.toObject(),
@@ -288,6 +290,7 @@ export async function createApartment(data: Partial<IApartment>): Promise<IApart
     rating: data.rating || 4.8,
     reviewsCount: data.reviewsCount || 10,
     addressTemplate: data.addressTemplate || "Apartment Suite",
+    isManual: isManualListing,
   };
   memoryApartments.unshift(newApt);
   savePersistedApartments(memoryApartments);

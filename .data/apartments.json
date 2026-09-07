@@ -1,5 +1,33 @@
 [
   {
+    "_id": "apt_1788799672059",
+    "id": "apt_1788799672059",
+    "serialNumber": 36,
+    "title": "Nantucket Court Luxury Residences",
+    "slug": "apt-1788799672059",
+    "description": "",
+    "category": "1B1B",
+    "bedrooms": 1,
+    "bathrooms": 1,
+    "baseRent": 1450,
+    "squareFeet": 850,
+    "furnished": "Unfurnished",
+    "hasKitchen": true,
+    "petPolicy": "Dogs & Cats Allowed",
+    "amenities": [],
+    "images": [
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "featured": false,
+    "isActive": true,
+    "deposit": 0,
+    "availableDate": "Immediate",
+    "rating": 4.8,
+    "reviewsCount": 10,
+    "addressTemplate": "18 Nantucket Dr, Medford, NY 11763, United States",
+    "isManual": true
+  },
+  {
     "id": "apt-1b1b-01",
     "title": "The Metropolitan Studio & Flat",
     "slug": "the-metropolitan-studio-flat",
@@ -33,7 +61,8 @@
     "reviewsCount": 38,
     "addressTemplate": "Parkview & Green Oaks Promenade",
     "_id": "apt_1",
-    "serialNumber": 1
+    "serialNumber": 1,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-02",
@@ -69,7 +98,8 @@
     "reviewsCount": 29,
     "addressTemplate": "Lexington & Downtown Arts Corridor",
     "_id": "apt_2",
-    "serialNumber": 2
+    "serialNumber": 2,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-03",
@@ -103,7 +133,8 @@
     "reviewsCount": 19,
     "addressTemplate": "Beacon Street Historic Corridor",
     "_id": "apt_3",
-    "serialNumber": 3
+    "serialNumber": 3,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-04",
@@ -138,7 +169,8 @@
     "reviewsCount": 44,
     "addressTemplate": "Roosevelt Parkside Promenade",
     "_id": "apt_4",
-    "serialNumber": 4
+    "serialNumber": 4,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-05",
@@ -171,7 +203,8 @@
     "reviewsCount": 15,
     "addressTemplate": "Oakridge Nature Trail Corridor",
     "_id": "apt_5",
-    "serialNumber": 5
+    "serialNumber": 5,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-06",
@@ -206,7 +239,8 @@
     "reviewsCount": 27,
     "addressTemplate": "Grand Avenue Cultural District",
     "_id": "apt_6",
-    "serialNumber": 6
+    "serialNumber": 6,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-07",
@@ -240,7 +274,8 @@
     "reviewsCount": 22,
     "addressTemplate": "Madison & Cooper Crossing Corridor",
     "_id": "apt_7",
-    "serialNumber": 7
+    "serialNumber": 7,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-08",
@@ -274,7 +309,8 @@
     "reviewsCount": 31,
     "addressTemplate": "Cedar Grove Commons Area",
     "_id": "apt_8",
-    "serialNumber": 8
+    "serialNumber": 8,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-09",
@@ -309,7 +345,8 @@
     "reviewsCount": 36,
     "addressTemplate": "Highland Crest & Parks District",
     "_id": "apt_9",
-    "serialNumber": 9
+    "serialNumber": 9,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-10",
@@ -343,7 +380,8 @@
     "reviewsCount": 18,
     "addressTemplate": "Maplewood Greenbelt Corridor",
     "_id": "apt_10",
-    "serialNumber": 10
+    "serialNumber": 10,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-11",
@@ -377,7 +415,8 @@
     "reviewsCount": 25,
     "addressTemplate": "Spring Street Central Corridor",
     "_id": "apt_11",
-    "serialNumber": 11
+    "serialNumber": 11,
+    "isManual": false
   },
   {
     "id": "apt-1b1b-12",
@@ -411,7 +450,8 @@
     "reviewsCount": 33,
     "addressTemplate": "Liberty Commons & Sublett Area",
     "_id": "apt_12",
-    "serialNumber": 12
+    "serialNumber": 12,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-01",
@@ -448,7 +488,8 @@
     "reviewsCount": 52,
     "addressTemplate": "Kensington Court Historic Promenade",
     "_id": "apt_13",
-    "serialNumber": 13
+    "serialNumber": 13,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-02",
@@ -484,7 +525,8 @@
     "reviewsCount": 47,
     "addressTemplate": "Riverfront Promenade & Marina Area",
     "_id": "apt_14",
-    "serialNumber": 14
+    "serialNumber": 14,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-03",
@@ -518,7 +560,8 @@
     "reviewsCount": 30,
     "addressTemplate": "Pinecrest & Greenbelt Corridor",
     "_id": "apt_15",
-    "serialNumber": 15
+    "serialNumber": 15,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-04",
@@ -553,7 +596,8 @@
     "reviewsCount": 41,
     "addressTemplate": "Wellington Plaza Town Center",
     "_id": "apt_16",
-    "serialNumber": 16
+    "serialNumber": 16,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-05",
@@ -588,7 +632,8 @@
     "reviewsCount": 39,
     "addressTemplate": "Sunset Ridge Scenic Corridor",
     "_id": "apt_17",
-    "serialNumber": 17
+    "serialNumber": 17,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-06",
@@ -622,7 +667,8 @@
     "reviewsCount": 26,
     "addressTemplate": "Crestview Hills District",
     "_id": "apt_18",
-    "serialNumber": 18
+    "serialNumber": 18,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-07",
@@ -657,7 +703,8 @@
     "reviewsCount": 34,
     "addressTemplate": "Parkside Parkway Greenbelt Area",
     "_id": "apt_19",
-    "serialNumber": 19
+    "serialNumber": 19,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-08",
@@ -692,7 +739,8 @@
     "reviewsCount": 43,
     "addressTemplate": "Fairview Terrace Promenade",
     "_id": "apt_20",
-    "serialNumber": 20
+    "serialNumber": 20,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-09",
@@ -726,7 +774,8 @@
     "reviewsCount": 28,
     "addressTemplate": "Cambridge Historic District",
     "_id": "apt_21",
-    "serialNumber": 21
+    "serialNumber": 21,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-10",
@@ -761,7 +810,8 @@
     "reviewsCount": 58,
     "addressTemplate": "Bayview Waterfront Promenade",
     "_id": "apt_22",
-    "serialNumber": 22
+    "serialNumber": 22,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-11",
@@ -795,7 +845,8 @@
     "reviewsCount": 21,
     "addressTemplate": "Sterling Point Nature Corridor",
     "_id": "apt_23",
-    "serialNumber": 23
+    "serialNumber": 23,
+    "isManual": false
   },
   {
     "id": "apt-2b2b-12",
@@ -829,7 +880,8 @@
     "reviewsCount": 33,
     "addressTemplate": "Timberline Trail Greenway District",
     "_id": "apt_24",
-    "serialNumber": 24
+    "serialNumber": 24,
+    "isManual": false
   },
   {
     "id": "apt-3b2b-01",
@@ -866,7 +918,8 @@
     "reviewsCount": 61,
     "addressTemplate": "Grandview Terrace Promenade",
     "_id": "apt_25",
-    "serialNumber": 25
+    "serialNumber": 25,
+    "isManual": false
   },
   {
     "id": "apt-3b3b-02",
@@ -903,7 +956,8 @@
     "reviewsCount": 48,
     "addressTemplate": "Sovereign Heights Scenic Corridor",
     "_id": "apt_26",
-    "serialNumber": 26
+    "serialNumber": 26,
+    "isManual": false
   },
   {
     "id": "apt-3b2b-03",
@@ -938,7 +992,8 @@
     "reviewsCount": 35,
     "addressTemplate": "Meadowbrook Greenway Corridor",
     "_id": "apt_27",
-    "serialNumber": 27
+    "serialNumber": 27,
+    "isManual": false
   },
   {
     "id": "apt-3b3b-04",
@@ -975,7 +1030,8 @@
     "reviewsCount": 54,
     "addressTemplate": "Skyview Skyline Promenade",
     "_id": "apt_28",
-    "serialNumber": 28
+    "serialNumber": 28,
+    "isManual": false
   },
   {
     "id": "apt-3b2b-05",
@@ -1010,7 +1066,8 @@
     "reviewsCount": 42,
     "addressTemplate": "Willow Creek Waterside District",
     "_id": "apt_29",
-    "serialNumber": 29
+    "serialNumber": 29,
+    "isManual": false
   },
   {
     "id": "apt-3b3b-06",
@@ -1045,7 +1102,8 @@
     "reviewsCount": 37,
     "addressTemplate": "Bellevue Commons Enclave",
     "_id": "apt_30",
-    "serialNumber": 30
+    "serialNumber": 30,
+    "isManual": false
   },
   {
     "id": "apt-3b2b-07",
@@ -1080,7 +1138,8 @@
     "reviewsCount": 40,
     "addressTemplate": "Stonegate Parkside District",
     "_id": "apt_31",
-    "serialNumber": 31
+    "serialNumber": 31,
+    "isManual": false
   },
   {
     "id": "apt-3b3b-08",
@@ -1116,7 +1175,8 @@
     "reviewsCount": 46,
     "addressTemplate": "Marina Basin Promenade Area",
     "_id": "apt_32",
-    "serialNumber": 32
+    "serialNumber": 32,
+    "isManual": false
   },
   {
     "id": "apt-3b2b-09",
@@ -1150,7 +1210,8 @@
     "reviewsCount": 29,
     "addressTemplate": "Briarwood Historic Enclave",
     "_id": "apt_33",
-    "serialNumber": 33
+    "serialNumber": 33,
+    "isManual": false
   },
   {
     "id": "apt-3b3b-10",
@@ -1186,7 +1247,8 @@
     "reviewsCount": 63,
     "addressTemplate": "Montgomery Boulevard Corridor",
     "_id": "apt_34",
-    "serialNumber": 34
+    "serialNumber": 34,
+    "isManual": false
   },
   {
     "id": "apt-3b2b-11",
@@ -1221,6 +1283,7 @@
     "reviewsCount": 38,
     "addressTemplate": "Oakland Ridge Highlands Area",
     "_id": "apt_35",
-    "serialNumber": 35
+    "serialNumber": 35,
+    "isManual": false
   }
 ]

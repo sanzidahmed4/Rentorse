@@ -195,7 +195,10 @@ export default function ResultsPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Dynamic Matches Calibrated
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                {matches.some((m) => m.isManual)
+                  ? "⭐ Verified Local Listings + Compatible Inventory"
+                  : "Dynamic Matches Calibrated"}
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
                 Found {matches.length} Apartments in{" "}
@@ -204,7 +207,9 @@ export default function ResultsPage() {
                 </span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                Showing customized pricing calibrated to your ${searchCriteria?.budgetMin} – ${searchCriteria?.budgetMax} budget.
+                {matches.some((m) => m.isManual)
+                  ? `Showing ${matches.filter((m) => m.isManual).length} verified property in this area plus matching curated inventory.`
+                  : `Showing customized pricing calibrated to your $${searchCriteria?.budgetMin || 800} – $${searchCriteria?.budgetMax || 1800} budget.`}
               </p>
             </div>
 
@@ -251,7 +256,11 @@ export default function ResultsPage() {
           {matches.map((apt, index) => (
             <div
               key={apt.id || apt._id || index}
-              className="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-shadow duration-300 flex flex-col group [transform:translateZ(0)]"
+              className={`bg-white rounded-3xl overflow-hidden border ${
+                apt.isManual
+                  ? "border-blue-500/60 ring-2 ring-blue-500/15 shadow-lg"
+                  : "border-slate-200/80 shadow-sm"
+              } hover:shadow-xl transition-all duration-300 flex flex-col group [transform:translateZ(0)]`}
             >
               {/* Image Preview */}
               <div className="relative h-60 w-full overflow-hidden bg-slate-100">
@@ -266,6 +275,14 @@ export default function ResultsPage() {
                 <div className="absolute top-3 left-3 bg-slate-950/90 text-emerald-400 text-xs font-black px-3 py-1 rounded-full border border-emerald-500/30 shadow-sm">
                   {apt.matchScore}% Match
                 </div>
+
+                {/* Verified Real Property Badge */}
+                {apt.isManual && (
+                  <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg border border-white/20 flex items-center gap-1">
+                    <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
+                    <span>Verified Local Unit</span>
+                  </div>
+                )}
 
                 {/* Rent Badge */}
                 <div className="absolute bottom-3 right-3 bg-blue-600 text-white px-3.5 py-1.5 rounded-xl font-black text-base shadow-lg">

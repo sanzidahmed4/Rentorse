@@ -1070,6 +1070,7 @@ export default function AdminDashboardPage() {
                         availableDate: "Immediate",
                         rating: 4.8,
                         reviewsCount: 15,
+                        isManual: true,
                       });
                       setImageInputUrl("");
                       setIsNewAptModal(true);
@@ -1190,17 +1191,34 @@ export default function AdminDashboardPage() {
                                 )}
                               </div>
                               <div>
-                                <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                                <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5 flex-wrap">
                                   <span>{apt.title}</span>
+                                  {apt.isManual ? (
+                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold">
+                                      <Star className="w-2.5 h-2.5 fill-blue-600 text-blue-600" /> Real Listing
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-medium">
+                                      Chameleon Base
+                                    </span>
+                                  )}
                                   {apt.featured && (
                                     <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
                                       <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" /> Featured
                                     </span>
                                   )}
                                 </div>
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold">
-                                  {apt.category}
-                                </span>
+                                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold">
+                                    {apt.category}
+                                  </span>
+                                  {apt.addressTemplate && (
+                                    <span className="text-[11px] text-slate-500 truncate max-w-xs flex items-center gap-1">
+                                      <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                                      {apt.addressTemplate}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -1641,17 +1659,25 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="block text-slate-600 font-medium mb-1 flex items-center justify-between">
-                  <span>Location / Area Corridor</span>
-                  <span className="text-[10px] text-slate-400 font-normal">Neighborhood or corridor</span>
+                <label className="block text-slate-700 font-bold mb-1 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                    Property Address (Street, City, State, ZIP)
+                  </span>
+                  <span className="text-[10px] text-blue-700 font-bold bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                    Real Geographic Search Enabled
+                  </span>
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Parkview & Green Oaks Promenade, Chicago, IL"
+                  placeholder="e.g. 18 Nantucket Dr, Medford, NY 11763 or Paterson, NJ 07501"
                   value={editingApt.addressTemplate || ""}
                   onChange={(e) => setEditingApt({ ...editingApt, addressTemplate: e.target.value })}
                   className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium"
                 />
+                <p className="text-[11px] text-slate-500 mt-1 leading-normal">
+                  💡 <strong>Smart Priority Matching:</strong> Visitors searching this ZIP, City, State, or nearby street will see this exact property ranked <strong>1st at the top</strong> of search results!
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

@@ -1,6 +1,7 @@
 import { getApartments } from "./store";
 import { FunnelFormData, IApartment } from "@/types";
 import { resolveUSLocation } from "./us-locations";
+import { matchLocation } from "./location-matcher";
 
 export interface MatchedApartmentResult extends IApartment {
   displayLocation: string;
@@ -12,41 +13,95 @@ export interface MatchedApartmentResult extends IApartment {
 export async function matchApartments(
   criteria: FunnelFormData
 ): Promise<MatchedApartmentResult[]> {
+  const queryLocation = (criteria.desiredLocation || "").trim();
+
   // 1. Fetch base inventory from store (MongoDB or memory)
   const allApartments = await getApartments({ isActive: true });
 
-  // 2. Filter primary match by bedrooms
-  let candidates = allApartments.filter((apt) => apt.bedrooms === criteria.bedrooms);
+  // 2. CHECK FOR REAL / MANUAL APARTMENT MATCHES (Exact ZIP, City, State, or Address)
+  const matchedManualUnits: MatchedApartmentResult[] = [];
+  const manualApartments = allApartments.filter((apt) => apt.isManual);
 
-  // If none match exact bedroom (safety fallback), use all active
-  if (candidates.length === 0) {
-    candidates = allApartments;
+  for (const apt of manualApartments) {
+    const locMatch = matchLocation(apt.addressTemplate || "", queryLocation);
+    if (locMatch.matches) {
+      let score = 88;
+      const highlights: string[] = [];
+
+      if (locMatch.matchType === "zip") {
+        score += 10;
+        highlights.push(`⭐ Exact ${locMatch.matchedEntity || "ZIP"} Match`);
+      } else if (locMatch.matchType === "city") {
+        score += 8;
+        highlights.push(`⭐ Prime ${locMatch.matchedEntity || "City"} Property`);
+      } else if (locMatch.matchType === "state") {
+        score += 5;
+        highlights.push(`⭐ Verified ${locMatch.matchedEntity || "State"} Listing`);
+      } else {
+        highlights.push("⭐ Verified Local Property");
+      }
+
+      if (apt.bedrooms === criteria.bedrooms) {
+        score += 5;
+        highlights.push(`${apt.bedrooms} Bed Layout Match`);
+      }
+      if (apt.bathrooms === criteria.bathrooms) {
+        highlights.push(`${apt.bathrooms} Bath`);
+      }
+      if (apt.hasKitchen && criteria.kitchenRequired) {
+        highlights.push("Chef's Kitchen");
+      }
+
+      matchedManualUnits.push({
+        ...apt,
+        isManual: true,
+        isExactMatch: true,
+        displayLocation: apt.addressTemplate || queryLocation,
+        displayRent: apt.baseRent,
+        matchScore: Math.min(99, Math.max(90, score)),
+        matchHighlights: highlights.slice(0, 3),
+      });
+    }
   }
 
-  // 3. Score candidates based on visitor requirements
-  const scored = candidates.map((apt) => {
-    let score = 75; // base score
+  // Sort real matches by score descending
+  matchedManualUnits.sort((a, b) => b.matchScore - a.matchScore);
+
+  // 3. TARGET INVENTORY COUNT
+  // If we have manual matches, we still provide additional chameleon units so the list is full (total 6 to 8 units)
+  const targetTotalCount = 7;
+  const remainingSlots = Math.max(0, targetTotalCount - matchedManualUnits.length);
+
+  // Exclude already matched manual apartments from chameleon pool
+  const matchedIds = new Set(matchedManualUnits.map((m) => m._id || m.id));
+  const chameleonPool = allApartments.filter((apt) => !matchedIds.has(apt._id || apt.id) && !apt.isManual);
+
+  // Filter chameleon candidates by preferred bedroom count
+  let candidatePool = chameleonPool.filter((apt) => apt.bedrooms === criteria.bedrooms);
+  if (candidatePool.length === 0) {
+    candidatePool = chameleonPool.length > 0 ? chameleonPool : allApartments.filter((apt) => !matchedIds.has(apt._id || apt.id));
+  }
+
+  // Score chameleon candidates
+  const scoredChameleons = candidatePool.map((apt) => {
+    let score = 75;
     const highlights: string[] = [];
 
-    // Bathroom match
     if (apt.bathrooms === criteria.bathrooms) {
       score += 10;
       highlights.push(`${apt.bathrooms} Full Bathrooms`);
     }
 
-    // Furnished match
     if (criteria.furnished === "Either" || apt.furnished === criteria.furnished || apt.furnished === "Either") {
       score += 5;
       highlights.push(apt.furnished === "Furnished" ? "Fully Furnished" : "Spacious Layout");
     }
 
-    // Kitchen requirement
     if (criteria.kitchenRequired && apt.hasKitchen) {
       score += 5;
       highlights.push("Full Chef's Kitchen");
     }
 
-    // Pet policy match
     if (criteria.hasPets) {
       if (apt.petPolicy === "Dogs & Cats Allowed" || apt.petPolicy === "Cats Only") {
         score += 5;
@@ -56,7 +111,6 @@ export async function matchApartments(
       score += 3;
     }
 
-    // Amenities overlap
     const matchingAmenities = (criteria.amenities || []).filter((amenity) =>
       apt.amenities.includes(amenity)
     );
@@ -65,50 +119,42 @@ export async function matchApartments(
       highlights.push(...matchingAmenities.slice(0, 2));
     }
 
-    // Cap score at 99%
-    const finalScore = Math.min(99, Math.max(82, score));
-
     return {
       apt,
-      score: finalScore,
+      score: Math.min(96, Math.max(80, score)),
       highlights: highlights.slice(0, 3),
     };
   });
 
-  // 4. Randomize ordering for unique visitor experience (while retaining reasonable quality)
-  // Fisher-Yates shuffle
-  for (let i = scored.length - 1; i > 0; i--) {
+  // Randomize chameleon pool slightly for organic feel
+  for (let i = scoredChameleons.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [scored[i], scored[j]] = [scored[j], scored[i]];
+    [scoredChameleons[i], scoredChameleons[j]] = [scoredChameleons[j], scoredChameleons[i]];
   }
 
-  // Select 5 to 8 units to show visitor (limited curated selection)
-  const selectedBatch = scored.slice(0, Math.min(8, Math.max(4, scored.length)));
+  const selectedChameleons = scoredChameleons.slice(0, remainingSlots);
 
-  // 5. Dynamic Adaptation: Real-world US Neighborhood & Budget Calibration
-  const resolvedLoc = resolveUSLocation(criteria.desiredLocation);
+  // Dynamic Adaptation for Chameleon Units: Real-world US Neighborhood & Budget Calibration
+  const resolvedLoc = resolveUSLocation(queryLocation);
   const minB = Math.max(400, criteria.budgetMin || 800);
   const maxB = Math.max(minB + 100, criteria.budgetMax || minB + 400);
 
-  const results: MatchedApartmentResult[] = selectedBatch.map((item, index) => {
+  const adaptedChameleons: MatchedApartmentResult[] = selectedChameleons.map((item, index) => {
     const apt = item.apt;
 
-    // Dynamic price calculation centered around user's budget range
-    // Generate realistic pricing with subtle step increments ($695, $740, $780, etc.)
     const spread = maxB - minB;
-    const factor = selectedBatch.length > 1 ? index / (selectedBatch.length - 1) : 0.5;
-    // Add realistic subtle jitter
+    const factor = selectedChameleons.length > 1 ? index / (selectedChameleons.length - 1) : 0.5;
     const rawRent = minB + spread * factor + ((index % 3) * 15 - 15);
-    // Round to nearest $5 or $9 (typical US rental pricing ending in 0, 5, or 9)
     const calibratedRent = Math.round(rawRent / 10) * 10 - (index % 2 === 0 ? 5 : 0);
     const finalRent = Math.max(minB, Math.min(maxB, calibratedRent));
 
-    // Dynamic authentic location: real neighborhood corridor + real city, state & zip
     const corridor = resolvedLoc.getCorridor(index, apt.category);
     const displayLocation = `${corridor}, ${resolvedLoc.formattedCityStateZip}`;
 
     return {
       ...apt,
+      isManual: false,
+      isExactMatch: false,
       displayLocation,
       displayRent: finalRent,
       matchScore: item.score,
@@ -116,6 +162,8 @@ export async function matchApartments(
     };
   });
 
-  return results;
-}
+  // 4. COMBINE: REAL MANUAL UNITS FIRST, CHAMELEON UNITS SECOND
+  const finalResults: MatchedApartmentResult[] = [...matchedManualUnits, ...adaptedChameleons];
 
+  return finalResults;
+}
