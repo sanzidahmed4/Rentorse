@@ -32,6 +32,19 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+*.env
+!*.env.example
+!*.example
+atlas-credentials.env
+
+# data files
+.data/leads.json
+
+# temporary test scripts and raw uploads
+test-funnel.mjs
+hero background.png
+site logo.png
+Apartmentofullogo.png
 
 # vercel
 .vercel
