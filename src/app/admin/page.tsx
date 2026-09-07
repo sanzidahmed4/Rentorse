@@ -35,6 +35,8 @@ import {
   ImageIcon,
   Star,
   ImagePlus,
+  Link2,
+  Clipboard,
 } from "lucide-react";
 import { IApartment, ILead, ISiteStat, LeadStatus } from "@/types";
 
@@ -70,6 +72,7 @@ export default function AdminDashboardPage() {
   const [isNewAptModal, setIsNewAptModal] = useState(false);
   const [imageInputUrl, setImageInputUrl] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Apartment Filters & Search
@@ -273,41 +276,125 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !editingApt) return;
-
+  const uploadFiles = async (files: FileList | File[]) => {
+    if (!files || files.length === 0 || !editingApt) return;
     setIsUploadingImage(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
+      const fileArray = Array.from(files).filter((f) => f.type.startsWith("image/"));
+      if (fileArray.length === 0) {
+        showToast("Please select valid image files.");
+        return;
+      }
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
+      const uploadedUrls: string[] = [];
+      for (const file of fileArray) {
+        const formData = new FormData();
+        formData.append("file", file);
 
-      if (data.success && data.url) {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+
+        if (data.success && data.url) {
+          uploadedUrls.push(data.url);
+        }
+      }
+
+      if (uploadedUrls.length > 0) {
         const currentImages = editingApt.images || [];
         setEditingApt({
           ...editingApt,
-          images: [...currentImages, data.url],
+          images: [...currentImages, ...uploadedUrls],
         });
-        showToast(
-          data.provider === "cloudinary"
-            ? "Photo uploaded to Cloudinary CDN!"
-            : "Photo uploaded successfully!"
-        );
+        showToast(`Added ${uploadedUrls.length} photo(s)!`);
       } else {
-        showToast(data.error || "Failed to upload photo.");
+        showToast("Failed to upload photo(s).");
       }
     } catch (err) {
       console.error(err);
-      showToast("Error uploading photo.");
+      showToast("Error uploading photo(s).");
     } finally {
       setIsUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      uploadFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handlePasteImage = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const imageFiles: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith("image/")) {
+        const file = items[i].getAsFile();
+        if (file) imageFiles.push(file);
+      }
+    }
+
+    if (imageFiles.length > 0) {
+      e.preventDefault();
+      uploadFiles(imageFiles);
+    }
+  };
+
+  const handlePasteFromClipboardBtn = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.read) {
+        const clipboardItems = await navigator.clipboard.read();
+        const files: File[] = [];
+        for (const item of clipboardItems) {
+          for (const type of item.types) {
+            if (type.startsWith("image/")) {
+              const blob = await item.getType(type);
+              const file = new File([blob], `clipboard-${Date.now()}.${type.split("/")[1] || "png"}`, { type });
+              files.push(file);
+            }
+          }
+        }
+        if (files.length > 0) {
+          await uploadFiles(files);
+          return;
+        }
+      }
+
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = (await navigator.clipboard.readText()).trim();
+        if (text && /^https?:\/\/.+/i.test(text)) {
+          const current = editingApt?.images || [];
+          setEditingApt({
+            ...editingApt!,
+            images: [...current, text],
+          });
+          showToast("Added image URL from clipboard!");
+          return;
+        }
+      }
+      showToast("No image in clipboard. Copy an image or URL first.");
+    } catch (_) {
+      showToast("Press Ctrl+V / Cmd+V to paste your image directly.");
     }
   };
 
@@ -1653,9 +1740,9 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveApartment} className="space-y-3 text-xs">
+            <form onSubmit={handleSaveApartment} onPaste={handlePasteImage} className="space-y-3.5 text-xs">
               <div>
-                <label className="block text-slate-600 font-medium mb-1">Apartment Title</label>
+                <label className="block text-slate-700 font-medium mb-1">Apartment Title</label>
                 <input
                   type="text"
                   required
@@ -1667,34 +1754,44 @@ export default function AdminDashboardPage() {
               </div>
 
               <div>
-                <label className="block text-slate-700 font-bold mb-1 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                    Property Address (Street, City, State, ZIP)
-                  </span>
-                  <span className="text-[10px] text-blue-700 font-bold bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
-                    Real Geographic Search Enabled
-                  </span>
+                <label className="block text-slate-700 font-medium mb-1 flex items-center justify-between">
+                  <span>Property Address (Optional)</span>
+                  <span className="text-[11px] text-slate-400 font-normal">Leave blank for Chameleon dynamic search</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 18 Nantucket Dr, Medford, NY 11763 or Paterson, NJ 07501"
-                  value={editingApt.addressTemplate || ""}
-                  onChange={(e) => setEditingApt({ ...editingApt, addressTemplate: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium"
-                />
-                <p className="text-[11px] text-slate-500 mt-1 leading-normal">
-                  💡 <strong>Smart Priority Matching:</strong> Visitors searching this ZIP, City, State, or nearby street will see this exact property ranked <strong>1st at the top</strong> of search results!
-                </p>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    placeholder="e.g. 18 Nantucket Dr, Medford, NY 11763 or Paterson, NJ 07501"
+                    value={editingApt.addressTemplate || ""}
+                    onChange={(e) => setEditingApt({ ...editingApt, addressTemplate: e.target.value })}
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium"
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Specs 3-Column Grid: Category, Monthly Rent, Square Feet */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-slate-600 font-medium mb-1">Category</label>
+                  <label className="block text-slate-700 font-medium mb-1">Category</label>
                   <select
                     value={editingApt.category}
-                    onChange={(e) => setEditingApt({ ...editingApt, category: e.target.value as any })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer"
+                    onChange={(e) => {
+                      const cat = e.target.value as any;
+                      let beds = 1;
+                      let baths = 1;
+                      if (cat === "1B1B") { beds = 1; baths = 1; }
+                      else if (cat === "2B2B") { beds = 2; baths = 2; }
+                      else if (cat === "3B2B") { beds = 3; baths = 2; }
+                      else if (cat === "3B3B") { beds = 3; baths = 3; }
+                      setEditingApt({
+                        ...editingApt,
+                        category: cat,
+                        bedrooms: beds,
+                        bathrooms: baths,
+                      });
+                    }}
+                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer font-medium"
                   >
                     <option value="1B1B">1 Bed / 1 Bath</option>
                     <option value="2B2B">2 Bed / 2 Bath</option>
@@ -1702,19 +1799,13 @@ export default function AdminDashboardPage() {
                     <option value="3B3B">3 Bed / 3 Bath</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="block text-slate-600 font-medium mb-1 flex items-center justify-between">
-                    <span>Base Monthly Rent ($)</span>
-                    <span className="text-[10px] text-blue-600 font-bold">Manual Input</span>
-                  </label>
+                  <label className="block text-slate-700 font-medium mb-1">Monthly Rent ($)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">$</span>
                     <input
                       type="number"
-                      required
-                      min={50}
-                      max={50000}
-                      step={10}
                       placeholder="e.g. 1250"
                       value={editingApt.baseRent ? editingApt.baseRent : ""}
                       onChange={(e) =>
@@ -1723,46 +1814,15 @@ export default function AdminDashboardPage() {
                           baseRent: e.target.value === "" ? 0 : Number(e.target.value),
                         })
                       }
-                      className="w-full pl-7 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
+                      className="w-full pl-7 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-slate-600 font-medium mb-1">Bedrooms</label>
+                  <label className="block text-slate-700 font-medium mb-1">Square Feet</label>
                   <input
                     type="number"
-                    min={0}
-                    max={10}
-                    value={editingApt.bedrooms ?? 1}
-                    onChange={(e) => setEditingApt({ ...editingApt, bedrooms: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">Bathrooms</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={editingApt.bathrooms ?? 1}
-                    onChange={(e) => setEditingApt({ ...editingApt, bathrooms: Number(e.target.value) })}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1 flex items-center justify-between">
-                    <span>Square Feet</span>
-                    <span className="text-[10px] text-blue-600 font-bold">Manual Input</span>
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min={50}
-                    max={20000}
-                    step={10}
                     placeholder="e.g. 750"
                     value={editingApt.squareFeet ? editingApt.squareFeet : ""}
                     onChange={(e) =>
@@ -1771,13 +1831,13 @@ export default function AdminDashboardPage() {
                         squareFeet: e.target.value === "" ? 0 : Number(e.target.value),
                       })
                     }
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
+                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-600 font-medium mb-1">Description</label>
+                <label className="block text-slate-700 font-medium mb-1">Description</label>
                 <textarea
                   rows={2}
                   value={editingApt.description}
@@ -1792,90 +1852,60 @@ export default function AdminDashboardPage() {
                   <label className="block text-slate-700 font-bold text-xs">
                     Apartment Photos ({(editingApt.images || []).length})
                   </label>
-                  <span className="text-[10px] text-slate-400">First photo is used as main cover</span>
+                  <span className="text-[11px] text-slate-400">Drag & drop files or press Ctrl+V to paste</span>
                 </div>
 
-                {/* Thumbnails Grid */}
-                {(editingApt.images || []).length > 0 ? (
-                  <div className="grid grid-cols-3 gap-2">
-                    {editingApt.images.map((imgUrl, idx) => (
-                      <div
-                        key={idx}
-                        className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-video bg-slate-100"
-                      >
-                        <img
-                          src={imgUrl}
-                          alt={`Apartment photo ${idx + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        {idx === 0 && (
-                          <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-blue-600/90 text-white text-[8px] font-bold uppercase tracking-wider shadow flex items-center gap-0.5">
-                            <Star className="w-2.5 h-2.5 fill-white" /> Cover
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                          {idx !== 0 && (
-                            <button
-                              type="button"
-                              onClick={() => handleSetPrimaryImage(idx)}
-                              className="p-1 rounded bg-white text-slate-800 text-[9px] font-bold hover:bg-slate-100 transition cursor-pointer shadow"
-                              title="Set as Main Cover Photo"
-                            >
-                              <Star className="w-3 h-3" />
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(idx)}
-                            className="p-1 rounded bg-red-600 text-white text-[9px] font-bold hover:bg-red-700 transition cursor-pointer shadow"
-                            title="Remove Photo"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        </div>
+                {/* Drag & Drop Multi-file Upload Box */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 ${
+                    isDragging
+                      ? "border-blue-500 bg-blue-50/70 scale-[1.01]"
+                      : "border-slate-200 hover:border-blue-400 bg-slate-50/60 hover:bg-blue-50/30"
+                  }`}
+                >
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={(e) => e.target.files && uploadFiles(e.target.files)}
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  {isUploadingImage ? (
+                    <div className="flex flex-col items-center justify-center py-2 text-blue-600">
+                      <Loader2 className="w-6 h-6 animate-spin mb-1" />
+                      <span className="text-xs font-bold">Uploading photos...</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center space-y-1">
+                      <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-0.5">
+                        <Upload className="w-4 h-4" />
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-3.5 rounded-xl border border-dashed border-slate-200 text-center text-slate-400 text-[11px] bg-slate-50/50">
-                    <ImageIcon className="w-5 h-5 mx-auto mb-1 text-slate-300" />
-                    No photos added yet. Upload from device or paste an image URL below.
-                  </div>
-                )}
+                      <div className="text-xs font-semibold text-slate-700">
+                        <span className="text-blue-600 font-bold">Click to browse</span> or drag & drop 4–5 photos here
+                      </div>
+                      <div className="text-[11px] text-slate-400 flex items-center gap-1.5 justify-center">
+                        <span>Select multiple photos from folder</span>
+                        <span>•</span>
+                        <span className="bg-slate-200/80 px-1.5 py-0.5 rounded text-[10px] text-slate-600 font-mono">
+                          Ctrl+V / Cmd+V to paste
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-                {/* Upload or Link Input Controls */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                  <div>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleUploadImage}
-                      accept="image/jpeg,image/png,image/webp,image/avif"
-                      className="hidden"
-                      id="apartment-image-file"
-                    />
-                    <label
-                      htmlFor="apartment-image-file"
-                      className={`w-full flex items-center justify-center gap-1.5 p-2 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100/70 text-blue-700 font-bold transition cursor-pointer text-xs ${
-                        isUploadingImage ? "opacity-60 pointer-events-none" : ""
-                      }`}
-                    >
-                      {isUploadingImage ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="w-3.5 h-3.5" /> Upload Photo
-                        </>
-                      )}
-                    </label>
-                  </div>
-
-                  <div className="flex gap-1">
+                {/* Paste Image URL / Clipboard Bar */}
+                <div className="flex gap-2">
+                  <div className="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:bg-white focus-within:border-blue-500 transition">
+                    <Link2 className="w-3.5 h-3.5 text-slate-400 mr-2 shrink-0" />
                     <input
                       type="url"
-                      placeholder="Paste image link (https://...)"
+                      placeholder="Paste image link (https://...) or press Ctrl+V"
                       value={imageInputUrl}
                       onChange={(e) => setImageInputUrl(e.target.value)}
                       onKeyDown={(e) => {
@@ -1884,18 +1914,76 @@ export default function AdminDashboardPage() {
                           handleAddImageUrl();
                         }
                       }}
-                      className="flex-1 p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs outline-none focus:bg-white focus:border-blue-500"
+                      className="w-full bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400"
                     />
-                    <button
-                      type="button"
-                      onClick={handleAddImageUrl}
-                      disabled={!imageInputUrl.trim()}
-                      className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs disabled:opacity-40 transition cursor-pointer"
-                    >
-                      Add
-                    </button>
                   </div>
+                  <button
+                    type="button"
+                    onClick={handleAddImageUrl}
+                    disabled={!imageInputUrl.trim()}
+                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs disabled:opacity-40 transition cursor-pointer shrink-0"
+                  >
+                    Add Link
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePasteFromClipboardBtn}
+                    title="Paste copied image or URL from clipboard"
+                    className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-xs transition cursor-pointer flex items-center gap-1 shrink-0"
+                  >
+                    <Clipboard className="w-3.5 h-3.5" />
+                    <span>Paste</span>
+                  </button>
                 </div>
+
+                {/* Photo Previews Gallery Grid */}
+                {(editingApt.images || []).length > 0 && (
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                      <span>Photo Previews ({editingApt.images.length})</span>
+                      <span className="text-[10px] text-slate-400">Hover photo to set cover or delete</span>
+                    </div>
+                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-44 overflow-y-auto p-1.5 bg-slate-50 rounded-2xl border border-slate-100">
+                      {editingApt.images.map((imgUrl, idx) => (
+                        <div
+                          key={idx}
+                          className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-square bg-slate-100 shadow-sm"
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Apartment photo ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          {idx === 0 && (
+                            <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-blue-600/95 text-white text-[8px] font-bold uppercase tracking-wider shadow flex items-center gap-0.5">
+                              <Star className="w-2 h-2 fill-white" /> Cover
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                            {idx !== 0 && (
+                              <button
+                                type="button"
+                                onClick={() => handleSetPrimaryImage(idx)}
+                                className="p-1 rounded bg-white text-slate-800 text-[9px] font-bold hover:bg-slate-100 transition cursor-pointer shadow"
+                                title="Set as Main Cover Photo"
+                              >
+                                <Star className="w-3 h-3 text-amber-500" />
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(idx)}
+                              className="p-1 rounded bg-red-600 text-white text-[9px] font-bold hover:bg-red-700 transition cursor-pointer shadow"
+                              title="Remove Photo"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-4 pt-2">
