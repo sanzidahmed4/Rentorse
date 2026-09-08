@@ -22,7 +22,6 @@ import {
   DollarSign,
   PawPrint,
   LogOut,
-  Database,
   Sliders,
   Calendar,
   X,
@@ -88,7 +87,6 @@ export default function AdminDashboardPage() {
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [seeding, setSeeding] = useState(false);
   const [savingStats, setSavingStats] = useState(false);
   const [notification, setNotification] = useState("");
 
@@ -444,24 +442,6 @@ export default function AdminDashboardPage() {
       showToast("Network error while revoking sessions");
     } finally {
       setRevokingSessions(false);
-    }
-  };
-
-  const handleSeedDatabase = async () => {
-    if (!confirm("Seed/Verify the database with 35 curated USA apartments?")) return;
-    setSeeding(true);
-    try {
-      const res = await fetch("/api/seed", { method: "POST" });
-      const data = await res.json();
-      if (data.success) {
-        showToast(data.message);
-        fetchDashboardData();
-      }
-    } catch (e) {
-      console.error(e);
-      showToast("Error seeding database.");
-    } finally {
-      setSeeding(false);
     }
   };
 
@@ -982,16 +962,6 @@ export default function AdminDashboardPage() {
                 <span className="text-[10px] text-emerald-600 font-semibold">Active Admin</span>
               </div>
             </div>
-
-            <button
-              onClick={handleSeedDatabase}
-              disabled={seeding}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 border border-slate-200 transition cursor-pointer disabled:cursor-not-allowed"
-              title="Populate 35 realistic USA base apartments"
-            >
-              <Database className="w-3.5 h-3.5 text-blue-600" />
-              {seeding ? "Seeding..." : "Seed 35 Apartments"}
-            </button>
 
             <button
               onClick={() => fetchDashboardData()}

@@ -46,6 +46,7 @@ test-funnel.mjs
 hero background.png
 site logo.png
 Apartmentofullogo.png
+scripts/
 
 # vercel
 .vercel
