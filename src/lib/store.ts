@@ -169,13 +169,19 @@ export async function getApartments(filter?: {
 
       const items = await Apartment.find(query).sort({ createdAt: 1, _id: 1 }).lean().exec();
       if (items.length > 0) {
-        let hasMissingSerial = false;
+        const seenSerials = new Set<number>();
+        let hasDuplicateOrMissing = false;
+
+        for (const item of items) {
+          if (!item.serialNumber || seenSerials.has(item.serialNumber)) {
+            hasDuplicateOrMissing = true;
+            break;
+          }
+          seenSerials.add(item.serialNumber);
+        }
+
         const result = items.map((item, idx) => {
-          const serial =
-            typeof item.serialNumber === "number" && item.serialNumber > 0
-              ? item.serialNumber
-              : idx + 1;
-          if (!item.serialNumber) hasMissingSerial = true;
+          const serial = hasDuplicateOrMissing ? idx + 1 : (item.serialNumber || idx + 1);
           return {
             ...item,
             _id: (item as { _id?: unknown })._id?.toString(),
@@ -183,17 +189,14 @@ export async function getApartments(filter?: {
           };
         }) as unknown as IApartment[];
 
-        if (hasMissingSerial) {
+        if (hasDuplicateOrMissing) {
           Promise.all(
-            items.map((item, idx) => {
-              if (!item.serialNumber) {
-                return Apartment.findByIdAndUpdate(
-                  (item as any)._id,
-                  { $set: { serialNumber: idx + 1 } }
-                ).exec();
-              }
-              return Promise.resolve();
-            })
+            items.map((item, idx) =>
+              Apartment.findByIdAndUpdate(
+                (item as any)._id,
+                { $set: { serialNumber: idx + 1 } }
+              ).exec()
+            )
           ).catch((e) => console.error("Error auto-healing apartment serial numbers in MongoDB:", e));
         }
 
@@ -241,14 +244,29 @@ export async function getApartmentByIdOrSlug(idOrSlug: string): Promise<IApartme
 }
 
 export async function createApartment(data: Partial<IApartment>): Promise<IApartment> {
-  const maxSerial = memoryApartments.reduce(
-    (max, a) => Math.max(max, a.serialNumber || 0),
-    0
-  );
-  const nextSerial = data.serialNumber || maxSerial + 1;
-
   const db = await connectToDatabase();
   const isManualListing = data.isManual !== undefined ? Boolean(data.isManual) : true;
+
+  let nextSerial = data.serialNumber;
+  if (!nextSerial) {
+    if (db) {
+      try {
+        const highestApt = await Apartment.findOne().sort({ serialNumber: -1 }).select("serialNumber").lean().exec();
+        const highestSerial = highestApt && typeof highestApt.serialNumber === "number" ? highestApt.serialNumber : 0;
+        nextSerial = highestSerial + 1;
+      } catch (err) {
+        console.error("Error fetching highest serial from MongoDB:", err);
+      }
+    }
+    if (!nextSerial) {
+      const maxSerial = memoryApartments.reduce(
+        (max, a) => Math.max(max, a.serialNumber || 0),
+        0
+      );
+      nextSerial = maxSerial + 1;
+    }
+  }
+
   if (db) {
     try {
       const created = await Apartment.create({
