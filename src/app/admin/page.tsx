@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Users,
   Building2,
+  Home,
   TrendingUp,
   Search,
   Filter,
@@ -37,12 +38,42 @@ import {
   ImagePlus,
   Link2,
   Clipboard,
+  BedDouble,
+  Bath,
+  Maximize2,
+  Camera,
+  ExternalLink,
+  ShieldCheck,
+  Laptop,
+  Globe,
+  Activity,
+  UserCheck,
 } from "lucide-react";
-import { IApartment, ILead, ISiteStat, LeadStatus } from "@/types";
+import { IApartment, ILead, ISiteStat, LeadStatus, IAdminUserSummary, IAdminLoginLog } from "@/types";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"overview" | "leads" | "apartments" | "stats">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "leads" | "apartments" | "stats" | "admins">("overview");
+
+  const handleTabChange = (tab: "overview" | "leads" | "apartments" | "stats" | "admins") => {
+    setActiveTab(tab);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("apartmento_admin_active_tab", tab);
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", tab);
+        window.history.replaceState(null, "", url.toString());
+      } catch (_) {}
+    }
+  };
+
+  // Current Logged In Admin & Audit State
+  const [currentUser, setCurrentUser] = useState<string>("");
+  const [adminUsers, setAdminUsers] = useState<IAdminUserSummary[]>([]);
+  const [adminLogs, setAdminLogs] = useState<IAdminLoginLog[]>([]);
+  const [adminLogSearch, setAdminLogSearch] = useState("");
+  const [adminLogStatusFilter, setAdminLogStatusFilter] = useState<"ALL" | "SUCCESS" | "FAILED">("ALL");
+  const [adminLogUserFilter, setAdminLogUserFilter] = useState<string>("ALL");
 
   // State
   const [leads, setLeads] = useState<ILead[]>([]);
@@ -61,11 +92,94 @@ export default function AdminDashboardPage() {
   const [savingStats, setSavingStats] = useState(false);
   const [notification, setNotification] = useState("");
 
+  const copyToClipboard = async (text: string) => {
+    if (!text) return;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        textArea.remove();
+      }
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
   // Filters & Search
   const [leadStatusFilter, setLeadStatusFilter] = useState<string>("ALL");
   const [leadSearchQuery, setLeadSearchQuery] = useState("");
   const [selectedLead, setSelectedLead] = useState<ILead | null>(null);
-  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const urlLead = new URLSearchParams(window.location.search).get("lead");
+      const storedLead = sessionStorage.getItem("apartmento_admin_selected_row");
+      return urlLead || storedLead || null;
+    } catch (_) {
+      return null;
+    }
+  });
+
+  const getLeadRowId = (lead: ILead, fallbackIdx: number): string => {
+    return String(lead._id || lead.id || `lead_${lead.serialNumber || fallbackIdx}`);
+  };
+
+  const handleSelectRow = (rowId: string | null) => {
+    setSelectedRowId(rowId);
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        if (rowId) {
+          url.searchParams.set("lead", rowId);
+          sessionStorage.setItem("apartmento_admin_selected_row", rowId);
+        } else {
+          url.searchParams.delete("lead");
+          url.searchParams.delete("leadModal");
+          sessionStorage.removeItem("apartmento_admin_selected_row");
+          sessionStorage.removeItem("apartmento_admin_lead_modal");
+          setSelectedLead(null);
+        }
+        window.history.replaceState(null, "", url.toString());
+      } catch (_) {}
+    }
+  };
+
+  const handleOpenLeadModal = (lead: ILead, rowId?: string) => {
+    const targetId = rowId || getLeadRowId(lead, 0);
+    setSelectedLead(lead);
+    setSelectedRowId(targetId);
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("lead", targetId);
+        url.searchParams.set("leadModal", "1");
+        sessionStorage.setItem("apartmento_admin_selected_row", targetId);
+        sessionStorage.setItem("apartmento_admin_lead_modal", targetId);
+        window.history.replaceState(null, "", url.toString());
+      } catch (_) {}
+    }
+  };
+
+  const handleCloseLeadModal = () => {
+    setSelectedLead(null);
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("leadModal");
+        sessionStorage.removeItem("apartmento_admin_lead_modal");
+        window.history.replaceState(null, "", url.toString());
+      } catch (_) {}
+    }
+  };
 
   // Apartment Editing
   const [editingApt, setEditingApt] = useState<IApartment | null>(null);
@@ -79,35 +193,128 @@ export default function AdminDashboardPage() {
   const [aptCategoryFilter, setAptCategoryFilter] = useState<string>("ALL");
   const [aptFurnishedFilter, setAptFurnishedFilter] = useState<string>("ALL");
   const [aptStatusFilter, setAptStatusFilter] = useState<string>("ALL");
+  const [aptTypeFilter, setAptTypeFilter] = useState<string>("ALL");
   const [aptSearchQuery, setAptSearchQuery] = useState("");
 
   useEffect(() => {
+    // Restore active tab from URL query param or localStorage
+    try {
+      const urlTab = new URLSearchParams(window.location.search).get("tab");
+      const storedTab = localStorage.getItem("apartmento_admin_active_tab");
+      const targetTab = (urlTab || storedTab) as "overview" | "leads" | "apartments" | "stats" | "admins";
+      if (targetTab && ["overview", "leads", "apartments", "stats", "admins"].includes(targetTab)) {
+        setActiveTab(targetTab);
+        if (!urlTab) {
+          const url = new URL(window.location.href);
+          url.searchParams.set("tab", targetTab);
+          window.history.replaceState(null, "", url.toString());
+        }
+      }
+    } catch (_) {}
+
+    const onPopState = () => {
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const urlTab = searchParams.get("tab") as any;
+        if (urlTab && ["overview", "leads", "apartments", "stats", "admins"].includes(urlTab)) {
+          setActiveTab(urlTab);
+        }
+        const urlLead = searchParams.get("lead");
+        setSelectedRowId(urlLead || null);
+        const hasModal = searchParams.get("leadModal") === "1" || searchParams.get("modal") === "1";
+        if (!hasModal) {
+          setSelectedLead(null);
+        } else if (urlLead) {
+          setSelectedLead((curr) => {
+            if (curr && String(curr._id || curr.id) === urlLead) return curr;
+            try {
+              const cached = sessionStorage.getItem("apartmento_admin_cache");
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                const found = parsed.leads?.find((l: ILead) => String(l._id || l.id) === urlLead);
+                if (found) return found;
+              }
+            } catch (_) {}
+            return curr;
+          });
+        }
+      } catch (_) {}
+    };
+    window.addEventListener("popstate", onPopState);
+
     // Instant display from session cache if available
     try {
       const cached = sessionStorage.getItem("apartmento_admin_cache");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (parsed.leads) setLeads(parsed.leads);
+        if (parsed.leads) {
+          setLeads(parsed.leads);
+          const searchParams = new URLSearchParams(window.location.search);
+          const urlLead = searchParams.get("lead");
+          const hasModal = searchParams.get("leadModal") === "1" || searchParams.get("modal") === "1";
+          const storedModal = sessionStorage.getItem("apartmento_admin_lead_modal") || localStorage.getItem("apartmento_admin_lead_modal");
+          const targetModal = (hasModal && urlLead) ? urlLead : storedModal;
+          if (targetModal) {
+            const found = parsed.leads.find((l: ILead) => String(l._id || l.id) === targetModal);
+            if (found) setSelectedLead(found);
+          }
+        }
         if (parsed.apartments) setApartments(parsed.apartments);
         if (parsed.stats) setStats(parsed.stats);
+        if (parsed.adminUsers) setAdminUsers(parsed.adminUsers);
+        if (parsed.adminLogs) setAdminLogs(parsed.adminLogs);
+        if (parsed.currentUser && parsed.currentUser.toLowerCase() !== "admin") {
+          setCurrentUser(parsed.currentUser);
+        }
         setLoading(false);
       }
     } catch (_) {}
 
     fetchDashboardData();
 
-    // Auto-refresh every 12 seconds so newly booked apartments appear automatically!
+    // Auto-refresh every 12 seconds so newly booked apartments and active statuses appear automatically!
     const timer = setInterval(() => {
       fetchDashboardData(true);
     }, 12000);
 
-    return () => clearInterval(timer);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      clearInterval(timer);
+    };
   }, []);
+
+  // Restore or keep selectedLead synced when leads data updates
+  useEffect(() => {
+    if (!leads || leads.length === 0) return;
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const urlLead = searchParams.get("lead");
+      const hasModal = searchParams.get("leadModal") === "1" || searchParams.get("modal") === "1";
+      const storedModal = sessionStorage.getItem("apartmento_admin_lead_modal") || localStorage.getItem("apartmento_admin_lead_modal");
+      const targetModalLeadId = (hasModal && urlLead) ? urlLead : storedModal;
+
+      if (targetModalLeadId) {
+        setSelectedLead((current) => {
+          if (current && String(current._id || current.id) === targetModalLeadId) {
+            const updated = leads.find((l) => String(l._id || l.id) === targetModalLeadId);
+            return updated || current;
+          }
+          const match = leads.find((l) => String(l._id || l.id) === targetModalLeadId);
+          return match || current;
+        });
+      }
+
+      const storedRow = urlLead || sessionStorage.getItem("apartmento_admin_selected_row") || localStorage.getItem("apartmento_admin_selected_row");
+      if (storedRow && !selectedRowId) {
+        setSelectedRowId(storedRow);
+      }
+    } catch (_) {}
+  }, [leads]);
 
   const fetchDashboardData = async (isBackground = false) => {
     if (!isBackground) setRefreshing(true);
     try {
-      // Single unified call to fetch leads, apartments, and stats concurrently
+      // Single unified call to fetch leads, apartments, stats, and audit data concurrently
       const res = await fetch("/api/admin/dashboard");
       if (res.status === 401) {
         router.replace("/admin/login");
@@ -116,9 +323,20 @@ export default function AdminDashboardPage() {
 
       const data = await res.json();
       if (data.success) {
-        if (data.leads) setLeads(data.leads);
+        if (data.leads) {
+          setLeads(data.leads);
+          setSelectedLead((current) => {
+            if (!current) return null;
+            const currentId = String(current._id || current.id);
+            const fresh = data.leads.find((l: ILead) => String(l._id || l.id) === currentId);
+            return fresh || current;
+          });
+        }
         if (data.apartments) setApartments(data.apartments);
         if (data.stats) setStats(data.stats);
+        if (data.currentUser) setCurrentUser(data.currentUser);
+        if (data.adminUsers) setAdminUsers(data.adminUsers);
+        if (data.adminLogs) setAdminLogs(data.adminLogs);
 
         try {
           sessionStorage.setItem(
@@ -127,6 +345,9 @@ export default function AdminDashboardPage() {
               leads: data.leads,
               apartments: data.apartments,
               stats: data.stats,
+              currentUser: data.currentUser,
+              adminUsers: data.adminUsers,
+              adminLogs: data.adminLogs,
             })
           );
         } catch (_) {}
@@ -149,6 +370,10 @@ export default function AdminDashboardPage() {
   const handleLogout = async () => {
     try {
       sessionStorage.removeItem("apartmento_admin_cache");
+      sessionStorage.removeItem("apartmento_admin_selected_row");
+      localStorage.removeItem("apartmento_admin_selected_row");
+      localStorage.removeItem("apartmento_admin_lead_modal");
+      document.cookie = "apartmento_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     } catch (_) {}
     await fetch("/api/admin/logout", { method: "POST" });
     router.replace("/admin/login");
@@ -241,6 +466,7 @@ export default function AdminDashboardPage() {
       const payload = {
         ...editingApt,
         addressTemplate: trimmedAddress,
+        cityState: hasAddress ? trimmedAddress : "",
         isManual: hasAddress,
       };
 
@@ -479,8 +705,11 @@ export default function AdminDashboardPage() {
       });
       if (res.ok) {
         setLeads((prev) => prev.filter((l) => (l._id || l.id) !== leadId));
+        if (selectedRowId === leadId) {
+          handleSelectRow(null);
+        }
         if (selectedLead && (selectedLead._id === leadId || selectedLead.id === leadId)) {
-          setSelectedLead(null);
+          handleCloseLeadModal();
         }
         showToast("Lead deleted successfully!");
       } else {
@@ -502,7 +731,8 @@ export default function AdminDashboardPage() {
       });
       if (res.ok) {
         setLeads([]);
-        setSelectedLead(null);
+        handleSelectRow(null);
+        handleCloseLeadModal();
         showToast("All leads cleared successfully!");
       } else {
         showToast("Failed to clear leads.");
@@ -669,6 +899,23 @@ export default function AdminDashboardPage() {
 
           {/* Quick Actions */}
           <div className="flex items-center gap-3">
+            {/* Logged in Administrator Indicator */}
+            <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <div className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black uppercase shadow-xs">
+                {currentUser ? currentUser.charAt(0) : "A"}
+              </div>
+              <div className="text-left leading-tight">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-slate-800">{currentUser}</span>
+                  <span className="relative flex h-2 w-2" title="Active Session">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                </div>
+                <span className="text-[10px] text-emerald-600 font-semibold">Active Admin</span>
+              </div>
+            </div>
+
             <button
               onClick={handleSeedDatabase}
               disabled={seeding}
@@ -716,13 +963,15 @@ export default function AdminDashboardPage() {
             { id: "leads", label: loading ? "Leads CRM" : `Leads CRM (${leads.length})`, icon: Users },
             { id: "apartments", label: loading ? "Apartment Inventory" : `Apartment Inventory (${apartments.length})`, icon: Building2 },
             { id: "stats", label: "Homepage Statistics", icon: Sliders },
+            { id: "admins", label: `Admin Users (${adminUsers.length || 2})`, icon: ShieldCheck },
           ].map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                suppressHydrationWarning
+                onClick={() => handleTabChange(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer ${
                   active
                     ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
@@ -791,8 +1040,8 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-slate-500">Visitors who just completed the apartment matching quiz</p>
                 </div>
                 <button
-                  onClick={() => setActiveTab("leads")}
-                  className="text-xs text-blue-600 hover:text-blue-700 font-semibold"
+                  onClick={() => handleTabChange("leads")}
+                  className="text-xs text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
                 >
                   View All in CRM →
                 </button>
@@ -815,12 +1064,12 @@ export default function AdminDashboardPage() {
                   <tbody className="divide-y divide-slate-100">
                     {filteredLeads.slice(0, 5).map((lead, idx) => {
                       const aptInfo = getLeadApartmentInfo(lead);
-                      const leadIdStr = String(lead._id || lead.id || `lead_ov_${idx}`);
+                      const leadIdStr = getLeadRowId(lead, idx);
                       const isSelected = selectedRowId === leadIdStr;
                       return (
                         <tr
                           key={leadIdStr}
-                          onClick={() => setSelectedRowId(isSelected ? null : leadIdStr)}
+                          onClick={() => handleSelectRow(leadIdStr)}
                           className={`transition-all cursor-pointer ${
                             isSelected
                               ? "bg-blue-100/70 border-l-4 border-l-blue-600 shadow-sm"
@@ -833,32 +1082,87 @@ export default function AdminDashboardPage() {
                             </span>
                           </td>
                           <td className="py-3.5 px-4">
-                            <span className="text-slate-700 font-medium truncate max-w-[160px] block select-text">
+                            <span
+                              onClick={() => {
+                                copyToClipboard(lead.email);
+                                handleSelectRow(leadIdStr);
+                              }}
+                              className="text-slate-700 font-medium truncate max-w-[160px] block cursor-pointer select-text"
+                            >
                               {lead.email}
                             </span>
                           </td>
                           <td className="py-3.5 px-4">
-                            <span className="text-slate-700 font-medium whitespace-nowrap select-text">
+                            <span
+                              onClick={() => {
+                                copyToClipboard(lead.phone);
+                                handleSelectRow(leadIdStr);
+                              }}
+                              className="text-slate-700 font-medium whitespace-nowrap cursor-pointer select-text block"
+                            >
                               {lead.phone}
                             </span>
                           </td>
                           <td className="py-3.5 px-4 font-medium text-slate-700">
-                            {lead.desiredLocation || "United States"}
+                            <span
+                              onClick={() => {
+                                copyToClipboard(lead.desiredLocation || "United States");
+                                handleSelectRow(leadIdStr);
+                              }}
+                              className="cursor-pointer select-text block hover:text-slate-900"
+                            >
+                              {lead.desiredLocation || "United States"}
+                            </span>
                           </td>
-                          <td className="py-3.5 px-4">{lead.bedrooms}B / {lead.bathrooms}Ba</td>
+                          <td className="py-3.5 px-4">
+                            <span
+                              onClick={() => {
+                                copyToClipboard(`${lead.bedrooms}B / ${lead.bathrooms}Ba`);
+                                handleSelectRow(leadIdStr);
+                              }}
+                              className="cursor-pointer select-text block"
+                            >
+                              {lead.bedrooms}B / {lead.bathrooms}Ba
+                            </span>
+                          </td>
                           <td className="py-3.5 px-4">
                             {aptInfo ? (
                               <div>
-                                <span className="font-black text-emerald-600 text-xs">
+                                <span
+                                  onClick={() => {
+                                    copyToClipboard(`$${aptInfo.price.toLocaleString()}/mo`);
+                                    handleSelectRow(leadIdStr);
+                                  }}
+                                  className="font-black text-emerald-600 text-xs cursor-pointer select-text inline-block"
+                                >
                                   ${aptInfo.price.toLocaleString()}/mo
                                 </span>
-                                <div className="text-[10px] text-slate-500 truncate max-w-[120px]" title={aptInfo.title}>
-                                  {aptInfo.title}
-                                </div>
+                                {aptInfo.apt?.slug || aptInfo.apt?._id || aptInfo.id ? (
+                                  <a
+                                    href={`/apartments/${aptInfo.apt?.slug || aptInfo.apt?._id || aptInfo.id}${lead.desiredLocation ? `?loc=${encodeURIComponent(lead.desiredLocation)}` : ""}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-[10px] text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[120px] block font-medium"
+                                    title={`Open ${aptInfo.title} in new tab`}
+                                  >
+                                    {aptInfo.title} ↗
+                                  </a>
+                                ) : (
+                                  <div className="text-[10px] text-slate-500 truncate max-w-[120px]" title={aptInfo.title}>
+                                    {aptInfo.title}
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <div>
-                                <span className="font-bold text-slate-800 text-xs">
+                                <span
+                                  onClick={() => {
+                                    copyToClipboard(`$${lead.budgetMin} – $${lead.budgetMax}`);
+                                    handleSelectRow(leadIdStr);
+                                  }}
+                                  className="font-bold text-slate-800 text-xs cursor-pointer select-text inline-block"
+                                >
                                   ${lead.budgetMin} – ${lead.budgetMax}
                                 </span>
                                 <div className="text-[10px] text-slate-400">Budget Range</div>
@@ -884,8 +1188,7 @@ export default function AdminDashboardPage() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setSelectedLead(lead);
-                                setSelectedRowId(leadIdStr);
+                                handleOpenLeadModal(lead, leadIdStr);
                               }}
                               title="View Details"
                               className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white transition shadow-sm border border-blue-200 inline-flex items-center justify-center cursor-pointer"
@@ -982,12 +1285,12 @@ export default function AdminDashboardPage() {
                   <tbody className="divide-y divide-slate-100">
                     {filteredLeads.map((lead, index) => {
                       const aptInfo = getLeadApartmentInfo(lead);
-                      const leadIdStr = String(lead._id || lead.id || `lead_crm_${index}`);
+                      const leadIdStr = getLeadRowId(lead, index);
                       const isSelected = selectedRowId === leadIdStr;
                       return (
                         <tr
                           key={leadIdStr}
-                          onClick={() => setSelectedRowId(isSelected ? null : leadIdStr)}
+                          onClick={() => handleSelectRow(leadIdStr)}
                           className={`transition-all cursor-pointer ${
                             isSelected
                               ? "bg-blue-100/70 border-l-4 border-l-blue-600 shadow-sm"
@@ -1001,24 +1304,63 @@ export default function AdminDashboardPage() {
                           </td>
 
                           <td className="py-3.5 px-4">
-                            <span className="text-slate-700 font-medium truncate max-w-[170px] block select-text">
+                            <span
+                              onClick={() => {
+                                copyToClipboard(lead.email);
+                                handleSelectRow(leadIdStr);
+                              }}
+                              className="text-slate-700 font-medium truncate max-w-[170px] block cursor-pointer select-text"
+                            >
                               {lead.email}
                             </span>
                           </td>
 
                           <td className="py-3.5 px-4">
-                            <span className="text-slate-800 font-medium whitespace-nowrap select-text">
+                            <span
+                              onClick={() => {
+                                copyToClipboard(lead.phone);
+                                handleSelectRow(leadIdStr);
+                              }}
+                              className="text-slate-800 font-medium whitespace-nowrap cursor-pointer select-text block"
+                            >
                               {lead.phone}
                             </span>
                           </td>
 
                           <td className="py-3.5 px-4">
-                            <span className="font-medium text-slate-700">{lead.desiredLocation || "United States"}</span>
+                            <span
+                              onClick={() => {
+                                copyToClipboard(lead.desiredLocation || "United States");
+                                handleSelectRow(leadIdStr);
+                              }}
+                              className="font-medium text-slate-700 cursor-pointer select-text block hover:text-slate-900"
+                            >
+                              {lead.desiredLocation || "United States"}
+                            </span>
                           </td>
 
                           <td className="py-3.5 px-4">
-                            <div className="text-slate-800 font-medium">{lead.bedrooms}B / {lead.bathrooms}Ba</div>
-                            <div className="text-[10px] text-slate-400">
+                            <div
+                              onClick={() => {
+                                copyToClipboard(`${lead.bedrooms}B / ${lead.bathrooms}Ba`);
+                                handleSelectRow(leadIdStr);
+                              }}
+                              className="text-slate-800 font-medium cursor-pointer select-text"
+                            >
+                              {lead.bedrooms}B / {lead.bathrooms}Ba
+                            </div>
+                            <div
+                              onClick={() => {
+                                if (lead.hasPets) {
+                                  copyToClipboard(`Pets: ${lead.petDetails || "Yes"}`);
+                                  handleSelectRow(leadIdStr);
+                                } else {
+                                  copyToClipboard(`${lead.bedrooms}B / ${lead.bathrooms}Ba`);
+                                  handleSelectRow(leadIdStr);
+                                }
+                              }}
+                              className="text-[10px] text-slate-400 cursor-pointer select-text"
+                            >
                               {lead.hasPets ? `🐾 Pets: ${lead.petDetails || "Yes"}` : "No pets"}
                             </div>
                           </td>
@@ -1026,16 +1368,41 @@ export default function AdminDashboardPage() {
                           <td className="py-3.5 px-4">
                             {aptInfo ? (
                               <div>
-                                <span className="font-black text-emerald-600 text-sm">
+                                <span
+                                  onClick={() => {
+                                    copyToClipboard(`$${aptInfo.price.toLocaleString()}/mo`);
+                                    handleSelectRow(leadIdStr);
+                                  }}
+                                  className="font-black text-emerald-600 text-sm cursor-pointer select-text inline-block"
+                                >
                                   ${aptInfo.price.toLocaleString()}/mo
                                 </span>
-                                <div className="text-[10px] text-slate-500 font-medium truncate max-w-[130px]" title={aptInfo.title}>
-                                  {aptInfo.title}
-                                </div>
+                                {aptInfo.apt?.slug || aptInfo.apt?._id || aptInfo.id ? (
+                                  <a
+                                    href={`/apartments/${aptInfo.apt?.slug || aptInfo.apt?._id || aptInfo.id}${lead.desiredLocation ? `?loc=${encodeURIComponent(lead.desiredLocation)}` : ""}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-[10px] text-blue-600 hover:text-blue-800 hover:underline font-medium truncate max-w-[130px] block"
+                                    title={`Open ${aptInfo.title} in new tab`}
+                                  >
+                                    {aptInfo.title} ↗
+                                  </a>
+                                ) : (
+                                  <div className="text-[10px] text-slate-500 font-medium truncate max-w-[130px]" title={aptInfo.title}>
+                                    {aptInfo.title}
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <div>
-                                <span className="font-bold text-slate-800 text-xs sm:text-sm">
+                                <span
+                                  onClick={() => {
+                                    copyToClipboard(`$${lead.budgetMin} – $${lead.budgetMax}`);
+                                    handleSelectRow(leadIdStr);
+                                  }}
+                                  className="font-bold text-slate-800 text-xs sm:text-sm cursor-pointer select-text inline-block"
+                                >
                                   ${lead.budgetMin} – ${lead.budgetMax}
                                 </span>
                                 <div className="text-[10px] text-slate-400">Budget Range</div>
@@ -1078,8 +1445,7 @@ export default function AdminDashboardPage() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setSelectedLead(lead);
-                                setSelectedRowId(leadIdStr);
+                                handleOpenLeadModal(lead, leadIdStr);
                               }}
                               title="View Details"
                               className="p-2 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white transition shadow-sm border border-blue-200 inline-flex items-center justify-center cursor-pointer"
@@ -1120,6 +1486,12 @@ export default function AdminDashboardPage() {
               if (aptStatusFilter === "unpublished" && apt.isActive) {
                 return false;
               }
+              if (aptTypeFilter === "real" && (!apt.isManual || !apt.addressTemplate)) {
+                return false;
+              }
+              if (aptTypeFilter === "chameleon" && (apt.isManual && apt.addressTemplate)) {
+                return false;
+              }
               if (aptSearchQuery.trim()) {
                 const q = aptSearchQuery.toLowerCase();
                 const matchTitle = apt.title.toLowerCase().includes(q);
@@ -1152,9 +1524,14 @@ export default function AdminDashboardPage() {
                         category: "1B1B",
                         bedrooms: 1,
                         bathrooms: 1,
+                        propertyType: "Apartment",
+                        climate: "Central AC & Heating",
+                        laundry: "In-unit laundry",
+                        parking: "Street parking",
+                        cityState: "",
                         baseRent: 0,
                         squareFeet: 0,
-                        furnished: "Either",
+                        furnished: "Unfurnished",
                         hasKitchen: true,
                         petPolicy: "Dogs & Cats Allowed",
                         amenities: ["Air Conditioning", "Wi-Fi", "Dishwasher"],
@@ -1228,13 +1605,25 @@ export default function AdminDashboardPage() {
                     <option value="unpublished">Unpublished</option>
                   </select>
 
-                  {(aptCategoryFilter !== "ALL" || aptFurnishedFilter !== "ALL" || aptStatusFilter !== "ALL" || aptSearchQuery) && (
+                  {/* Listing Type Dropdown Filter (Real vs Chameleon) */}
+                  <select
+                    value={aptTypeFilter}
+                    onChange={(e) => setAptTypeFilter(e.target.value)}
+                    className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer font-medium"
+                  >
+                    <option value="ALL">All Types</option>
+                    <option value="real">Real Listings Only</option>
+                    <option value="chameleon">Chameleon Only</option>
+                  </select>
+
+                  {(aptCategoryFilter !== "ALL" || aptFurnishedFilter !== "ALL" || aptStatusFilter !== "ALL" || aptTypeFilter !== "ALL" || aptSearchQuery) && (
                     <button
                       type="button"
                       onClick={() => {
                         setAptCategoryFilter("ALL");
                         setAptFurnishedFilter("ALL");
                         setAptStatusFilter("ALL");
+                        setAptTypeFilter("ALL");
                         setAptSearchQuery("");
                       }}
                       className="text-xs text-blue-600 hover:text-blue-800 font-semibold cursor-pointer underline px-1"
@@ -1252,7 +1641,7 @@ export default function AdminDashboardPage() {
                     <thead className="bg-slate-50 uppercase tracking-wider text-[10px] text-slate-500 border-b border-slate-200">
                       <tr>
                         <th className="py-3.5 px-4 font-semibold text-center w-12">SL</th>
-                        <th className="py-3.5 px-4 font-semibold">Title / Category</th>
+                        <th className="py-3.5 px-4 font-semibold">Title / Location</th>
                         <th className="py-3.5 px-4 font-semibold">Beds / Baths</th>
                         <th className="py-3.5 px-4 font-semibold">Base Rent</th>
                         <th className="py-3.5 px-4 font-semibold">Furnished</th>
@@ -1286,31 +1675,29 @@ export default function AdminDashboardPage() {
                                 )}
                               </div>
                               <div>
-                                <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5 flex-wrap">
-                                  <span>{apt.title}</span>
+                                <div className="font-bold text-slate-900 text-sm">
+                                  {apt.title}
+                                </div>
+                                <div className="flex items-center gap-2 mt-0.5 text-[11px] flex-wrap">
                                   {apt.isManual && apt.addressTemplate ? (
-                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold">
-                                      <Star className="w-2.5 h-2.5 fill-blue-600 text-blue-600" /> Real Listing
+                                    <span className="italic font-medium text-blue-600">
+                                      Real Listing
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 text-[10px] font-medium">
-                                      Chameleon Base (Dynamic Location)
+                                    <span className="italic font-medium text-purple-600">
+                                      Chameleon
                                     </span>
                                   )}
-                                  {apt.featured && (
-                                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold">
-                                      <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" /> Featured
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold">
-                                    {apt.category}
-                                  </span>
-                                  {apt.addressTemplate && (
-                                    <span className="text-[11px] text-slate-500 truncate max-w-xs flex items-center gap-1">
+                                  <span className="text-slate-300">•</span>
+                                  {apt.addressTemplate ? (
+                                    <span className="text-slate-500 truncate max-w-xs flex items-center gap-1">
                                       <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
                                       {apt.addressTemplate}
+                                    </span>
+                                  ) : (
+                                    <span className="text-slate-400 italic flex items-center gap-1">
+                                      <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                                      Dynamic Location (Auto-adapts)
                                     </span>
                                   )}
                                 </div>
@@ -1376,6 +1763,11 @@ export default function AdminDashboardPage() {
                               onClick={() => {
                                 setEditingApt({
                                   ...apt,
+                                  propertyType: apt.propertyType || "Apartment",
+                                  climate: apt.climate || (apt.cooling && apt.heating ? `${apt.cooling} & ${apt.heating}` : apt.cooling || apt.heating || "Central AC & Heating"),
+                                  laundry: apt.laundry || "In-unit laundry",
+                                  parking: apt.parking || "Street parking",
+                                  cityState: apt.addressTemplate || apt.cityState || "",
                                   images: apt.images || [],
                                 });
                                 setImageInputUrl("");
@@ -1478,6 +1870,310 @@ export default function AdminDashboardPage() {
             </form>
           </div>
         )}
+
+        {/* TAB 5: ADMIN USERS & AUDIT LOGS */}
+        {activeTab === "admins" && (() => {
+          const filteredLogs = adminLogs.filter((log) => {
+            const matchesSearch =
+              !adminLogSearch ||
+              log.username.toLowerCase().includes(adminLogSearch.toLowerCase()) ||
+              log.ip.toLowerCase().includes(adminLogSearch.toLowerCase()) ||
+              log.device.toLowerCase().includes(adminLogSearch.toLowerCase()) ||
+              log.browser.toLowerCase().includes(adminLogSearch.toLowerCase());
+
+            const matchesStatus =
+              adminLogStatusFilter === "ALL" || log.status === adminLogStatusFilter;
+
+            const matchesUser =
+              adminLogUserFilter === "ALL" ||
+              log.username.toLowerCase() === adminLogUserFilter.toLowerCase();
+
+            return matchesSearch && matchesStatus && matchesUser;
+          });
+
+          return (
+            <div className="space-y-8 animate-in fade-in">
+              {/* Header & Overview */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 flex items-center gap-2.5">
+                    <ShieldCheck className="w-6 h-6 text-blue-600" />
+                    Admin Access & Session Management
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Monitor registered administrator accounts, live active sessions, and real-time login audit trails.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    {adminUsers.filter((u) => u.isActive).length} Admin Currently Active
+                  </span>
+                </div>
+              </div>
+
+              {/* Registered Administrator Accounts Grid */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    Configured Administrator Accounts ({adminUsers.length})
+                  </h3>
+                  <span className="text-xs text-slate-400">Protected with HMAC-SHA256 Sessions</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {adminUsers.map((user) => {
+                    const isSelf = user.username.toLowerCase() === currentUser.toLowerCase();
+                    return (
+                      <div
+                        key={user.username}
+                        className={`p-6 rounded-3xl bg-white border transition shadow-sm space-y-4 ${
+                          user.isActive
+                            ? "border-emerald-300 ring-2 ring-emerald-500/10 shadow-emerald-500/5"
+                            : "border-slate-200"
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3.5">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-black text-lg uppercase shadow-sm">
+                              {user.username.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-base font-black text-slate-900">
+                                  {user.username}
+                                </h4>
+                                {isSelf && (
+                                  <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-[10px] font-bold">
+                                    You (Current)
+                                  </span>
+                                )}
+                              </div>
+                              <span className="text-xs text-slate-500 font-medium">
+                                System Administrator
+                              </span>
+                            </div>
+                          </div>
+
+                          {user.isActive ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-xs">
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                              </span>
+                              Active Now
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold">
+                              <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                              Offline
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100 text-xs">
+                          <div className="space-y-0.5">
+                            <span className="text-slate-400 font-semibold text-[11px] block">Last Login</span>
+                            <p className="font-bold text-slate-800">
+                              {user.lastLogin
+                                ? new Date(user.lastLogin).toLocaleString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })
+                                : "No login recorded"}
+                            </p>
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <span className="text-slate-400 font-semibold text-[11px] block">Total Logins</span>
+                            <p className="font-bold text-slate-800">
+                              {user.totalLogins} session{user.totalLogins === 1 ? "" : "s"}
+                            </p>
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <span className="text-slate-400 font-semibold text-[11px] block">Last Known IP</span>
+                            <p className="font-mono text-slate-700">
+                              {user.lastIp || "—"}
+                            </p>
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <span className="text-slate-400 font-semibold text-[11px] block">Device / Browser</span>
+                            <p className="text-slate-700 truncate" title={user.lastDevice || "—"}>
+                              {user.lastDevice || "—"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Login Audit Trail Table */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-blue-600" />
+                      Login Activity & Audit Trail
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Log of all admin authentication attempts with exact timestamp, IP address, and client platform.
+                    </p>
+                  </div>
+
+                  <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl self-start sm:self-auto">
+                    Showing {filteredLogs.length} of {adminLogs.length} events
+                  </span>
+                </div>
+
+                {/* Filters */}
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                  <div className="relative flex-1 w-full">
+                    <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by username, IP address, device, or browser..."
+                      value={adminLogSearch}
+                      onChange={(e) => setAdminLogSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900 bg-slate-50 focus:bg-white transition"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <select
+                      value={adminLogUserFilter}
+                      onChange={(e) => setAdminLogUserFilter(e.target.value)}
+                      className="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 outline-none focus:border-blue-600 cursor-pointer"
+                    >
+                      <option value="ALL">All Users</option>
+                      {adminUsers.map((u) => (
+                        <option key={u.username} value={u.username}>
+                          {u.username}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={adminLogStatusFilter}
+                      onChange={(e) => setAdminLogStatusFilter(e.target.value as any)}
+                      className="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 outline-none focus:border-blue-600 cursor-pointer"
+                    >
+                      <option value="ALL">All Status</option>
+                      <option value="SUCCESS">Successful Logins</option>
+                      <option value="FAILED">Failed Attempts</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Audit Table */}
+                <div className="overflow-x-auto rounded-2xl border border-slate-200">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-bold text-[11px] tracking-wider">
+                        <th className="py-3.5 px-4">User</th>
+                        <th className="py-3.5 px-4">Status</th>
+                        <th className="py-3.5 px-4">Login Time</th>
+                        <th className="py-3.5 px-4">IP Address</th>
+                        <th className="py-3.5 px-4">Device & Browser</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {filteredLogs.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-12 text-center text-slate-400 font-medium">
+                            No login activity recorded matching your filters.
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredLogs.map((log) => {
+                          const logDate = new Date(log.createdAt);
+                          const isRecent = Date.now() - logDate.getTime() < 15 * 60 * 1000;
+                          return (
+                            <tr key={log.id} className="hover:bg-slate-50/70 transition">
+                              <td className="py-3.5 px-4">
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-700 uppercase text-xs">
+                                    {log.username.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <span className="font-bold text-slate-900 block">
+                                      {log.username}
+                                    </span>
+                                    {log.username.toLowerCase() === currentUser.toLowerCase() && (
+                                      <span className="text-[10px] text-blue-600 font-semibold">You</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+
+                              <td className="py-3.5 px-4">
+                                {log.status === "SUCCESS" ? (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                    Successful Login
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 font-bold text-[11px] border border-rose-200">
+                                    <X className="w-3.5 h-3.5 text-rose-600" />
+                                    Failed Attempt
+                                  </span>
+                                )}
+                              </td>
+
+                              <td className="py-3.5 px-4">
+                                <div>
+                                  <span className="font-semibold text-slate-800 block">
+                                    {logDate.toLocaleString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                      hour: "numeric",
+                                      minute: "2-digit",
+                                      hour12: true,
+                                    })}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400">
+                                    {isRecent ? "Recent session" : "Past session"}
+                                  </span>
+                                </div>
+                              </td>
+
+                              <td className="py-3.5 px-4">
+                                <div className="flex items-center gap-1.5 text-slate-700 font-mono">
+                                  <Globe className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                  <span>{log.ip}</span>
+                                </div>
+                              </td>
+
+                              <td className="py-3.5 px-4">
+                                <div className="flex items-center gap-1.5 text-slate-700">
+                                  <Laptop className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                  <span className="font-medium">
+                                    {log.device} • {log.browser}
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
           </>
         )}
       </div>
@@ -1489,12 +2185,30 @@ export default function AdminDashboardPage() {
         );
         const aptPrice = selectedApt?.baseRent || selectedLead.selectedApartmentPrice;
         const aptTitle = selectedApt?.title || selectedLead.selectedApartmentTitle;
+        const aptTargetId =
+          selectedApt?.slug ||
+          selectedApt?._id ||
+          selectedApt?.id ||
+          selectedLead.selectedApartmentId;
+        const aptUrl = aptTargetId
+          ? `/apartments/${aptTargetId}${
+              selectedLead.desiredLocation
+                ? `?loc=${encodeURIComponent(selectedLead.desiredLocation)}`
+                : ""
+            }`
+          : null;
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white border border-slate-200 text-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl p-6 sm:p-8 space-y-5 relative max-h-[92vh] overflow-y-auto">
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in"
+            onClick={handleCloseLeadModal}
+          >
+            <div
+              className="bg-white border border-slate-200 text-slate-900 w-full max-w-2xl rounded-3xl shadow-2xl p-6 sm:p-8 space-y-5 relative max-h-[92vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <button
-                onClick={() => setSelectedLead(null)}
+                onClick={handleCloseLeadModal}
                 className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -1527,12 +2241,18 @@ export default function AdminDashboardPage() {
                 </div>
                 <h3 className="text-2xl font-black text-slate-900">{selectedLead.fullName}</h3>
                 <div className="flex flex-wrap items-center gap-3 mt-1 text-xs">
-                  <span className="text-slate-700 flex items-center gap-1.5 font-medium select-all">
+                  <span
+                    onClick={() => copyToClipboard(selectedLead.email)}
+                    className="text-slate-700 flex items-center gap-1.5 font-medium select-all cursor-pointer"
+                  >
                     <Mail className="w-3.5 h-3.5 text-blue-600" />
                     {selectedLead.email}
                   </span>
                   <span className="text-slate-300">•</span>
-                  <span className="text-slate-700 font-semibold flex items-center gap-1.5 select-all">
+                  <span
+                    onClick={() => copyToClipboard(selectedLead.phone)}
+                    className="text-slate-700 font-semibold flex items-center gap-1.5 select-all cursor-pointer"
+                  >
                     <Phone className="w-3.5 h-3.5 text-emerald-600" />
                     {selectedLead.phone}
                   </span>
@@ -1541,59 +2261,122 @@ export default function AdminDashboardPage() {
 
               {/* Selected Apartment Section */}
               {aptTitle || aptPrice ? (
-                <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/40 border border-blue-200/90 rounded-2xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase font-bold text-blue-800 tracking-wider flex items-center gap-1.5">
-                      <Building2 className="w-4 h-4 text-blue-600" />
-                      Client Selected Apartment
-                    </span>
-                    <span className="px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-black shadow-sm">
-                      ${aptPrice?.toLocaleString()} / month
-                    </span>
-                  </div>
+                aptUrl ? (
+                  <a
+                    href={aptUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block bg-gradient-to-br from-blue-50/80 to-indigo-50/40 hover:from-blue-100/90 hover:to-indigo-100/60 border border-blue-200/90 hover:border-blue-400 rounded-2xl p-4 space-y-3 transition-all duration-200 shadow-xs hover:shadow-md cursor-pointer group select-none"
+                    title="Click anywhere to open apartment details in a new tab"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs uppercase font-bold text-blue-800 group-hover:text-blue-950 tracking-wider flex items-center gap-1.5 transition">
+                        <Building2 className="w-4 h-4 text-blue-600" />
+                        <span>Client Selected Apartment</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-blue-500 opacity-70 group-hover:opacity-100 transition" />
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-emerald-600 group-hover:bg-emerald-700 text-white text-xs font-black shadow-sm transition">
+                        ${aptPrice?.toLocaleString()} / month
+                      </span>
+                    </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                    {selectedApt?.images?.[0] && (
-                      <div className="relative w-full sm:w-28 h-24 rounded-xl overflow-hidden shrink-0 border border-blue-200/70 shadow-sm bg-slate-100">
-                        <Image
-                          src={selectedApt.images[0]}
-                          alt={aptTitle || "Apartment"}
-                          fill
-                          className="object-cover"
-                        />
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                      {selectedApt?.images?.[0] && (
+                        <div className="relative w-full sm:w-28 h-24 rounded-xl overflow-hidden shrink-0 border border-blue-200/70 shadow-sm bg-slate-100">
+                          <Image
+                            src={selectedApt.images[0]}
+                            alt={aptTitle || "Apartment"}
+                            fill
+                            className="object-cover group-hover:scale-105 transition duration-300"
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <h4 className="font-bold text-base text-slate-900 group-hover:text-blue-700 leading-snug transition flex items-center gap-1.5">
+                          <span>{aptTitle}</span>
+                        </h4>
+                        <p className="text-xs text-slate-600 flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span className="truncate">
+                            {selectedApt?.addressTemplate || selectedLead.desiredLocation}
+                          </span>
+                        </p>
+                        <div className="flex flex-wrap gap-2 text-xs text-slate-600 pt-1">
+                          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold shadow-2xs">
+                            🛏️ {selectedApt?.bedrooms || selectedLead.bedrooms} Bed
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold shadow-2xs">
+                            🚿 {selectedApt?.bathrooms || selectedLead.bathrooms} Bath
+                          </span>
+                          {selectedApt?.squareFeet && (
+                            <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold shadow-2xs">
+                              📐 {selectedApt.squareFeet} sqft
+                            </span>
+                          )}
+                          {selectedApt?.category && (
+                            <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 font-bold">
+                              {selectedApt.category}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <h4 className="font-bold text-base text-slate-900 leading-snug">
-                        {aptTitle}
-                      </h4>
-                      <p className="text-xs text-slate-600 flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                        <span className="truncate">
-                          {selectedApt?.addressTemplate || selectedLead.desiredLocation}
-                        </span>
-                      </p>
-                      <div className="flex flex-wrap gap-2 text-xs text-slate-600 pt-1">
-                        <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold">
-                          🛏️ {selectedApt?.bedrooms || selectedLead.bedrooms} Bed
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold">
-                          🚿 {selectedApt?.bathrooms || selectedLead.bathrooms} Bath
-                        </span>
-                        {selectedApt?.squareFeet && (
+                    </div>
+                  </a>
+                ) : (
+                  <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/40 border border-blue-200/90 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs uppercase font-bold text-blue-800 tracking-wider flex items-center gap-1.5">
+                        <Building2 className="w-4 h-4 text-blue-600" />
+                        Client Selected Apartment
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-black shadow-sm">
+                        ${aptPrice?.toLocaleString()} / month
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                      {selectedApt?.images?.[0] && (
+                        <div className="relative w-full sm:w-28 h-24 rounded-xl overflow-hidden shrink-0 border border-blue-200/70 shadow-sm bg-slate-100">
+                          <Image
+                            src={selectedApt.images[0]}
+                            alt={aptTitle || "Apartment"}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <h4 className="font-bold text-base text-slate-900 leading-snug">
+                          {aptTitle}
+                        </h4>
+                        <p className="text-xs text-slate-600 flex items-center gap-1">
+                          <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span className="truncate">
+                            {selectedApt?.addressTemplate || selectedLead.desiredLocation}
+                          </span>
+                        </p>
+                        <div className="flex flex-wrap gap-2 text-xs text-slate-600 pt-1">
                           <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold">
-                            📐 {selectedApt.squareFeet} sqft
+                            🛏️ {selectedApt?.bedrooms || selectedLead.bedrooms} Bed
                           </span>
-                        )}
-                        {selectedApt?.category && (
-                          <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 font-bold">
-                            {selectedApt.category}
+                          <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold">
+                            🚿 {selectedApt?.bathrooms || selectedLead.bathrooms} Bath
                           </span>
-                        )}
+                          {selectedApt?.squareFeet && (
+                            <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold">
+                              📐 {selectedApt.squareFeet} sqft
+                            </span>
+                          )}
+                          {selectedApt?.category && (
+                            <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 font-bold">
+                              {selectedApt.category}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )
               ) : (
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                   <div>
@@ -1626,17 +2409,29 @@ export default function AdminDashboardPage() {
 
               {/* Specs & Lifestyle Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <div
+                  onClick={() => copyToClipboard(selectedLead.desiredLocation || "United States")}
+                  className="p-3 bg-slate-50 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-100/70 transition"
+                  title="Click to copy location"
+                >
                   <span className="text-slate-500 block font-medium">Location:</span>
-                  <span className="font-semibold text-slate-800">{selectedLead.desiredLocation || "United States"}</span>
+                  <span className="font-semibold text-slate-800 select-text">{selectedLead.desiredLocation || "United States"}</span>
                 </div>
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <div
+                  onClick={() => copyToClipboard(`$${selectedLead.budgetMin} – $${selectedLead.budgetMax}/mo`)}
+                  className="p-3 bg-slate-50 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-100/70 transition"
+                  title="Click to copy budget"
+                >
                   <span className="text-slate-500 block font-medium">Budget Range:</span>
-                  <span className="font-semibold text-emerald-600">${selectedLead.budgetMin} – ${selectedLead.budgetMax}/mo</span>
+                  <span className="font-semibold text-emerald-600 select-text">${selectedLead.budgetMin} – ${selectedLead.budgetMax}/mo</span>
                 </div>
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
+                <div
+                  onClick={() => copyToClipboard(`${selectedLead.bedrooms} Bed, ${selectedLead.bathrooms} Bath`)}
+                  className="p-3 bg-slate-50 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-100/70 transition"
+                  title="Click to copy layout"
+                >
                   <span className="text-slate-500 block font-medium">Layout Required:</span>
-                  <span className="font-semibold text-slate-800">{selectedLead.bedrooms} Bed, {selectedLead.bathrooms} Bath</span>
+                  <span className="font-semibold text-slate-800 select-text">{selectedLead.bedrooms} Bed, {selectedLead.bathrooms} Bath</span>
                 </div>
                 <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
                   <span className="text-slate-500 block font-medium">Furnishing & Kitchen:</span>
@@ -1723,307 +2518,577 @@ export default function AdminDashboardPage() {
 
       {/* APARTMENT EDIT / CREATE MODAL */}
       {editingApt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-          <div className="bg-white border border-slate-200 text-slate-900 w-full max-w-lg rounded-3xl shadow-2xl p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white border border-slate-200 text-slate-900 w-full max-w-5xl rounded-3xl shadow-2xl p-5 sm:p-7 space-y-4 max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-bold text-sm text-slate-900">
-                {isNewAptModal ? "Add New Base Apartment" : "Edit Apartment"}
+              <h3 className="font-bold text-base text-slate-900">
+                {isNewAptModal ? "Add New Apartment" : "Edit Apartment"}
               </h3>
               <button
                 onClick={() => {
                   setEditingApt(null);
                   setImageInputUrl("");
                 }}
-                className="text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveApartment} onPaste={handlePasteImage} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block text-slate-700 font-medium mb-1">Apartment Title</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. The Lexington Modern Suite"
-                  value={editingApt.title}
-                  onChange={(e) => setEditingApt({ ...editingApt, title: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium outline-none focus:bg-white focus:border-blue-500 transition"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-medium mb-1 flex items-center justify-between">
-                  <span>Property Address (Optional)</span>
-                  <span className="text-[11px] text-slate-400 font-normal">Leave blank for Chameleon dynamic search</span>
-                </label>
-                <div className="relative">
-                  <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    type="text"
-                    placeholder="e.g. 18 Nantucket Dr, Medford, NY 11763 or Paterson, NJ 07501"
-                    value={editingApt.addressTemplate || ""}
-                    onChange={(e) => setEditingApt({ ...editingApt, addressTemplate: e.target.value })}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium"
-                  />
-                </div>
-              </div>
-
-              {/* Specs 3-Column Grid: Category, Monthly Rent, Square Feet */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-slate-700 font-medium mb-1">Category</label>
-                  <select
-                    value={editingApt.category}
-                    onChange={(e) => {
-                      const cat = e.target.value as any;
-                      let beds = 1;
-                      let baths = 1;
-                      if (cat === "1B1B") { beds = 1; baths = 1; }
-                      else if (cat === "2B2B") { beds = 2; baths = 2; }
-                      else if (cat === "3B2B") { beds = 3; baths = 2; }
-                      else if (cat === "3B3B") { beds = 3; baths = 3; }
-                      setEditingApt({
-                        ...editingApt,
-                        category: cat,
-                        bedrooms: beds,
-                        bathrooms: baths,
-                      });
-                    }}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer font-medium"
-                  >
-                    <option value="1B1B">1 Bed / 1 Bath</option>
-                    <option value="2B2B">2 Bed / 2 Bath</option>
-                    <option value="3B2B">3 Bed / 2 Bath</option>
-                    <option value="3B3B">3 Bed / 3 Bath</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 font-medium mb-1">Monthly Rent ($)</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">$</span>
+            <form onSubmit={handleSaveApartment} onPaste={handlePasteImage} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* LEFT: FORM INPUTS (7 cols) */}
+                <div className="lg:col-span-7 space-y-3.5">
+                  <div>
+                    <label className="block text-slate-700 font-medium mb-1">Apartment Title</label>
                     <input
-                      type="number"
-                      placeholder="e.g. 1250"
-                      value={editingApt.baseRent ? editingApt.baseRent : ""}
-                      onChange={(e) =>
-                        setEditingApt({
-                          ...editingApt,
-                          baseRent: e.target.value === "" ? 0 : Number(e.target.value),
-                        })
-                      }
-                      className="w-full pl-7 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      type="text"
+                      required
+                      placeholder="e.g. The Lexington Modern Suite"
+                      value={editingApt.title}
+                      onChange={(e) => setEditingApt({ ...editingApt, title: e.target.value })}
+                      className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium outline-none focus:bg-white focus:border-blue-500 transition"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-slate-700 font-medium mb-1">Square Feet</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 750"
-                    value={editingApt.squareFeet ? editingApt.squareFeet : ""}
-                    onChange={(e) =>
-                      setEditingApt({
-                        ...editingApt,
-                        squareFeet: e.target.value === "" ? 0 : Number(e.target.value),
-                      })
-                    }
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-slate-700 font-medium mb-1">Description</label>
-                <textarea
-                  rows={2}
-                  value={editingApt.description}
-                  onChange={(e) => setEditingApt({ ...editingApt, description: e.target.value })}
-                  className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
-                />
-              </div>
-
-              {/* APARTMENT PHOTOS & GALLERY */}
-              <div className="pt-2 border-t border-slate-100 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-slate-700 font-bold text-xs">
-                    Apartment Photos ({(editingApt.images || []).length})
-                  </label>
-                  <span className="text-[11px] text-slate-400">Drag & drop files or press Ctrl+V to paste</span>
-                </div>
-
-                {/* Drag & Drop Multi-file Upload Box */}
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`relative border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 ${
-                    isDragging
-                      ? "border-blue-500 bg-blue-50/70 scale-[1.01]"
-                      : "border-slate-200 hover:border-blue-400 bg-slate-50/60 hover:bg-blue-50/30"
-                  }`}
-                >
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={(e) => e.target.files && uploadFiles(e.target.files)}
-                    multiple
-                    accept="image/*"
-                    className="hidden"
-                  />
-                  {isUploadingImage ? (
-                    <div className="flex flex-col items-center justify-center py-2 text-blue-600">
-                      <Loader2 className="w-6 h-6 animate-spin mb-1" />
-                      <span className="text-xs font-bold">Uploading photos...</span>
+                  <div>
+                    <label className="block text-slate-700 font-medium mb-1 flex items-center justify-between">
+                      <span>Property Address (Optional)</span>
+                      <span className="text-[11px] text-slate-400 font-normal">Leave blank for Chameleon dynamic search</span>
+                    </label>
+                    <div className="relative">
+                      <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                      <input
+                        type="text"
+                        placeholder="e.g. 18 Nantucket Dr, Medford, NY 11763 or Paterson, NJ 07501"
+                        value={editingApt.addressTemplate || ""}
+                        onChange={(e) => setEditingApt({ ...editingApt, addressTemplate: e.target.value })}
+                        className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium"
+                      />
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center space-y-1">
-                      <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-0.5">
-                        <Upload className="w-4 h-4" />
-                      </div>
-                      <div className="text-xs font-semibold text-slate-700">
-                        <span className="text-blue-600 font-bold">Click to browse</span> or drag & drop 4–5 photos here
-                      </div>
-                      <div className="text-[11px] text-slate-400 flex items-center gap-1.5 justify-center">
-                        <span>Select multiple photos from folder</span>
-                        <span>•</span>
-                        <span className="bg-slate-200/80 px-1.5 py-0.5 rounded text-[10px] text-slate-600 font-mono">
-                          Ctrl+V / Cmd+V to paste
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Paste Image URL / Clipboard Bar */}
-                <div className="flex gap-2">
-                  <div className="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:bg-white focus-within:border-blue-500 transition">
-                    <Link2 className="w-3.5 h-3.5 text-slate-400 mr-2 shrink-0" />
-                    <input
-                      type="url"
-                      placeholder="Paste image link (https://...) or press Ctrl+V"
-                      value={imageInputUrl}
-                      onChange={(e) => setImageInputUrl(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddImageUrl();
+                  {/* Specs 4-Column Grid: Category, Furnished, Monthly Rent, Square Feet */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-slate-700 font-medium mb-1">Category</label>
+                      <select
+                        value={editingApt.category}
+                        onChange={(e) => {
+                          const cat = e.target.value as any;
+                          let beds = 1;
+                          let baths = 1;
+                          if (cat === "1B1B") { beds = 1; baths = 1; }
+                          else if (cat === "2B1B") { beds = 2; baths = 1; }
+                          else if (cat === "2B2B") { beds = 2; baths = 2; }
+                          else if (cat === "3B2B") { beds = 3; baths = 2; }
+                          else if (cat === "3B3B") { beds = 3; baths = 3; }
+                          setEditingApt({
+                            ...editingApt,
+                            category: cat,
+                            bedrooms: beds,
+                            bathrooms: baths,
+                          });
+                        }}
+                        className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer font-medium"
+                      >
+                        <option value="1B1B">1 Bed / 1 Bath</option>
+                        <option value="2B1B">2 Bed / 1 Bath</option>
+                        <option value="2B2B">2 Bed / 2 Bath</option>
+                        <option value="3B2B">3 Bed / 2 Bath</option>
+                        <option value="3B3B">3 Bed / 3 Bath</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-700 font-medium mb-1">Furnished</label>
+                      <select
+                        value={editingApt.furnished || "Unfurnished"}
+                        onChange={(e) =>
+                          setEditingApt({
+                            ...editingApt,
+                            furnished: e.target.value as any,
+                          })
                         }
-                      }}
-                      className="w-full bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400"
+                        className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer font-medium"
+                      >
+                        <option value="Furnished">Furnished</option>
+                        <option value="Unfurnished">Unfurnished</option>
+                        <option value="Either">Either (Flexible)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-700 font-medium mb-1">Monthly Rent ($)</label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">$</span>
+                        <input
+                          type="number"
+                          placeholder="e.g. 1250"
+                          value={editingApt.baseRent ? editingApt.baseRent : ""}
+                          onChange={(e) =>
+                            setEditingApt({
+                              ...editingApt,
+                              baseRent: e.target.value === "" ? 0 : Number(e.target.value),
+                            })
+                          }
+                          className="w-full pl-7 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-700 font-medium mb-1">Square Feet</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 750"
+                        value={editingApt.squareFeet ? editingApt.squareFeet : ""}
+                        onChange={(e) =>
+                          setEditingApt({
+                            ...editingApt,
+                            squareFeet: e.target.value === "" ? 0 : Number(e.target.value),
+                          })
+                        }
+                        className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-700 font-medium mb-1">Description</label>
+                    <textarea
+                      rows={2}
+                      value={editingApt.description}
+                      onChange={(e) => setEditingApt({ ...editingApt, description: e.target.value })}
+                      className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleAddImageUrl}
-                    disabled={!imageInputUrl.trim()}
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs disabled:opacity-40 transition cursor-pointer shrink-0"
-                  >
-                    Add Link
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handlePasteFromClipboardBtn}
-                    title="Paste copied image or URL from clipboard"
-                    className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-xs transition cursor-pointer flex items-center gap-1 shrink-0"
-                  >
-                    <Clipboard className="w-3.5 h-3.5" />
-                    <span>Paste</span>
-                  </button>
-                </div>
 
-                {/* Photo Previews Gallery Grid */}
-                {(editingApt.images || []).length > 0 && (
-                  <div className="space-y-1.5 pt-1">
-                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
-                      <span>Photo Previews ({editingApt.images.length})</span>
-                      <span className="text-[10px] text-slate-400">Hover photo to set cover or delete</span>
+                  {/* FACEBOOK MARKETPLACE UNIT DETAILS & RENTAL LOCATION */}
+                  <div className="pt-3 border-t border-slate-100 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-slate-800 font-bold text-xs flex items-center gap-1.5">
+                        <Home className="w-3.5 h-3.5 text-blue-600" />
+                        Unit Details & Rental Location (Marketplace Style)
+                      </label>
+                      <span className="text-[11px] text-slate-400">Unit specs & Google Map approximate location</span>
                     </div>
-                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-44 overflow-y-auto p-1.5 bg-slate-50 rounded-2xl border border-slate-100">
-                      {editingApt.images.map((imgUrl, idx) => (
-                        <div
-                          key={idx}
-                          className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-square bg-slate-100 shadow-sm"
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-600 text-xs font-semibold mb-1">Property Type</label>
+                        <select
+                          value={editingApt.propertyType || "Apartment"}
+                          onChange={(e) => setEditingApt({ ...editingApt, propertyType: e.target.value })}
+                          className="w-full p-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium cursor-pointer"
                         >
-                          <img
-                            src={imgUrl}
-                            alt={`Apartment photo ${idx + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                          {idx === 0 && (
-                            <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-blue-600/95 text-white text-[8px] font-bold uppercase tracking-wider shadow flex items-center gap-0.5">
-                              <Star className="w-2 h-2 fill-white" /> Cover
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                            {idx !== 0 && (
-                              <button
-                                type="button"
-                                onClick={() => handleSetPrimaryImage(idx)}
-                                className="p-1 rounded bg-white text-slate-800 text-[9px] font-bold hover:bg-slate-100 transition cursor-pointer shadow"
-                                title="Set as Main Cover Photo"
-                              >
-                                <Star className="w-3 h-3 text-amber-500" />
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveImage(idx)}
-                              className="p-1 rounded bg-red-600 text-white text-[9px] font-bold hover:bg-red-700 transition cursor-pointer shadow"
-                              title="Remove Photo"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
+                          <option value="Apartment">Apartment</option>
+                          <option value="Condo">Condo</option>
+                          <option value="Townhouse">Townhouse</option>
+                          <option value="Single Family House">Single Family House</option>
+                          <option value="Studio">Studio</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-600 text-xs font-semibold mb-1">Climate Control (HVAC)</label>
+                        <select
+                          value={editingApt.climate || "Central AC & Heating"}
+                          onChange={(e) => setEditingApt({ ...editingApt, climate: e.target.value })}
+                          className="w-full p-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium cursor-pointer"
+                        >
+                          <option value="Central AC & Heating">Central AC & Heating</option>
+                          <option value="Window AC & Central Heating">Window AC & Central Heating</option>
+                          <option value="Split AC & Heating">Split AC & Heating</option>
+                          <option value="Heating Only (No AC)">Heating Only (No AC)</option>
+                          <option value="None">None</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-600 text-xs font-semibold mb-1">Laundry</label>
+                        <select
+                          value={editingApt.laundry || "In-unit laundry"}
+                          onChange={(e) => setEditingApt({ ...editingApt, laundry: e.target.value })}
+                          className="w-full p-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium cursor-pointer"
+                        >
+                          <option value="In-unit laundry">In-unit laundry</option>
+                          <option value="Laundry in building">Laundry in building</option>
+                          <option value="Laundry on site">Laundry on site</option>
+                          <option value="Washer & dryer hookups">Washer & dryer hookups</option>
+                          <option value="None">None</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-600 text-xs font-semibold mb-1">Parking</label>
+                        <select
+                          value={editingApt.parking || "Street parking"}
+                          onChange={(e) => setEditingApt({ ...editingApt, parking: e.target.value })}
+                          className="w-full p-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium cursor-pointer"
+                        >
+                          <option value="Street parking">Street parking</option>
+                          <option value="Garage parking">Garage parking</option>
+                          <option value="Dedicated parking spot">Dedicated parking spot</option>
+                          <option value="Off-street parking">Off-street parking</option>
+                          <option value="Valet parking">Valet parking</option>
+                          <option value="No parking">No parking</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* APARTMENT PHOTOS & GALLERY */}
+                  <div className="pt-2 border-t border-slate-100 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-slate-700 font-bold text-xs">
+                        Apartment Photos ({(editingApt.images || []).length})
+                      </label>
+                      <span className="text-[11px] text-slate-400">Drag & drop files or press Ctrl+V to paste</span>
+                    </div>
+
+                    {/* Drag & Drop Multi-file Upload Box */}
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()}
+                      className={`relative border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all duration-200 ${
+                        isDragging
+                          ? "border-blue-500 bg-blue-50/70 scale-[1.01]"
+                          : "border-slate-200 hover:border-blue-400 bg-slate-50/60 hover:bg-blue-50/30"
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={(e) => e.target.files && uploadFiles(e.target.files)}
+                        multiple
+                        accept="image/*"
+                        className="hidden"
+                      />
+                      {isUploadingImage ? (
+                        <div className="flex flex-col items-center justify-center py-2 text-blue-600">
+                          <Loader2 className="w-6 h-6 animate-spin mb-1" />
+                          <span className="text-xs font-bold">Uploading photos...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center space-y-1">
+                          <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-0.5">
+                            <Upload className="w-4 h-4" />
+                          </div>
+                          <div className="text-xs font-semibold text-slate-700">
+                            <span className="text-blue-600 font-bold">Click to browse</span> or drag & drop 4–5 photos here
+                          </div>
+                          <div className="text-[11px] text-slate-400 flex items-center gap-1.5 justify-center">
+                            <span>Select multiple photos from folder</span>
+                            <span>•</span>
+                            <span className="bg-slate-200/80 px-1.5 py-0.5 rounded text-[10px] text-slate-600 font-mono">
+                              Ctrl+V / Cmd+V to paste
+                            </span>
                           </div>
                         </div>
-                      ))}
+                      )}
+                    </div>
+
+                    {/* Paste Image URL / Clipboard Bar */}
+                    <div className="flex gap-2">
+                      <div className="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:bg-white focus-within:border-blue-500 transition">
+                        <Link2 className="w-3.5 h-3.5 text-slate-400 mr-2 shrink-0" />
+                        <input
+                          type="url"
+                          placeholder="Paste image link (https://...) or press Ctrl+V"
+                          value={imageInputUrl}
+                          onChange={(e) => setImageInputUrl(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              handleAddImageUrl();
+                            }
+                          }}
+                          className="w-full bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddImageUrl}
+                        disabled={!imageInputUrl.trim()}
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs disabled:opacity-40 transition cursor-pointer shrink-0"
+                      >
+                        Add Link
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handlePasteFromClipboardBtn}
+                        title="Paste copied image or URL from clipboard"
+                        className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-xs transition cursor-pointer flex items-center gap-1 shrink-0"
+                      >
+                        <Clipboard className="w-3.5 h-3.5" />
+                        <span>Paste</span>
+                      </button>
+                    </div>
+
+                    {/* Photo Previews Gallery Grid */}
+                    {(editingApt.images || []).length > 0 && (
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                          <span>Photo Previews ({editingApt.images.length})</span>
+                          <span className="text-[10px] text-slate-400">Hover photo to set cover or delete</span>
+                        </div>
+                        <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-40 overflow-y-auto p-1.5 bg-slate-50 rounded-2xl border border-slate-100">
+                          {editingApt.images.map((imgUrl, idx) => (
+                            <div
+                              key={idx}
+                              className="relative group rounded-xl overflow-hidden border border-slate-200 aspect-square bg-slate-100 shadow-sm"
+                            >
+                              <img
+                                src={imgUrl}
+                                alt={`Apartment photo ${idx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                              {idx === 0 && (
+                                <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-blue-600/95 text-white text-[8px] font-bold uppercase tracking-wider shadow flex items-center gap-0.5">
+                                  <Star className="w-2 h-2 fill-white" /> Cover
+                                </div>
+                              )}
+                              <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                                {idx !== 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleSetPrimaryImage(idx)}
+                                    className="p-1 rounded bg-white text-slate-800 text-[9px] font-bold hover:bg-slate-100 transition cursor-pointer shadow"
+                                    title="Set as Main Cover Photo"
+                                  >
+                                    <Star className="w-3 h-3 text-amber-500" />
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveImage(idx)}
+                                  className="p-1 rounded bg-red-600 text-white text-[9px] font-bold hover:bg-red-700 transition cursor-pointer shadow"
+                                  title="Remove Photo"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-4 pt-1">
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
+                      <input
+                        type="checkbox"
+                        checked={editingApt.isActive}
+                        onChange={(e) => setEditingApt({ ...editingApt, isActive: e.target.checked })}
+                        className="w-4 h-4 rounded text-blue-600 cursor-pointer"
+                      />
+                      <span>Published (Visible on Website)</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
+                      <input
+                        type="checkbox"
+                        checked={editingApt.featured}
+                        onChange={(e) => setEditingApt({ ...editingApt, featured: e.target.checked })}
+                        className="w-4 h-4 rounded text-blue-600 cursor-pointer"
+                      />
+                      <span>Featured on Homepage</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* RIGHT: LIVE LISTING PREVIEW (5 cols) */}
+                <div className="lg:col-span-5 lg:sticky lg:top-0 space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      Live Listing Preview
+                    </span>
+                    <span className="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-md">
+                      Live Card
+                    </span>
+                  </div>
+
+                  {/* Card Preview Container */}
+                  <div className="bg-white rounded-3xl overflow-hidden border border-slate-200/90 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col group [transform:translateZ(0)]">
+                    {/* Image Preview */}
+                    <div className="relative h-48 w-full overflow-hidden bg-slate-100">
+                      {editingApt.images && editingApt.images.length > 0 ? (
+                        <img
+                          src={editingApt.images[0]}
+                          alt={editingApt.title || "Apartment cover"}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-50 gap-2 p-4 text-center">
+                          <ImageIcon className="w-8 h-8 text-slate-300" />
+                          <span className="text-xs font-semibold text-slate-400">
+                            Upload photos to preview cover image
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Photo Count Tag */}
+                      {editingApt.images && editingApt.images.length > 0 && (
+                        <div className="absolute top-3 left-3 bg-slate-950/80 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                          <Camera className="w-3 h-3" />
+                          <span>
+                            {editingApt.images.length} {editingApt.images.length === 1 ? "Photo" : "Photos"}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Furnished Status Tag */}
+                      <div className="absolute top-3 right-3 bg-slate-900/80 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                        <span>🛋️ {editingApt.furnished || "Unfurnished"}</span>
+                      </div>
+
+                      {/* Rent Badge */}
+                      <div className="absolute bottom-3 right-3 bg-blue-600 text-white px-3 py-1.5 rounded-xl font-black text-sm shadow-lg">
+                        ${editingApt.baseRent || 0}
+                        <span className="text-[10px] font-normal text-blue-100"> / mo</span>
+                      </div>
+                    </div>
+
+                    {/* Card Details */}
+                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                      <div>
+                        <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 mb-1">
+                          <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <span className="truncate">
+                            {editingApt.addressTemplate?.trim()
+                              ? editingApt.addressTemplate
+                              : "Dynamic Chameleon Location (Auto-adapts to search)"}
+                          </span>
+                        </div>
+
+                        <h4 className="text-base font-bold text-slate-900 line-clamp-1">
+                          {editingApt.title || "Apartment Title Preview"}
+                        </h4>
+
+                        <p className="text-slate-500 text-xs mt-1 line-clamp-2 leading-relaxed">
+                          {editingApt.description || "Enter a description on the left to preview it here."}
+                        </p>
+
+                        {/* Specs row */}
+                        <div className="grid grid-cols-3 gap-2 py-2.5 border-y border-slate-100 mt-2.5 text-xs text-slate-600 text-center font-medium">
+                          <div className="flex items-center justify-center gap-1">
+                            <BedDouble className="w-3.5 h-3.5 text-blue-600" />
+                            <span>{editingApt.bedrooms || 1} Bed</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-1">
+                            <Bath className="w-3.5 h-3.5 text-blue-600" />
+                            <span>{editingApt.bathrooms || 1} Bath</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-1">
+                            <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
+                            <span>{editingApt.squareFeet || 0} sq ft</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Card Action Buttons Preview */}
+                      <div className="pt-1 flex items-center gap-2">
+                        <div className="flex-1 py-2 px-3 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 opacity-90 cursor-default">
+                          <Calendar className="w-3.5 h-3.5 text-blue-200" />
+                          Schedule Tour / Inquire
+                        </div>
+                        <div className="py-2 px-3 rounded-xl border border-slate-200 text-slate-700 text-xs font-semibold cursor-default">
+                          Details
+                        </div>
+                      </div>
                     </div>
                   </div>
-                )}
+
+                  {/* Quick Meta Info Box */}
+                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] text-slate-600 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Furnished Status:</span>
+                      <span className="font-bold text-slate-800">{editingApt.furnished || "Unfurnished"}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Category Layout:</span>
+                      <span className="font-bold text-slate-800">
+                        {editingApt.category?.replace(/(\d+B)(\d+B)/i, "$1/$2") || editingApt.category}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Visibility:</span>
+                      <span className={`font-bold ${editingApt.isActive ? "text-emerald-600" : "text-amber-600"}`}>
+                        {editingApt.isActive ? "Published" : "Draft / Unpublished"}
+                      </span>
+                    </div>
+                    {/* Unit Details & Map specs preview */}
+                    <div className="pt-1.5 border-t border-slate-200/60 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Unit Type:</span>
+                        <span className="font-semibold text-slate-800">{editingApt.propertyType || "Apartment"}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Climate Control:</span>
+                        <span className="font-semibold text-slate-800">
+                          {editingApt.climate || "Central AC & Heating"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Laundry & Parking:</span>
+                        <span className="font-semibold text-slate-800">
+                          {editingApt.laundry || "In-unit laundry"} · {editingApt.parking || "Street parking"}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-blue-600 font-semibold">
+                        <span className="text-slate-400">Google Map Area:</span>
+                        <span>{editingApt.addressTemplate?.trim() || "Auto-detected on search"}</span>
+                      </div>
+                    </div>
+                    {editingApt.slug && !isNewAptModal && (
+                      <div className="pt-1.5 border-t border-slate-200/60 flex justify-end">
+                        <a
+                          href={`/apartments/${editingApt.slug || editingApt._id || editingApt.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 hover:underline"
+                        >
+                          Open Live Listing Page <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center gap-4 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                  <input
-                    type="checkbox"
-                    checked={editingApt.isActive}
-                    onChange={(e) => setEditingApt({ ...editingApt, isActive: e.target.checked })}
-                    className="w-4 h-4 rounded text-blue-600 cursor-pointer"
-                  />
-                  <span>Published (Visible on Website)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer text-slate-700 font-medium">
-                  <input
-                    type="checkbox"
-                    checked={editingApt.featured}
-                    onChange={(e) => setEditingApt({ ...editingApt, featured: e.target.checked })}
-                    className="w-4 h-4 rounded text-blue-600 cursor-pointer"
-                  />
-                  <span>Featured on Homepage</span>
-                </label>
-              </div>
-
-              <div className="pt-3 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingApt(null);
-                    setImageInputUrl("");
-                  }}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition cursor-pointer shadow-sm"
-                >
-                  Save Apartment
-                </button>
+              {/* Bottom Actions Bar */}
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                <div className="text-[11px] text-slate-400">
+                  {editingApt.addressTemplate?.trim()
+                    ? "📍 Real geographic listing with target address"
+                    : "🌪️ Chameleon listing (auto-adapts to search query)"}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingApt(null);
+                      setImageInputUrl("");
+                    }}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition cursor-pointer shadow-sm"
+                  >
+                    Save Apartment
+                  </button>
+                </div>
               </div>
             </form>
           </div>

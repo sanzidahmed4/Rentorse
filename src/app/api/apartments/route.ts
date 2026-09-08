@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 import { getApartments, createApartment } from "@/lib/store";
 
 export async function GET(req: Request) {
@@ -18,6 +19,10 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    // Restrict apartment creation strictly to authenticated admins
+    const unauthorized = await requireAdmin(req);
+    if (unauthorized) return unauthorized;
+
     const body = await req.json();
     if (!body.title || !body.category) {
       return NextResponse.json({ error: "Title and Category are required" }, { status: 400 });

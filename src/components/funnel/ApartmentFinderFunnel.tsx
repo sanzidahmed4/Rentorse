@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -169,6 +169,7 @@ export default function ApartmentFinderFunnel() {
   };
 
   const handleNext = () => {
+    if (submitting) return;
     if (validateStep(currentStep)) {
       if (currentStep < totalSteps) {
         setCurrentStep((prev) => prev + 1);
@@ -179,6 +180,7 @@ export default function ApartmentFinderFunnel() {
   };
 
   const handleBack = () => {
+    if (submitting) return;
     if (currentStep > 1) {
       setErrorMsg("");
       setCurrentStep((prev) => prev - 1);
@@ -186,6 +188,7 @@ export default function ApartmentFinderFunnel() {
   };
 
   const handleSubmit = async () => {
+    if (submitting) return;
     if (!validateStep(currentStep)) return;
     const effectiveLocation =
       formData.desiredLocation.trim() ||
@@ -245,6 +248,70 @@ export default function ApartmentFinderFunnel() {
       setSubmitting(false);
     }
   };
+
+  // Keyboard navigation & enter key support
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const budgetMaxInputRef = useRef<HTMLInputElement>(null);
+
+  const formDataRef = useRef(formData);
+  formDataRef.current = formData;
+  const submittingRef = useRef(submitting);
+  submittingRef.current = submitting;
+  const handleNextRef = useRef(handleNext);
+  handleNextRef.current = handleNext;
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Enter") return;
+      if (submittingRef.current) return;
+
+      const target = e.target as HTMLElement | null;
+
+      // If focus is specifically on the Back button, let Back execute
+      if (target?.getAttribute("data-action") === "back") {
+        return;
+      }
+
+      // Step 1: Smooth sequential progression if subsequent fields are still empty
+      if (target?.getAttribute("data-field") === "fullName") {
+        if (!formDataRef.current.phone?.trim() && phoneInputRef.current) {
+          e.preventDefault();
+          phoneInputRef.current.focus();
+          return;
+        }
+        if (!formDataRef.current.email?.trim() && emailInputRef.current) {
+          e.preventDefault();
+          emailInputRef.current.focus();
+          return;
+        }
+      }
+
+      if (target?.getAttribute("data-field") === "phone") {
+        if (!formDataRef.current.email?.trim() && emailInputRef.current) {
+          e.preventDefault();
+          emailInputRef.current.focus();
+          return;
+        }
+      }
+
+      // Step 7: Smooth progression from min budget to max budget if max is not filled
+      if (target?.getAttribute("data-field") === "budgetMin") {
+        if (!formDataRef.current.budgetMax && budgetMaxInputRef.current) {
+          e.preventDefault();
+          budgetMaxInputRef.current.focus();
+          return;
+        }
+      }
+
+      // Otherwise, Enter triggers the Next Step button (or Submit on final step)
+      e.preventDefault();
+      handleNextRef.current();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
@@ -336,7 +403,7 @@ export default function ApartmentFinderFunnel() {
           {currentStep === 3 && "Help us find communities and lease terms tailored for you."}
           {currentStep === 4 && "We'll suggest optimal square footage and floor plans."}
           {currentStep === 5 && "We match you with buildings with compatible pet policies."}
-          {currentStep === 6 && "Choose your bedrooms, bathrooms, and preferred amenities."}
+          {currentStep === 6 && "Select your desired apartment category and preferred amenities."}
           {currentStep === 7 && "We calibrate available apartments directly into your price range."}
           {currentStep === 8 && "Select your estimated credit standing so we can match you with eligible properties."}
           {currentStep === 9 && "Enter any city, neighborhood, or 5-digit ZIP code in the USA."}
@@ -384,6 +451,7 @@ export default function ApartmentFinderFunnel() {
                   <input
                     type="text"
                     required
+                    data-field="fullName"
                     placeholder="e.g. John Doe"
                     value={formData.fullName}
                     onChange={(e) => updateField("fullName", e.target.value)}
@@ -399,8 +467,10 @@ export default function ApartmentFinderFunnel() {
                 <div className="relative">
                   <Phone className="w-5 h-5 absolute left-3.5 top-3.5 text-slate-400" />
                   <input
+                    ref={phoneInputRef}
                     type="tel"
                     required
+                    data-field="phone"
                     placeholder="e.g. (555) 123-4567"
                     value={formData.phone}
                     onChange={(e) => updateField("phone", e.target.value)}
@@ -419,8 +489,10 @@ export default function ApartmentFinderFunnel() {
                 <div className="relative">
                   <Mail className="w-5 h-5 absolute left-3.5 top-3.5 text-slate-400" />
                   <input
+                    ref={emailInputRef}
                     type="email"
                     required
+                    data-field="email"
                     placeholder="e.g. john@example.com"
                     value={formData.email}
                     onChange={(e) => updateField("email", e.target.value)}
@@ -667,49 +739,49 @@ export default function ApartmentFinderFunnel() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-5"
             >
-              {/* Bedrooms */}
+              {/* Apartment Category / Layout Dropdown */}
               <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-slate-500 mb-2">
-                  Bedrooms Needed
+                <label className="block text-xs uppercase tracking-wider font-bold text-slate-600 mb-2">
+                  Apartment Layout / Category
                 </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[1, 2, 3].map((b) => (
-                    <button
-                      key={b}
-                      type="button"
-                      onClick={() => updateField("bedrooms", b)}
-                      className={`py-3 rounded-xl border-2 font-bold text-sm transition cursor-pointer ${
-                        formData.bedrooms === b
-                          ? "border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                          : "border-slate-200 text-slate-700 hover:border-slate-300"
-                      }`}
-                    >
-                      {b} Bedroom{b > 1 ? "s" : ""}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Bathrooms */}
-              <div>
-                <label className="block text-xs uppercase tracking-wider font-bold text-slate-500 mb-2">
-                  Bathrooms
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[1, 2, 3].map((ba) => (
-                    <button
-                      key={ba}
-                      type="button"
-                      onClick={() => updateField("bathrooms", ba)}
-                      className={`py-2.5 rounded-xl border-2 font-bold text-sm transition cursor-pointer ${
-                        formData.bathrooms === ba
-                          ? "border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-500/20"
-                          : "border-slate-200 text-slate-700 hover:border-slate-300"
-                      }`}
-                    >
-                      {ba} Bath{ba > 1 ? "s" : ""}
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    value={
+                      formData.bedrooms === 1 && formData.bathrooms === 1
+                        ? "1B1B"
+                        : formData.bedrooms === 2 && formData.bathrooms === 1
+                        ? "2B1B"
+                        : formData.bedrooms === 2 && formData.bathrooms === 2
+                        ? "2B2B"
+                        : formData.bedrooms === 3 && formData.bathrooms === 2
+                        ? "3B2B"
+                        : formData.bedrooms === 3 && formData.bathrooms === 3
+                        ? "3B3B"
+                        : "1B1B"
+                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      let beds = 1;
+                      let baths = 1;
+                      if (val === "1B1B") { beds = 1; baths = 1; }
+                      else if (val === "2B1B") { beds = 2; baths = 1; }
+                      else if (val === "2B2B") { beds = 2; baths = 2; }
+                      else if (val === "3B2B") { beds = 3; baths = 2; }
+                      else if (val === "3B3B") { beds = 3; baths = 3; }
+                      setFormData((prev) => ({
+                        ...prev,
+                        bedrooms: beds,
+                        bathrooms: baths,
+                      }));
+                    }}
+                    className="w-full px-4 py-3.5 rounded-2xl border-2 border-slate-200 text-sm sm:text-base font-bold text-slate-800 bg-white hover:border-blue-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 transition cursor-pointer outline-none shadow-sm"
+                  >
+                    <option value="1B1B">1 Bed / 1 Bath</option>
+                    <option value="2B1B">2 Bed / 1 Bath</option>
+                    <option value="2B2B">2 Bed / 2 Bath</option>
+                    <option value="3B2B">3 Bed / 2 Bath</option>
+                    <option value="3B3B">3 Bed / 3 Bath</option>
+                  </select>
                 </div>
               </div>
 
@@ -840,13 +912,14 @@ export default function ApartmentFinderFunnel() {
                         min={100}
                         max={30000}
                         step={50}
+                        data-field="budgetMin"
                         value={formData.budgetMin || ""}
                         onChange={(e) => {
                           const val = e.target.value === "" ? 0 : Number(e.target.value);
                           updateField("budgetMin", val);
                         }}
                         placeholder="e.g. 800"
-                        className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition"
+                        className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
@@ -857,17 +930,19 @@ export default function ApartmentFinderFunnel() {
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">$</span>
                       <input
+                        ref={budgetMaxInputRef}
                         type="number"
                         min={100}
                         max={50000}
                         step={50}
+                        data-field="budgetMax"
                         value={formData.budgetMax || ""}
                         onChange={(e) => {
                           const val = e.target.value === "" ? 0 : Number(e.target.value);
                           updateField("budgetMax", val);
                         }}
                         placeholder="e.g. 1500"
-                        className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition"
+                        className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
@@ -933,6 +1008,7 @@ export default function ApartmentFinderFunnel() {
                   <input
                     type="text"
                     required
+                    data-field="desiredLocation"
                     placeholder="e.g. NY 11004 or Chicago 60007 or Austin, TX"
                     value={formData.desiredLocation}
                     onChange={(e) => updateField("desiredLocation", e.target.value)}
@@ -975,6 +1051,7 @@ export default function ApartmentFinderFunnel() {
           {currentStep > 1 ? (
             <button
               type="button"
+              data-action="back"
               onClick={handleBack}
               disabled={submitting}
               className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-semibold flex items-center gap-1.5 transition cursor-pointer disabled:cursor-not-allowed"
@@ -987,6 +1064,7 @@ export default function ApartmentFinderFunnel() {
 
           <button
             type="button"
+            data-action="next"
             onClick={handleNext}
             disabled={submitting}
             className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-sm shadow-lg shadow-blue-600/25 flex items-center gap-2 transition ml-auto cursor-pointer disabled:cursor-not-allowed"

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 import { seedApartmentsIfEmpty } from "@/lib/store";
 
-export async function POST() {
+export async function POST(req: Request) {
   try {
+    const unauthorized = await requireAdmin(req);
+    if (unauthorized) return unauthorized;
+
     const count = await seedApartmentsIfEmpty();
     return NextResponse.json({
       success: true,

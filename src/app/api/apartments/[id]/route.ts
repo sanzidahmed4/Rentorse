@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 import { getApartmentByIdOrSlug, updateApartment } from "@/lib/store";
 
 export async function GET(
@@ -23,6 +24,10 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Restrict apartment updates strictly to authenticated admins
+    const unauthorized = await requireAdmin(req);
+    if (unauthorized) return unauthorized;
+
     const { id } = await params;
     const body = await req.json();
     const updated = await updateApartment(id, body);

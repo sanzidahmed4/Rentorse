@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import { requireAdmin } from "@/lib/auth-server";
 import { isCloudinaryConfigured, uploadToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(req: Request) {
   try {
+    // Restrict file uploads strictly to authenticated admins
+    const unauthorized = await requireAdmin(req);
+    if (unauthorized) return unauthorized;
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 

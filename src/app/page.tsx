@@ -11,6 +11,9 @@ import {
   MapPin,
   Calendar,
   Users,
+  BedDouble,
+  Bath,
+  Maximize2,
 } from "lucide-react";
 import { getSiteStats, getApartments } from "@/lib/store";
 import FaqAccordion from "@/components/home/FaqAccordion";
@@ -20,7 +23,17 @@ export const revalidate = 60; // ISR cache revalidation
 
 export default async function HomePage() {
   const stats = await getSiteStats();
-  const sampleApartments = await getApartments({ isActive: true });
+  const allApartments = await getApartments({ isActive: true });
+  const featuredList = allApartments.filter((apt) => apt.featured);
+  const featuredApartments =
+    featuredList.length >= 3
+      ? featuredList.slice(0, 3)
+      : [
+          ...featuredList,
+          ...allApartments.filter(
+            (a) => !featuredList.some((f) => String(f._id || f.id) === String(a._id || a.id))
+          ),
+        ].slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -121,132 +134,139 @@ export default async function HomePage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20">
-          <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-14">
             <h2 className="text-xs uppercase tracking-widest font-bold text-blue-600 mb-2">
               Explore Available Inventory
             </h2>
-            <h3 className="text-3xl sm:text-4xl font-black text-slate-900">
-              Tailored for Every Stage of Life
+            <h3 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              Handpicked Featured Residences
             </h3>
-            <p className="text-slate-600 text-sm sm:text-base mt-3">
-              Choose from our verified layouts with flexible leases, chef kitchens, and pet-friendly accommodations.
+            <p className="text-slate-600 text-sm sm:text-base mt-3 max-w-2xl mx-auto">
+              Browse our handpicked real listings. Click any property to view complete interior photos, exact floor specs, location map, and schedule a private walkthrough.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* 1B1B */}
-            <div className="group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col [transform:translateZ(0)]">
-              <div className="relative h-56 w-full overflow-hidden bg-slate-100">
-                <Image
-                  src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80"
-                  alt="1 Bed / 1 Bath Apartment"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
-                />
-                <div className="absolute top-4 left-4 bg-slate-950/85 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                  10–15 Units Ready
-                </div>
-                <div className="absolute bottom-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-lg">
-                  From $800 / mo
-                </div>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <h4 className="text-xl font-bold text-slate-900 mb-2">1 Bed / 1 Bath Suites</h4>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                    Perfect for solo professionals and couples. Features open layouts, in-unit laundry options, and modern kitchenettes.
-                  </p>
-                  <div className="flex flex-wrap gap-2 text-xs text-slate-500 mb-6">
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">600–750 sq ft</span>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">Modern Appliances</span>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">Pet Friendly</span>
-                  </div>
-                </div>
-                <Link
-                  href="/find-apartment"
-                  className="w-full py-3 rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-800 text-center font-bold text-sm transition"
-                >
-                  View 1 Bed Options →
-                </Link>
-              </div>
-            </div>
+            {featuredApartments.map((apt) => {
+              const locationStr =
+                apt.addressTemplate?.trim() ||
+                apt.displayLocation?.trim() ||
+                apt.cityState?.trim() ||
+                "United States";
+              const targetUrl = `/apartments/${apt.slug || apt._id || apt.id}?from=home`;
 
-            {/* 2B2B */}
-            <div className="group bg-white rounded-3xl overflow-hidden border-2 border-blue-600/30 shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col relative [transform:translateZ(0)]">
-              <div className="absolute top-3 right-3 z-10 bg-blue-600 text-white text-[11px] font-extrabold uppercase px-3 py-1 rounded-full shadow">
-                Most Popular
-              </div>
-              <div className="relative h-56 w-full overflow-hidden bg-slate-100">
-                <Image
-                  src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80"
-                  alt="2 Bed / 2 Bath Apartment"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
-                />
-                <div className="absolute top-4 left-4 bg-slate-950/85 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                  10–15 Units Ready
-                </div>
-                <div className="absolute bottom-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-lg">
-                  From $1,180 / mo
-                </div>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <h4 className="text-xl font-bold text-slate-900 mb-2">2 Bed / 2 Bath Residences</h4>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                    Dual master bedrooms ideal for roommates, growing families, or home offices. Spacious living rooms with private balconies.
-                  </p>
-                  <div className="flex flex-wrap gap-2 text-xs text-slate-500 mb-6">
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">950–1,150 sq ft</span>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">Dual Bathrooms</span>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">Covered Parking</span>
-                  </div>
-                </div>
-                <Link
-                  href="/find-apartment"
-                  className="w-full py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-center font-bold text-sm shadow-md transition"
+              return (
+                <div
+                  key={apt._id || apt.id}
+                  className="group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col [transform:translateZ(0)]"
                 >
-                  View 2 Bed Options →
-                </Link>
-              </div>
-            </div>
+                  {/* Photo Container */}
+                  <Link href={targetUrl} className="relative h-60 w-full overflow-hidden bg-slate-100 block">
+                    <Image
+                      src={
+                        apt.images?.[0] ||
+                        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80"
+                      }
+                      alt={apt.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                    />
 
-            {/* 3B2B / 3B3B */}
-            <div className="group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col [transform:translateZ(0)]">
-              <div className="relative h-56 w-full overflow-hidden bg-slate-100">
-                <Image
-                  src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80"
-                  alt="3 Bed Luxury Apartment"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
-                />
-                <div className="absolute top-4 left-4 bg-slate-950/85 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                  10–15 Units Ready
-                </div>
-                <div className="absolute bottom-4 right-4 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-lg">
-                  From $1,520 / mo
-                </div>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <h4 className="text-xl font-bold text-slate-900 mb-2">3 Bed / 2 & 3 Bath Luxury</h4>
-                  <p className="text-slate-600 text-sm leading-relaxed mb-4">
-                    Grand family floorplans featuring primary ensuite bathrooms, walk-in closets, granite kitchens, and resort amenities.
-                  </p>
-                  <div className="flex flex-wrap gap-2 text-xs text-slate-500 mb-6">
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">1,280–1,600 sq ft</span>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">Pool & Gym Access</span>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-100">Private Balcony</span>
+                    {/* Featured Amber Badge */}
+                    <div className="absolute top-3.5 left-3.5 z-10 bg-slate-950/85 backdrop-blur-xs text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 border border-white/10">
+                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <span>Featured</span>
+                    </div>
+
+                    {/* Price Tag */}
+                    <div className="absolute bottom-3 right-3 bg-blue-600 text-white px-3.5 py-1.5 rounded-xl font-black text-base shadow-lg">
+                      ${apt.baseRent}
+                      <span className="text-[11px] font-normal text-blue-100"> / mo</span>
+                    </div>
+                  </Link>
+
+                  {/* Card Body */}
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                        <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span className="truncate">{locationStr}</span>
+                      </div>
+
+                      <Link href={targetUrl} className="block">
+                        <h4 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition line-clamp-1">
+                          {apt.title}
+                        </h4>
+                      </Link>
+
+                      <p className="text-slate-600 text-xs line-clamp-2 leading-relaxed">
+                        {apt.description ||
+                          "Verified residential listing with modern fixtures, flexible lease terms, and convenient neighborhood amenities."}
+                      </p>
+
+                      {/* Specs Row */}
+                      <div className="grid grid-cols-3 gap-2 py-3 border-y border-slate-100 text-xs text-slate-600 text-center font-medium">
+                        <div className="flex items-center justify-center gap-1">
+                          <BedDouble className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{apt.bedrooms} Bed</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-1">
+                          <Bath className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{apt.bathrooms} Bath</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-1">
+                          <Maximize2 className="w-3.5 h-3.5 text-blue-600" />
+                          <span>{apt.squareFeet} sq ft</span>
+                        </div>
+                      </div>
+
+                      {/* Amenities Pills */}
+                      <div className="flex flex-wrap gap-1.5 pt-1 text-[11px] text-slate-500">
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 font-medium">
+                          {apt.furnished}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 font-medium">
+                          {apt.petPolicy?.includes("Allowed") ? "🐾 Pets Welcome" : "🐾 No Pets"}
+                        </span>
+                        {apt.hasKitchen && (
+                          <span className="px-2 py-0.5 rounded-md bg-slate-100 font-medium">
+                            Chef Kitchen
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* View Details CTA Button */}
+                    <Link
+                      href={targetUrl}
+                      className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-center font-bold text-sm shadow-md shadow-blue-500/15 transition flex items-center justify-center gap-2 group-hover:shadow-lg cursor-pointer"
+                    >
+                      <span>View Apartment Details</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
                 </div>
-                <Link
-                  href="/find-apartment"
-                  className="w-full py-3 rounded-xl bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-800 text-center font-bold text-sm transition"
-                >
-                  View 3 Bed Options →
-                </Link>
-              </div>
+              );
+            })}
+          </div>
+
+          {/* Secondary Quiz Option for Custom Searches */}
+          <div className="mt-14 p-6 sm:p-8 rounded-3xl bg-slate-100/80 border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div>
+              <h4 className="text-base font-bold text-slate-900">
+                Looking for apartments in another city or specific ZIP code?
+              </h4>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Our smart matching engine instantly searches listings in all 50 states tailored to your budget.
+              </p>
             </div>
+            <Link
+              href="/find-apartment"
+              className="px-6 py-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-blue-700 font-bold text-xs sm:text-sm shadow-sm transition shrink-0 flex items-center gap-1.5"
+            >
+              <span>Take 2-Minute Finder Quiz</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </section>

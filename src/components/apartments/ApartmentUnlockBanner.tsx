@@ -4,7 +4,6 @@ import React, { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Sparkles, ArrowRight, Calendar, Star } from "lucide-react";
-import confetti from "canvas-confetti";
 import { IApartment } from "@/types";
 
 interface ApartmentUnlockBannerProps {
@@ -24,14 +23,6 @@ function ApartmentUnlockBannerContent({ apartment }: ApartmentUnlockBannerProps)
 
       const unlockedState = urlUnlocked || storedAptUnlocked || quizCompleted;
       setIsUnlocked(unlockedState);
-
-      if (urlUnlocked) {
-        confetti({
-          particleCount: 70,
-          spread: 60,
-          origin: { y: 0.55 },
-        });
-      }
     }
   }, [searchParams, apartment]);
 

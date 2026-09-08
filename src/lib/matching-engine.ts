@@ -153,14 +153,14 @@ export async function matchApartments(
     const calibratedRent = Math.round(rawRent / 10) * 10 - (index % 2 === 0 ? 5 : 0);
     const finalRent = Math.max(minB, Math.min(maxB, calibratedRent));
 
-    const corridor = resolvedLoc.getCorridor(index, apt.category);
-    const displayLocation = `${corridor}, ${resolvedLoc.formattedCityStateZip}`;
+    const displayLocation = resolvedLoc.getCorridor(index, apt.category);
 
     return {
       ...apt,
       isManual: false,
       isExactMatch: false,
       displayLocation,
+      addressTemplate: displayLocation,
       displayRent: finalRent,
       matchScore: item.score,
       matchHighlights: item.highlights.length > 0 ? item.highlights : ["Verified Listing", "Prime Neighborhood", "Ready for Move-In"],

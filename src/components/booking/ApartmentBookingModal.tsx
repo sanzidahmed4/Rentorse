@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -29,6 +30,7 @@ export default function ApartmentBookingModal({
   isOpen,
   onClose,
 }: ApartmentBookingModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -41,7 +43,21 @@ export default function ApartmentBookingModal({
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     if (isOpen && typeof window !== "undefined") {
       const stored = sessionStorage.getItem("apartmento_last_search");
       if (stored) {
@@ -57,7 +73,7 @@ export default function ApartmentBookingModal({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +93,7 @@ export default function ApartmentBookingModal({
           fullName,
           phone,
           email,
-          desiredLocation: apartment.addressTemplate || "United States",
+          desiredLocation: apartment.displayLocation || apartment.addressTemplate || "United States",
           bedrooms: apartment.bedrooms,
           bathrooms: apartment.bathrooms,
           budgetMin: apartment.baseRent,
@@ -87,7 +103,7 @@ export default function ApartmentBookingModal({
           selectedApartmentPrice: apartment.baseRent,
           matchedApartments: [apartment._id || apartment.id],
           status: "Qualified",
-          notes: `Direct Booking / Tour Request for ${apartment.title} (${tourType} on ${
+          notes: `Tour Reservation Request for ${apartment.title} (${tourType} on ${
             tourDate || "Soonest available"
           } at ${tourTime})${notes ? ` — Note: ${notes}` : ""}`,
           isUsResident: true,
@@ -121,13 +137,22 @@ export default function ApartmentBookingModal({
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative max-h-[92vh] flex flex-col">
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Official Tour Booking Modal"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-in fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleModalClose();
+      }}
+    >
+      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative my-auto max-h-[92vh] flex flex-col">
         {/* Close Button */}
         <button
           onClick={handleModalClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition z-10 cursor-pointer"
+          aria-label="Close tour booking modal"
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition z-20 cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -140,7 +165,7 @@ export default function ApartmentBookingModal({
           <h3 className="text-xl font-bold mt-2 text-white">{apartment.title}</h3>
           <div className="flex items-center gap-1.5 text-xs text-slate-300 mt-1">
             <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-            <span className="truncate">{apartment.addressTemplate || "United States"}</span>
+            <span className="truncate">{apartment.displayLocation || apartment.addressTemplate || "United States"}</span>
           </div>
           <div className="mt-3 flex items-center gap-2">
             <span className="px-2.5 py-1 bg-white/10 rounded-lg text-xs font-bold text-white">
@@ -345,6 +370,7 @@ export default function ApartmentBookingModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

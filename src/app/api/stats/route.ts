@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 import { getSiteStats, updateSiteStats } from "@/lib/store";
 
 export async function GET() {
@@ -13,6 +14,9 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
+    const unauthorized = await requireAdmin(req);
+    if (unauthorized) return unauthorized;
+
     const body = await req.json();
     const updated = await updateSiteStats(body);
     return NextResponse.json({ success: true, stats: updated });

@@ -1,9 +1,8 @@
 import { getApartmentByIdOrSlug, getApartments } from "@/lib/store";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import ApartmentTourCTA from "@/components/booking/ApartmentTourCTA";
-import ApartmentUnlockBanner from "@/components/apartments/ApartmentUnlockBanner";
+import ApartmentPhotoGallery from "@/components/apartments/ApartmentPhotoGallery";
 import {
   BedDouble,
   Bath,
@@ -21,6 +20,7 @@ import {
 
 interface Props {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ loc?: string; from?: string }>;
 }
 
 export async function generateStaticParams() {
@@ -28,13 +28,24 @@ export async function generateStaticParams() {
   return apts.map((a) => ({ id: a.slug || a.id || a._id }));
 }
 
-export default async function ApartmentDetailPage({ params }: Props) {
+export default async function ApartmentDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const sp = searchParams ? await searchParams : {};
+  const queryLoc = sp.loc ? decodeURIComponent(sp.loc) : null;
+  const isFromHome = sp.from === "home";
   const apt = await getApartmentByIdOrSlug(id);
 
   if (!apt) {
     notFound();
   }
+
+  const effectiveLocation =
+    queryLoc?.trim() ||
+    apt.displayLocation?.trim() ||
+    apt.cityState?.trim() ||
+    (apt.addressTemplate?.includes(",")
+      ? apt.addressTemplate.split(",").slice(-2).join(",").trim()
+      : "Philadelphia, PA");
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -42,10 +53,10 @@ export default async function ApartmentDetailPage({ params }: Props) {
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
           <Link
-            href="/results"
+            href={isFromHome ? "/" : "/results"}
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Matched Results
+            <ArrowLeft className="w-4 h-4" /> {isFromHome ? "Back to Home" : "Back to Matched Results"}
           </Link>
           <div className="flex items-center gap-2">
             <span className="text-xs px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-bold">
@@ -54,60 +65,8 @@ export default async function ApartmentDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Pre-Qualification & Tour Unlock Status Banner */}
-        <ApartmentUnlockBanner apartment={apt} />
-
-        {/* Title & Price Header */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-blue-600 mb-1">
-              <span>{apt.category} Model</span>
-              <span>•</span>
-              <span>Ready for Move-In ({apt.availableDate})</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900">{apt.title}</h1>
-            <p className="text-slate-500 text-xs sm:text-sm mt-1 flex items-center gap-1">
-              <MapPin className="w-4 h-4 text-slate-400" />
-              {apt.addressTemplate || "United States Metropolitan Area"}
-            </p>
-          </div>
-
-          <div className="flex items-baseline gap-2 bg-blue-50/60 p-4 rounded-2xl border border-blue-100">
-            <span className="text-3xl sm:text-4xl font-black text-blue-600">${apt.baseRent}</span>
-            <span className="text-xs font-medium text-slate-500">/ month</span>
-          </div>
-        </div>
-
-        {/* Photo Gallery Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2 relative h-72 sm:h-96 rounded-3xl overflow-hidden shadow-sm">
-            <Image
-              src={apt.images[0] || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"}
-              alt={apt.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-          <div className="grid grid-rows-2 gap-4 h-72 sm:h-96">
-            <div className="relative rounded-2xl overflow-hidden shadow-sm">
-              <Image
-                src={apt.images[1] || apt.images[0]}
-                alt={`${apt.title} interior`}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="relative rounded-2xl overflow-hidden shadow-sm">
-              <Image
-                src={apt.images[2] || apt.images[0]}
-                alt={`${apt.title} layout`}
-                fill
-                className="object-cover"
-              />
-            </div>
-          </div>
-        </div>
+        {/* Interactive Photo Gallery Grid with +N Overlay & Lightbox */}
+        <ApartmentPhotoGallery images={apt.images} title={apt.title} />
 
         {/* Details & Inquire Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -140,6 +99,27 @@ export default async function ApartmentDetailPage({ params }: Props) {
               <p className="text-slate-600 text-sm leading-relaxed">{apt.description}</p>
 
               <div className="pt-4 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
+                <div>
+                  <span className="text-slate-400 block">Property Type:</span>
+                  <span className="font-semibold text-slate-800">{apt.propertyType || "Apartment"}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block">Climate Control:</span>
+                  <span className="font-semibold text-slate-800">
+                    {apt.climate ||
+                      (apt.cooling && apt.heating
+                        ? `${apt.cooling} & ${apt.heating}`
+                        : apt.cooling || apt.heating || "Central AC & Heating")}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block">Laundry:</span>
+                  <span className="font-semibold text-slate-800">{apt.laundry || "In-unit laundry"}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block">Parking:</span>
+                  <span className="font-semibold text-slate-800">{apt.parking || "Street parking"}</span>
+                </div>
                 <div>
                   <span className="text-slate-400 block">Furnishing:</span>
                   <span className="font-semibold text-slate-800">{apt.furnished}</span>
@@ -182,10 +162,10 @@ export default async function ApartmentDetailPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Sidebar CTA Card */}
-          <div className="space-y-6">
-            <div id="leasing-overview-sidebar" className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-xl space-y-5 sticky top-24">
-              <div className="border-b border-slate-100 pb-4">
+          {/* Sidebar CTA & Location Column */}
+          <div className="space-y-4 lg:sticky lg:top-6">
+            <div id="leasing-overview-sidebar" className="bg-white p-6 sm:p-7 rounded-3xl border border-slate-100 shadow-xl space-y-4">
+              <div className="border-b border-slate-100 pb-3">
                 <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
                   Leasing Overview
                 </span>
@@ -196,16 +176,63 @@ export default async function ApartmentDetailPage({ params }: Props) {
 
               <div className="space-y-2.5 text-xs text-slate-600">
                 <div className="flex justify-between">
-                  <span>Application Fee:</span>
+                  <span className="text-slate-500">Application Fee:</span>
                   <span className="font-bold text-emerald-600">$0 (Waived Online)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Lease Terms:</span>
+                  <span className="text-slate-500">Lease Terms:</span>
                   <span className="font-medium text-slate-800">12 Months (Flexible)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Security Deposit:</span>
+                  <span className="text-slate-500">Security Deposit:</span>
                   <span className="font-bold text-emerald-600">Not Required</span>
+                </div>
+
+                <div className="pt-2.5 border-t border-slate-100 space-y-2.5">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Furnished Status:</span>
+                    <span className="font-bold text-slate-800">{apt.furnished || "Unfurnished"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Category Layout:</span>
+                    <span className="font-bold text-slate-800">
+                      {apt.category?.replace(/(\d+B)(\d+B)/i, "$1/$2") || apt.category}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2.5 border-t border-slate-100 space-y-2.5">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Unit Type:</span>
+                    <span className="font-semibold text-slate-800">{apt.propertyType || "Apartment"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Climate Control:</span>
+                    <span className="font-semibold text-slate-800 text-right">
+                      {apt.climate ||
+                        (apt.cooling && apt.heating
+                          ? `${apt.cooling} & ${apt.heating}`
+                          : apt.cooling || apt.heating || "Central AC & Heating")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Laundry:</span>
+                    <span className="font-semibold text-slate-800 text-right">
+                      {apt.laundry || "In-unit laundry"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Parking:</span>
+                    <span className="font-semibold text-slate-800 text-right">
+                      {apt.parking || "Street parking"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-slate-500 shrink-0">Location:</span>
+                    <span className="font-semibold text-blue-600 text-right truncate">
+                      {apt.addressTemplate?.trim() || effectiveLocation}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -213,14 +240,52 @@ export default async function ApartmentDetailPage({ params }: Props) {
 
               <Link
                 href="/find-apartment"
-                className="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-2 text-center"
+                className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-2 text-center"
               >
                 Find Similar in My ZIP
               </Link>
 
-              <div className="pt-2 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1">
+              <div className="pt-1 text-center text-[11px] text-slate-400 flex items-center justify-center gap-1">
                 <ShieldCheck className="w-4 h-4 text-emerald-500" />
                 <span>Equal Housing Opportunity Guarantee</span>
+              </div>
+            </div>
+
+            {/* Compact Rental Location (Google Map) - Right Below Leasing Overview */}
+            <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                <span>Rental Location</span>
+              </div>
+
+              {/* Compact Map Canvas with Circular Boundary */}
+              <div className="relative w-full h-36 sm:h-40 rounded-2xl overflow-hidden border border-slate-200/90 bg-slate-100 shadow-inner">
+                <iframe
+                  title="Rental approximate area map"
+                  width="100%"
+                  height="100%"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="w-full h-full border-0 filter saturate-95 brightness-95"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                    effectiveLocation
+                  )}&t=m&z=13&ie=UTF8&iwloc=&output=embed`}
+                />
+
+                {/* Circular Shaded Radius Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-blue-600/40 bg-blue-500/15 shadow-sm pointer-events-none backdrop-blur-[0.5px]" />
+                </div>
+              </div>
+
+              {/* Area Info Below Map */}
+              <div className="space-y-0.5">
+                <div className="text-xs font-bold text-slate-900 truncate">
+                  {effectiveLocation}
+                </div>
+                <p className="text-[11px] text-slate-400 leading-snug">
+                  Location is approximate. Exact address provided upon scheduling a tour.
+                </p>
               </div>
             </div>
           </div>

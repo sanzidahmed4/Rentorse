@@ -11,7 +11,7 @@ const ApartmentSchema = new Schema<IApartmentDocument>(
     description: { type: String, required: true },
     category: {
       type: String,
-      enum: ["1B1B", "2B2B", "3B2B", "3B3B"],
+      enum: ["1B1B", "2B1B", "2B2B", "3B2B", "3B3B"],
       required: true,
     },
     bedrooms: { type: Number, required: true },
@@ -39,6 +39,13 @@ const ApartmentSchema = new Schema<IApartmentDocument>(
     reviewsCount: { type: Number, default: 24 },
     addressTemplate: { type: String, default: "Main St Suite" },
     isManual: { type: Boolean, default: false },
+    propertyType: { type: String, default: "Apartment" },
+    climate: { type: String, default: "Central AC & Heating" },
+    cooling: { type: String, default: "Central AC" },
+    heating: { type: String, default: "Central heating" },
+    laundry: { type: String, default: "In-unit laundry" },
+    parking: { type: String, default: "Street parking" },
+    cityState: { type: String, default: "Philadelphia, PA" },
   },
   {
     timestamps: true,

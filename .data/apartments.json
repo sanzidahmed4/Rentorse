@@ -1,11 +1,219 @@
 [
   {
+    "_id": "apt_1788872616931",
+    "id": "apt_1788872616931",
+    "serialNumber": 41,
+    "title": "2 Beds 2 Baths Apartment",
+    "slug": "apt-1788872077296",
+    "description": "A rare top-floor 2 bedroom, 2 full bath home in Millvale where each bedroom has its own private bathroom. Great for two roommates splitting the cost (about $1,125 each) or a couple who wants extra privacy. Comes fully furnished by a former Airbnb host.\nRent covers everything: electric, gas, water, trash, gigabit Wi-Fi, and a professional deep clean every 60 days. Move in with beds already made, kitchen stocked, and Wi-Fi already running — nothing to set up.\nInside: an open living area with an exposed brick wall, a quartz kitchen island with breakfast bar seating, a private attic suite with its own bathroom, a small office nook, in-unit washer/dryer, and a smart TV.\nCommute: roughly 10-15 minutes to UPMC Presbyterian, Shadyside, Children's, and Mercy; about 10 minutes to Allegheny General; 12 minutes to St. Margaret; and easy access to Pitt, CMU, and Duquesne. Free street parking, no garage or permit fees.\nJust a 3-minute walk to Millvale's main street — brewery, coffee shops, a beloved French bakery, and the riverfront trail. Quiet street, and bedrooms stay dark for night-shift sleepers.\nInternational tenants welcome, no US credit history required (an appointment letter or institutional reference works fine). Same-day video tours, and sight-unseen leasing is welcome. Flexible lease terms available",
+    "category": "2B2B",
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "baseRent": 2250,
+    "squareFeet": 1800,
+    "furnished": "Furnished",
+    "hasKitchen": true,
+    "petPolicy": "Dogs & Cats Allowed",
+    "amenities": [
+      "Air Conditioning",
+      "Wi-Fi",
+      "Dishwasher"
+    ],
+    "images": [
+      "/uploads/apt-1788872085668-743297385-818819517863325-1842.jpg",
+      "/uploads/apt-1788872085605-740490444-27541864668802939-56.jpg",
+      "/uploads/apt-1788872085617-741777565-1336603104702784-544.jpg",
+      "/uploads/apt-1788872085628-742129553-2535108640246003-368.jpg",
+      "/uploads/apt-1788872085636-742501314-1947253975991285-120.jpg",
+      "/uploads/apt-1788872085646-742594861-1532479678573802-654.jpg",
+      "/uploads/apt-1788872085657-742770770-1950799002277678-421.jpg",
+      "/uploads/apt-1788872085678-743336775-977660981961465-1797.jpg"
+    ],
+    "featured": true,
+    "isActive": true,
+    "deposit": 0,
+    "availableDate": "Immediate",
+    "rating": 4.8,
+    "reviewsCount": 15,
+    "addressTemplate": "Millvale, PA",
+    "isManual": true,
+    "climate": "Central AC & Heating"
+  },
+  {
+    "_id": "apt_1788868744091",
+    "id": "apt_1788868744091",
+    "serialNumber": 40,
+    "title": "2 Beds 1 Bath - Apartment",
+    "slug": "apt-1788868540180",
+    "description": "Welcome to 1527 W Westmoreland St, a completely gut-renovated property in Philadelphia offering modern apartments with high-end finishes and fully updated systems throughout. Located just minutes from Temple University Hospital and Temple Medical School, this property provides convenient access to major employment centers, public transportation, and neighborhood amenities.\nThis apartment has 2 bedrooms, a bright and functional layout, and private storage space in the basement, providing additional room for belongings rarely found in typical apartment living.\nThe kitchens showcase quartz countertops, designer cabinetry, stainless steel appliances, and dishwashers, creating a sleek and modern space perfect for everyday living.\nEverything in the building is brand new, including:\n• New roof\n• Intercom system\n• All new electrical system\n• All new plumbing\n• Energy-efficient mini-split heating and cooling systems for year-round comfort\n• Designer kitchens with quartz countertops\n• Custom cabinetry and modern finishes throughout\n• Fully renovated interiors and building systems\n• Storage space in basement\nSituated on a residential block very close to Temple University Hospital and the Temple Medical campus, the property offers convenient access to public transportation, major roadways, local shops, and neighborhood services.\nRental Requirements:\n- Gross monthly income of at least 2.5x the monthly rent\n- No smoking and no dogs permitted cats are welcome\n- Ideally, applicants should have at least 6 months of employment with their current employer\n- No minimum credit score required. ",
+    "category": "2B1B",
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "baseRent": 1550,
+    "squareFeet": 700,
+    "furnished": "Furnished",
+    "hasKitchen": true,
+    "petPolicy": "Dogs & Cats Allowed",
+    "amenities": [
+      "Air Conditioning",
+      "Wi-Fi",
+      "Dishwasher"
+    ],
+    "images": [
+      "/uploads/apt-1788868546586-735504872-1176470911358184-339.jpg",
+      "/uploads/apt-1788868546514-732137627-1336562891393142-622.jpg",
+      "/uploads/apt-1788868546606-737249453-1331209382006864-451.jpg",
+      "/uploads/apt-1788868546491-730120106-1051717580858136-327.jpg",
+      "/uploads/apt-1788868546504-732091812-27438176992489375-71.jpg",
+      "/uploads/apt-1788868546525-732920279-2097222027891007-400.jpg",
+      "/uploads/apt-1788868546545-732984668-971022215926007-8575.jpg",
+      "/uploads/apt-1788868546567-735504384-2180014862565234-652.jpg",
+      "/uploads/apt-1788868546576-735504406-2551634441958703-388.jpg",
+      "/uploads/apt-1788868546596-735543570-1354483869941228-314.jpg",
+      "/uploads/apt-1788868546618-737401460-984262587767212-6962.jpg"
+    ],
+    "featured": true,
+    "isActive": true,
+    "deposit": 0,
+    "availableDate": "Immediate",
+    "rating": 4.8,
+    "reviewsCount": 15,
+    "addressTemplate": "Philadelphia, PA",
+    "isManual": true,
+    "climate": "Central AC & Heating"
+  },
+  {
+    "_id": "apt_1788865193888",
+    "id": "apt_1788865193888",
+    "serialNumber": 39,
+    "title": "1 Bed 1 Bath Apartment/condo",
+    "slug": "apt-1788864921874",
+    "description": "1 BEDROOM GEM APARTMENT WITH OUTDOOR BALCONY IN PRIME FLUSHING FOR RENT! This spacious 1-bedroom, 1-bathroom apartment is situated on a quiet residential street, offering a unique layout that feels like a private home. Featuring an expansive living room, functional kitchen, spacious bedroom, and minutes away to all conveniences in Flushing. Located in an unbeatable neighborhood, this is just a short walk to Main Street, 7 Train, Flushing LIRR, and Skyview Mall. Residents enjoy immediate access to Target, multiple supermarkets, and premier shopping. For recreation, both Kissena Park and Flushing Meadows Park are within easy reach.  Must see—this won't last.",
+    "category": "1B1B",
+    "bedrooms": 1,
+    "bathrooms": 1,
+    "baseRent": 2500,
+    "squareFeet": 700,
+    "furnished": "Unfurnished",
+    "hasKitchen": true,
+    "petPolicy": "Dogs & Cats Allowed",
+    "amenities": [
+      "Air Conditioning",
+      "Wi-Fi",
+      "Dishwasher"
+    ],
+    "images": [
+      "/uploads/apt-1788865059042-699132088-975110861546417-4019.jpg",
+      "/uploads/apt-1788865059033-696735970-1707903663899356-869.jpg",
+      "/uploads/apt-1788865059025-696418545-960888343373294-2065.jpg",
+      "/uploads/apt-1788865059015-696175680-2029434857931692-462.jpg",
+      "/uploads/apt-1788865059053-700060079-1241621708051985-537.jpg"
+    ],
+    "featured": true,
+    "isActive": true,
+    "deposit": 0,
+    "availableDate": "Immediate",
+    "rating": 4.8,
+    "reviewsCount": 15,
+    "addressTemplate": "Pople Ave, Flushing, NY",
+    "isManual": true,
+    "climate": "Central AC & Heating"
+  },
+  {
+    "_id": "apt_1788864486139",
+    "id": "apt_1788864486139",
+    "serialNumber": 38,
+    "title": "2 Beds 1 Bath Apartment",
+    "slug": "apt-1788864222230",
+    "description": "🏡 2-BEDROOM APARTMENT – SPACIOUS & READY FOR MOVE-IN! ✅\n🚫 NO broker fees. NO application charges.\n✨ Apartment Features:\n🛏️ Two large bedrooms with great natural light\n🛋️ Open and airy living space with a clean, modern design\n🍽️ Perfect for families or roommates looking for comfort and space\n📄 Rental Requirements:\nMust earn at least 2.5x the monthly rent\nMust provide:\n✔️ Valid Photo ID\n✔️ SSN or ITIN\n✔️ Proof of income (pay stubs or bank statements from the last 3 months)\n❗ No SSN? No problem — reach out and let’s discuss your options!\n📩 Message now to schedule your private tour!",
+    "category": "2B1B",
+    "bedrooms": 2,
+    "bathrooms": 1,
+    "baseRent": 2181,
+    "squareFeet": 1200,
+    "furnished": "Either",
+    "hasKitchen": true,
+    "petPolicy": "Dogs & Cats Allowed",
+    "amenities": [
+      "Air Conditioning",
+      "Wi-Fi",
+      "Dishwasher"
+    ],
+    "images": [
+      "/uploads/apt-1788864334455-758956890-1797275161394391-400.jpg",
+      "/uploads/apt-1788864334435-758352421-1549103086959525-918.jpg",
+      "/uploads/apt-1788864334446-758932936-1214673834136439-207.jpg",
+      "/uploads/apt-1788864334465-758956892-1682406636193285-468.jpg",
+      "/uploads/apt-1788864334475-759019286-1351932883759950-771.jpg",
+      "/uploads/apt-1788864334485-759019287-2012571716068717-440.jpg",
+      "/uploads/apt-1788864334494-759692585-1697396554852665-650.jpg",
+      "/uploads/apt-1788864334521-760356162-987575990976948-3939.jpg",
+      "/uploads/apt-1788864334540-760537133-1623976486394890-711.jpg",
+      "/uploads/apt-1788864334549-761216771-1058485590050228-602.jpg"
+    ],
+    "featured": false,
+    "isActive": true,
+    "deposit": 0,
+    "availableDate": "Immediate",
+    "rating": 4.8,
+    "reviewsCount": 15,
+    "addressTemplate": "Godwin Ave, Paterson, NJ",
+    "isManual": true,
+    "climate": "Central AC & Heating"
+  },
+  {
+    "_id": "apt_1788863937917",
+    "id": "apt_1788863937917",
+    "serialNumber": 37,
+    "title": "1 Bed 1 Bath - Apartment",
+    "slug": "apt-1788863814354",
+    "description": "Beautiful 1b/1b apartment for rent. ",
+    "category": "1B1B",
+    "bedrooms": 1,
+    "bathrooms": 1,
+    "baseRent": 1850,
+    "squareFeet": 650,
+    "furnished": "Either",
+    "hasKitchen": true,
+    "petPolicy": "Dogs & Cats Allowed",
+    "amenities": [
+      "Air Conditioning",
+      "Wi-Fi",
+      "Dishwasher"
+    ],
+    "images": [
+      "/uploads/apt-1788863920132-792053462-10164487090747870-38.jpg",
+      "/uploads/apt-1788863920140-793203764-10164487055602870-68.jpg",
+      "/uploads/apt-1788863920007-789268017-10164487055682870-16.jpg",
+      "/uploads/apt-1788863920036-789327281-10164487055792870-78.jpg",
+      "/uploads/apt-1788863920057-789581474-10164487056007870-73.jpg",
+      "/uploads/apt-1788863920066-789612877-10164487056147870-20.jpg",
+      "/uploads/apt-1788863920099-789612882-10164487055902870-51.jpg",
+      "/uploads/apt-1788863920112-791465982-10164487055652870-51.jpg",
+      "/uploads/apt-1788863920121-791484086-10164487056182870-54.jpg",
+      "/uploads/apt-1788863920150-793203768-10164487056212870-63.jpg",
+      "/uploads/apt-1788863920161-793203794-10164487055917870-79.jpg",
+      "/uploads/apt-1788863920169-793204079-10164487056027870-62.jpg",
+      "/uploads/apt-1788863920180-793204085-10164487056087870-24.jpg",
+      "/uploads/apt-1788863920188-793204114-10164487056002870-28.jpg"
+    ],
+    "featured": false,
+    "isActive": true,
+    "deposit": 0,
+    "availableDate": "Immediate",
+    "rating": 4.8,
+    "reviewsCount": 15,
+    "addressTemplate": "Hackensack, NJ",
+    "isManual": true,
+    "climate": "Central AC & Heating"
+  },
+  {
     "_id": "apt_1788799672059",
     "id": "apt_1788799672059",
     "serialNumber": 36,
     "title": "Nantucket Court Luxury Residences",
     "slug": "apt-1788799672059",
-    "description": "",
+    "description": "luxary 1b 1b apartment",
     "category": "1B1B",
     "bedrooms": 1,
     "bathrooms": 1,
@@ -24,8 +232,13 @@
     "availableDate": "Immediate",
     "rating": 4.8,
     "reviewsCount": 10,
-    "addressTemplate": "18 Nantucket Dr, Medford, NY 11763, United States",
-    "isManual": true
+    "addressTemplate": "18 Nantucket Dr, Medford, NY 11763",
+    "isManual": true,
+    "climate": "Central AC & Heating",
+    "propertyType": "Apartment",
+    "laundry": "In-unit laundry",
+    "parking": "Street parking",
+    "cityState": "18 Nantucket Dr, Medford, NY 11763"
   },
   {
     "id": "apt-1b1b-01",
@@ -59,10 +272,11 @@
     "availableDate": "Immediate",
     "rating": 4.9,
     "reviewsCount": 38,
-    "addressTemplate": "Parkview & Green Oaks Promenade",
+    "addressTemplate": "",
     "_id": "apt_1",
     "serialNumber": 1,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-02",
@@ -96,10 +310,11 @@
     "availableDate": "Immediate",
     "rating": 4.8,
     "reviewsCount": 29,
-    "addressTemplate": "Lexington & Downtown Arts Corridor",
+    "addressTemplate": "",
     "_id": "apt_2",
     "serialNumber": 2,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-03",
@@ -131,10 +346,11 @@
     "availableDate": "First of Month",
     "rating": 4.7,
     "reviewsCount": 19,
-    "addressTemplate": "Beacon Street Historic Corridor",
+    "addressTemplate": "",
     "_id": "apt_3",
     "serialNumber": 3,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-04",
@@ -167,10 +383,11 @@
     "availableDate": "Immediate",
     "rating": 4.9,
     "reviewsCount": 44,
-    "addressTemplate": "Roosevelt Parkside Promenade",
+    "addressTemplate": "",
     "_id": "apt_4",
     "serialNumber": 4,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-05",
@@ -201,10 +418,11 @@
     "availableDate": "Immediate",
     "rating": 4.6,
     "reviewsCount": 15,
-    "addressTemplate": "Oakridge Nature Trail Corridor",
+    "addressTemplate": "",
     "_id": "apt_5",
     "serialNumber": 5,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-06",
@@ -237,10 +455,11 @@
     "availableDate": "Immediate",
     "rating": 4.8,
     "reviewsCount": 27,
-    "addressTemplate": "Grand Avenue Cultural District",
+    "addressTemplate": "",
     "_id": "apt_6",
     "serialNumber": 6,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-07",
@@ -272,10 +491,11 @@
     "availableDate": "Next Week",
     "rating": 4.7,
     "reviewsCount": 22,
-    "addressTemplate": "Madison & Cooper Crossing Corridor",
+    "addressTemplate": "",
     "_id": "apt_7",
     "serialNumber": 7,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-08",
@@ -307,10 +527,11 @@
     "availableDate": "Immediate",
     "rating": 4.8,
     "reviewsCount": 31,
-    "addressTemplate": "Cedar Grove Commons Area",
+    "addressTemplate": "",
     "_id": "apt_8",
     "serialNumber": 8,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-09",
@@ -343,10 +564,11 @@
     "availableDate": "Immediate",
     "rating": 4.9,
     "reviewsCount": 36,
-    "addressTemplate": "Highland Crest & Parks District",
+    "addressTemplate": "",
     "_id": "apt_9",
     "serialNumber": 9,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-10",
@@ -378,10 +600,11 @@
     "availableDate": "Immediate",
     "rating": 4.6,
     "reviewsCount": 18,
-    "addressTemplate": "Maplewood Greenbelt Corridor",
+    "addressTemplate": "",
     "_id": "apt_10",
     "serialNumber": 10,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-11",
@@ -413,10 +636,11 @@
     "availableDate": "Immediate",
     "rating": 4.8,
     "reviewsCount": 25,
-    "addressTemplate": "Spring Street Central Corridor",
+    "addressTemplate": "",
     "_id": "apt_11",
     "serialNumber": 11,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-1b1b-12",
@@ -448,10 +672,11 @@
     "availableDate": "Immediate",
     "rating": 4.9,
     "reviewsCount": 33,
-    "addressTemplate": "Liberty Commons & Sublett Area",
+    "addressTemplate": "",
     "_id": "apt_12",
     "serialNumber": 12,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-01",
@@ -480,16 +705,17 @@
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80"
     ],
-    "featured": true,
+    "featured": false,
     "isActive": true,
     "deposit": 650,
     "availableDate": "Immediate",
     "rating": 4.95,
     "reviewsCount": 52,
-    "addressTemplate": "Kensington Court Historic Promenade",
+    "addressTemplate": "",
     "_id": "apt_13",
     "serialNumber": 13,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-02",
@@ -517,16 +743,17 @@
       "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"
     ],
-    "featured": true,
+    "featured": false,
     "isActive": true,
     "deposit": 700,
     "availableDate": "Immediate",
     "rating": 4.9,
     "reviewsCount": 47,
-    "addressTemplate": "Riverfront Promenade & Marina Area",
+    "addressTemplate": "",
     "_id": "apt_14",
     "serialNumber": 14,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-03",
@@ -558,10 +785,11 @@
     "availableDate": "Immediate",
     "rating": 4.7,
     "reviewsCount": 30,
-    "addressTemplate": "Pinecrest & Greenbelt Corridor",
+    "addressTemplate": "",
     "_id": "apt_15",
     "serialNumber": 15,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-04",
@@ -594,10 +822,11 @@
     "availableDate": "Immediate",
     "rating": 4.85,
     "reviewsCount": 41,
-    "addressTemplate": "Wellington Plaza Town Center",
+    "addressTemplate": "",
     "_id": "apt_16",
     "serialNumber": 16,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-05",
@@ -624,16 +853,17 @@
       "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80"
     ],
-    "featured": true,
+    "featured": false,
     "isActive": true,
     "deposit": 650,
     "availableDate": "First of Month",
     "rating": 4.9,
     "reviewsCount": 39,
-    "addressTemplate": "Sunset Ridge Scenic Corridor",
+    "addressTemplate": "",
     "_id": "apt_17",
     "serialNumber": 17,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-06",
@@ -665,10 +895,11 @@
     "availableDate": "Immediate",
     "rating": 4.75,
     "reviewsCount": 26,
-    "addressTemplate": "Crestview Hills District",
+    "addressTemplate": "",
     "_id": "apt_18",
     "serialNumber": 18,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-07",
@@ -701,10 +932,11 @@
     "availableDate": "Immediate",
     "rating": 4.8,
     "reviewsCount": 34,
-    "addressTemplate": "Parkside Parkway Greenbelt Area",
+    "addressTemplate": "",
     "_id": "apt_19",
     "serialNumber": 19,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-08",
@@ -737,10 +969,11 @@
     "availableDate": "Immediate",
     "rating": 4.9,
     "reviewsCount": 43,
-    "addressTemplate": "Fairview Terrace Promenade",
+    "addressTemplate": "",
     "_id": "apt_20",
     "serialNumber": 20,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-09",
@@ -772,10 +1005,11 @@
     "availableDate": "Immediate",
     "rating": 4.7,
     "reviewsCount": 28,
-    "addressTemplate": "Cambridge Historic District",
+    "addressTemplate": "",
     "_id": "apt_21",
     "serialNumber": 21,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-10",
@@ -802,16 +1036,17 @@
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"
     ],
-    "featured": true,
+    "featured": false,
     "isActive": true,
     "deposit": 700,
     "availableDate": "Immediate",
     "rating": 4.95,
     "reviewsCount": 58,
-    "addressTemplate": "Bayview Waterfront Promenade",
+    "addressTemplate": "",
     "_id": "apt_22",
     "serialNumber": 22,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-11",
@@ -843,10 +1078,11 @@
     "availableDate": "Next Month",
     "rating": 4.75,
     "reviewsCount": 21,
-    "addressTemplate": "Sterling Point Nature Corridor",
+    "addressTemplate": "",
     "_id": "apt_23",
     "serialNumber": 23,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-2b2b-12",
@@ -878,10 +1114,11 @@
     "availableDate": "Immediate",
     "rating": 4.8,
     "reviewsCount": 33,
-    "addressTemplate": "Timberline Trail Greenway District",
+    "addressTemplate": "",
     "_id": "apt_24",
     "serialNumber": 24,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b2b-01",
@@ -910,16 +1147,17 @@
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"
     ],
-    "featured": true,
+    "featured": false,
     "isActive": true,
     "deposit": 750,
     "availableDate": "Immediate",
     "rating": 4.95,
     "reviewsCount": 61,
-    "addressTemplate": "Grandview Terrace Promenade",
+    "addressTemplate": "",
     "_id": "apt_25",
     "serialNumber": 25,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b3b-02",
@@ -948,16 +1186,17 @@
       "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&w=1200&q=80"
     ],
-    "featured": true,
+    "featured": false,
     "isActive": true,
     "deposit": 850,
     "availableDate": "Immediate",
     "rating": 5,
     "reviewsCount": 48,
-    "addressTemplate": "Sovereign Heights Scenic Corridor",
+    "addressTemplate": "",
     "_id": "apt_26",
     "serialNumber": 26,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b2b-03",
@@ -990,10 +1229,11 @@
     "availableDate": "Immediate",
     "rating": 4.8,
     "reviewsCount": 35,
-    "addressTemplate": "Meadowbrook Greenway Corridor",
+    "addressTemplate": "",
     "_id": "apt_27",
     "serialNumber": 27,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b3b-04",
@@ -1022,16 +1262,17 @@
       "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80"
     ],
-    "featured": true,
+    "featured": false,
     "isActive": true,
     "deposit": 900,
     "availableDate": "Immediate",
     "rating": 4.95,
     "reviewsCount": 54,
-    "addressTemplate": "Skyview Skyline Promenade",
+    "addressTemplate": "",
     "_id": "apt_28",
     "serialNumber": 28,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b2b-05",
@@ -1064,10 +1305,11 @@
     "availableDate": "Immediate",
     "rating": 4.85,
     "reviewsCount": 42,
-    "addressTemplate": "Willow Creek Waterside District",
+    "addressTemplate": "",
     "_id": "apt_29",
     "serialNumber": 29,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b3b-06",
@@ -1100,10 +1342,11 @@
     "availableDate": "First of Month",
     "rating": 4.9,
     "reviewsCount": 37,
-    "addressTemplate": "Bellevue Commons Enclave",
+    "addressTemplate": "",
     "_id": "apt_30",
     "serialNumber": 30,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b2b-07",
@@ -1136,10 +1379,11 @@
     "availableDate": "Immediate",
     "rating": 4.88,
     "reviewsCount": 40,
-    "addressTemplate": "Stonegate Parkside District",
+    "addressTemplate": "",
     "_id": "apt_31",
     "serialNumber": 31,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b3b-08",
@@ -1173,10 +1417,11 @@
     "availableDate": "Immediate",
     "rating": 4.92,
     "reviewsCount": 46,
-    "addressTemplate": "Marina Basin Promenade Area",
+    "addressTemplate": "",
     "_id": "apt_32",
     "serialNumber": 32,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b2b-09",
@@ -1208,10 +1453,11 @@
     "availableDate": "Immediate",
     "rating": 4.78,
     "reviewsCount": 29,
-    "addressTemplate": "Briarwood Historic Enclave",
+    "addressTemplate": "",
     "_id": "apt_33",
     "serialNumber": 33,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b3b-10",
@@ -1239,16 +1485,17 @@
       "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&w=1200&q=80"
     ],
-    "featured": true,
+    "featured": false,
     "isActive": true,
     "deposit": 900,
     "availableDate": "Immediate",
     "rating": 4.96,
     "reviewsCount": 63,
-    "addressTemplate": "Montgomery Boulevard Corridor",
+    "addressTemplate": "",
     "_id": "apt_34",
     "serialNumber": 34,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   },
   {
     "id": "apt-3b2b-11",
@@ -1281,9 +1528,10 @@
     "availableDate": "Immediate",
     "rating": 4.86,
     "reviewsCount": 38,
-    "addressTemplate": "Oakland Ridge Highlands Area",
+    "addressTemplate": "",
     "_id": "apt_35",
     "serialNumber": 35,
-    "isManual": false
+    "isManual": false,
+    "climate": "Central AC & Heating"
   }
 ]

@@ -1,16 +1,21 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { getAdminSession } from "@/lib/auth-server";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("apartmento_admin_token");
-
-    if (!token?.value) {
+    const session = await getAdminSession(req);
+    if (!session.authenticated) {
       return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
-    return NextResponse.json({ authenticated: true, user: "admin" });
+    if (!session.username) {
+      return NextResponse.json({ authenticated: false }, { status: 401 });
+    }
+
+    return NextResponse.json({
+      authenticated: true,
+      user: session.username,
+    });
   } catch (error) {
     console.error("Auth check error:", error);
     return NextResponse.json({ authenticated: false }, { status: 500 });

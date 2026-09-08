@@ -39,6 +39,7 @@ atlas-credentials.env
 
 # data files
 .data/leads.json
+.data/admin_logs.json
 
 # temporary test scripts and raw uploads
 test-funnel.mjs

@@ -10,7 +10,6 @@ import {
   Phone,
   Mail,
   Home,
-  Star,
   Bath,
   BedDouble,
   Maximize2,
@@ -21,7 +20,6 @@ import {
   Loader2,
   SlidersHorizontal,
 } from "lucide-react";
-import confetti from "canvas-confetti";
 import { MatchedApartmentResult } from "@/lib/matching-engine";
 import { FunnelFormData } from "@/types";
 
@@ -52,12 +50,6 @@ export default function ResultsPage() {
         try {
           const parsed = JSON.parse(storedMatches);
           setMatches(parsed);
-          // Launch confetti celebration
-          confetti({
-            particleCount: 80,
-            spread: 70,
-            origin: { y: 0.6 },
-          });
         } catch (e) {
           console.error(e);
         }
@@ -194,11 +186,9 @@ export default function ResultsPage() {
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold mb-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-2">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                {matches.some((m) => m.isManual)
-                  ? "⭐ Verified Local Listings + Compatible Inventory"
-                  : "Dynamic Matches Calibrated"}
+                Available Properties
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
                 Found {matches.length} Apartments in{" "}
@@ -207,9 +197,7 @@ export default function ResultsPage() {
                 </span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                {matches.some((m) => m.isManual)
-                  ? `Showing ${matches.filter((m) => m.isManual).length} verified property in this area plus matching curated inventory.`
-                  : `Showing customized pricing calibrated to your $${searchCriteria?.budgetMin || 800} – $${searchCriteria?.budgetMax || 1800} budget.`}
+                Showing available units matching your preferences and budget.
               </p>
             </div>
 
@@ -271,19 +259,6 @@ export default function ResultsPage() {
                   className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
                 />
 
-                {/* Match Score Badge */}
-                <div className="absolute top-3 left-3 bg-slate-950/90 text-emerald-400 text-xs font-black px-3 py-1 rounded-full border border-emerald-500/30 shadow-sm">
-                  {apt.matchScore}% Match
-                </div>
-
-                {/* Verified Real Property Badge */}
-                {apt.isManual && (
-                  <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-lg border border-white/20 flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-amber-300 text-amber-300" />
-                    <span>Verified Local Unit</span>
-                  </div>
-                )}
-
                 {/* Rent Badge */}
                 <div className="absolute bottom-3 right-3 bg-blue-600 text-white px-3.5 py-1.5 rounded-xl font-black text-base shadow-lg">
                   ${apt.displayRent || apt.baseRent}
@@ -322,18 +297,6 @@ export default function ResultsPage() {
                       <span>{apt.squareFeet} sq ft</span>
                     </div>
                   </div>
-
-                  {/* Highlight pills */}
-                  <div className="flex flex-wrap gap-1.5 pt-3">
-                    {apt.matchHighlights?.map((hl, i) => (
-                      <span
-                        key={i}
-                        className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600"
-                      >
-                        ✓ {hl}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Card Action Buttons */}
@@ -351,7 +314,9 @@ export default function ResultsPage() {
                   </button>
 
                   <Link
-                    href={`/apartments/${apt.slug || apt.id || apt._id}`}
+                    href={`/apartments/${apt.slug || apt.id || apt._id}${
+                      apt.displayLocation ? `?loc=${encodeURIComponent(apt.displayLocation)}` : ""
+                    }`}
                     className="py-3 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
                     title="View Apartment Specs"
                   >

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth-server";
 import { getLeadById, updateLead, deleteLead } from "@/lib/store";
 
 export async function GET(
@@ -6,6 +7,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin(req);
+    if (unauthorized) return unauthorized;
+
     const { id } = await params;
     const lead = await getLeadById(id);
     if (!lead) {
@@ -23,6 +27,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin(req);
+    if (unauthorized) return unauthorized;
+
     const { id } = await params;
     const body = await req.json();
     const updated = await updateLead(id, body);
@@ -41,6 +48,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const unauthorized = await requireAdmin(req);
+    if (unauthorized) return unauthorized;
+
     const { id } = await params;
     const deleted = await deleteLead(id);
     if (!deleted) {
@@ -52,4 +62,3 @@ export async function DELETE(
     return NextResponse.json({ error: "Failed to delete lead" }, { status: 500 });
   }
 }
-

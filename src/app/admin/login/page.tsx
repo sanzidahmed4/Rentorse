@@ -7,7 +7,7 @@ import { Lock, User, ShieldAlert, Loader2, Eye, EyeOff } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("admin");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -77,6 +77,8 @@ export default function AdminLoginPage() {
               <input
                 type="text"
                 required
+                placeholder="Enter username"
+                autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900"
@@ -93,7 +95,8 @@ export default function AdminLoginPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 required
-                placeholder="Enter admin password"
+                placeholder="Enter password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-10 pr-11 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900"
@@ -107,9 +110,6 @@ export default function AdminLoginPage() {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">
-              Default credentials: <code className="text-blue-600 font-mono">admin</code> / <code className="text-blue-600 font-mono">adminsanzid</code>
-            </span>
           </div>
 
           <button

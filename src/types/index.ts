@@ -1,4 +1,4 @@
-export type ApartmentCategory = "1B1B" | "2B2B" | "3B2B" | "3B3B";
+export type ApartmentCategory = "1B1B" | "2B1B" | "2B2B" | "3B2B" | "3B3B";
 export type FurnishedStatus = "Furnished" | "Unfurnished" | "Either";
 export type PetPolicy = "Dogs & Cats Allowed" | "Cats Only" | "No Pets";
 export type LeadStatus = "New" | "Contacted" | "Qualified" | "Matched" | "Converted" | "Closed";
@@ -28,6 +28,14 @@ export interface IApartment {
   reviewsCount: number;
   addressTemplate?: string;
   isManual?: boolean;
+  // Unit Details (Facebook Marketplace style)
+  propertyType?: string;
+  climate?: string;
+  cooling?: string;
+  heating?: string;
+  laundry?: string;
+  parking?: string;
+  cityState?: string;
   // Dynamically populated chameleon fields for user search:
   displayLocation?: string;
   displayRent?: number;
@@ -108,4 +116,25 @@ export interface FunnelFormData {
   selectedApartmentId?: string;
   selectedApartmentTitle?: string;
   selectedApartmentPrice?: number;
+}
+
+export interface IAdminLoginLog {
+  id: string;
+  username: string;
+  ip: string;
+  device: string;
+  browser: string;
+  status: "SUCCESS" | "FAILED";
+  createdAt: string;
+}
+
+export interface IAdminUserSummary {
+  username: string;
+  role: string;
+  isActive: boolean;
+  lastLogin: string | null;
+  lastActiveAt: string | null;
+  lastIp: string | null;
+  lastDevice: string | null;
+  totalLogins: number;
 }
