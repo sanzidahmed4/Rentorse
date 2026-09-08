@@ -27,7 +27,10 @@ export default function AdminLoginPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        router.replace("/admin");
+        try {
+          localStorage.setItem("apartmento_admin_active_tab", "overview");
+        } catch (_) {}
+        router.replace("/admin?tab=overview");
         router.refresh();
       } else {
         setError(data.error || "Invalid username or password");

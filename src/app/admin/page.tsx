@@ -197,18 +197,19 @@ export default function AdminDashboardPage() {
   const [aptSearchQuery, setAptSearchQuery] = useState("");
 
   useEffect(() => {
-    // Restore active tab from URL query param or localStorage
+    // Default active tab to "overview" unless explicitly specified via URL param (?tab=...)
     try {
       const urlTab = new URLSearchParams(window.location.search).get("tab");
-      const storedTab = localStorage.getItem("apartmento_admin_active_tab");
-      const targetTab = (urlTab || storedTab) as "overview" | "leads" | "apartments" | "stats" | "admins";
-      if (targetTab && ["overview", "leads", "apartments", "stats", "admins"].includes(targetTab)) {
-        setActiveTab(targetTab);
-        if (!urlTab) {
-          const url = new URL(window.location.href);
-          url.searchParams.set("tab", targetTab);
-          window.history.replaceState(null, "", url.toString());
-        }
+      const targetTab = (urlTab && ["overview", "leads", "apartments", "stats", "admins"].includes(urlTab))
+        ? (urlTab as "overview" | "leads" | "apartments" | "stats" | "admins")
+        : "overview";
+
+      setActiveTab(targetTab);
+      localStorage.setItem("apartmento_admin_active_tab", targetTab);
+      if (!urlTab) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("tab", targetTab);
+        window.history.replaceState(null, "", url.toString());
       }
     } catch (_) {}
 
@@ -375,6 +376,7 @@ export default function AdminDashboardPage() {
       sessionStorage.removeItem("apartmento_admin_selected_row");
       localStorage.removeItem("apartmento_admin_selected_row");
       localStorage.removeItem("apartmento_admin_lead_modal");
+      localStorage.removeItem("apartmento_admin_active_tab");
       document.cookie = "apartmento_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     } catch (_) {}
     await fetch("/api/admin/logout", { method: "POST" });
@@ -399,6 +401,7 @@ export default function AdminDashboardPage() {
         try {
           sessionStorage.clear();
           localStorage.removeItem("apartmento_admin_selected_row");
+          localStorage.removeItem("apartmento_admin_active_tab");
           document.cookie = "apartmento_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         } catch (_) {}
         setTimeout(() => {
