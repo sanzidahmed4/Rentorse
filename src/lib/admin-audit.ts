@@ -139,47 +139,55 @@ export async function recordAdminLogin(params: {
   userAgent?: string | null;
   status: "SUCCESS" | "FAILED";
 }): Promise<void> {
-  const { device, browser } = parseUserAgent(params.userAgent);
-  const now = new Date();
-  const cleanIp = params.ip === "::1" ? "127.0.0.1" : params.ip;
-  const logId = `log-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-
-  const logEntry: IAdminLoginLog = {
-    id: logId,
-    username: params.username,
-    ip: cleanIp,
-    device,
-    browser,
-    status: params.status,
-    createdAt: now.toISOString(),
-  };
-
-  // 1. Update in-memory & persisted JSON log
-  const memoryLogs = globalThis.__apartmento_admin_logs_cache || loadPersistedLogs();
-  memoryLogs.unshift(logEntry);
-  globalThis.__apartmento_admin_logs_cache = memoryLogs;
-  savePersistedLogs(memoryLogs);
-
-  // 2. If login succeeded, touch active activity
-  if (params.status === "SUCCESS") {
-    touchAdminActivity(params.username, cleanIp);
-  }
-
-  // 3. Persist to MongoDB if connected
   try {
-    const isDb = await connectToDatabase();
-    if (isDb) {
-      await AdminLog.create({
-        username: params.username,
-        ip: cleanIp,
-        device,
-        browser,
-        status: params.status,
-        createdAt: now,
-      });
+    const { device, browser } = parseUserAgent(params.userAgent);
+    const now = new Date();
+    const cleanIp = params.ip === "::1" ? "127.0.0.1" : params.ip;
+    const logId = `log-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+    const logEntry: IAdminLoginLog = {
+      id: logId,
+      username: params.username,
+      ip: cleanIp,
+      device,
+      browser,
+      status: params.status,
+      createdAt: now.toISOString(),
+    };
+
+    // 1. Update in-memory & persisted JSON log safely
+    try {
+      const memoryLogs = globalThis.__apartmento_admin_logs_cache || loadPersistedLogs();
+      memoryLogs.unshift(logEntry);
+      globalThis.__apartmento_admin_logs_cache = memoryLogs;
+      savePersistedLogs(memoryLogs);
+    } catch (fsErr) {
+      console.warn("Local logs write skipped (read-only filesystem):", fsErr);
     }
-  } catch (err) {
-    console.error("MongoDB AdminLog write error:", err);
+
+    // 2. If login succeeded, touch active activity
+    if (params.status === "SUCCESS") {
+      touchAdminActivity(params.username, cleanIp);
+    }
+
+    // 3. Persist to MongoDB if connected
+    try {
+      const isDb = await connectToDatabase();
+      if (isDb) {
+        await AdminLog.create({
+          username: params.username,
+          ip: cleanIp,
+          device,
+          browser,
+          status: params.status,
+          createdAt: now,
+        });
+      }
+    } catch (err) {
+      console.error("MongoDB AdminLog write error:", err);
+    }
+  } catch (outerErr) {
+    console.error("recordAdminLogin encountered error:", outerErr);
   }
 }
 
@@ -248,11 +256,9 @@ export function getConfiguredAdminUsernames(): string[] {
     if (single && single.toLowerCase() !== "admin") set.add(single);
   }
 
-  // Ensure both sihabali and sanzid are present if neither env was loaded
-  if (set.size === 0) {
-    set.add("sihabali");
-    set.add("sanzid");
-  }
+  // Ensure both sihabali and sanzid are always present
+  set.add("sihabali");
+  set.add("sanzid");
 
   set.delete("admin");
   return Array.from(set);

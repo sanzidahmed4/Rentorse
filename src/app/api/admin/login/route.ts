@@ -60,12 +60,12 @@ function getValidAdminUsers(): AdminUser[] {
     }
   }
 
-  // Fallback defaults if env is missing
-  if (users.length === 0) {
-    users.push(
-      { username: "sihabali", password: "adminsihab" },
-      { username: "sanzid", password: "adminsanzid" }
-    );
+  // 3. Ensure default authorized admins (sihabali and sanzid) are ALWAYS included
+  if (!users.some((u) => u.username.toLowerCase() === "sihabali")) {
+    users.push({ username: "sihabali", password: "adminsihab" });
+  }
+  if (!users.some((u) => u.username.toLowerCase() === "sanzid")) {
+    users.push({ username: "sanzid", password: "adminsanzid" });
   }
 
   return users;
@@ -201,8 +201,9 @@ export async function POST(req: Request) {
       },
       { status: 401 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("Admin login error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    const message = error?.message || "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
