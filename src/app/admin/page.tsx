@@ -1614,7 +1614,9 @@ export default function AdminDashboardPage() {
                   >
                     <option value="ALL">All Bed / Bath</option>
                     <option value="1B1B">1 Bed / 1 Bath (1B1B)</option>
+                    <option value="2B1B">2 Bed / 1 Bath (2B1B)</option>
                     <option value="2B2B">2 Bed / 2 Bath (2B2B)</option>
+                    <option value="3B1B">3 Bed / 1 Bath (3B1B)</option>
                     <option value="3B2B">3 Bed / 2 Bath (3B2B)</option>
                     <option value="3B3B">3 Bed / 3 Bath (3B3B)</option>
                   </select>
@@ -2670,6 +2672,7 @@ export default function AdminDashboardPage() {
                           if (cat === "1B1B") { beds = 1; baths = 1; }
                           else if (cat === "2B1B") { beds = 2; baths = 1; }
                           else if (cat === "2B2B") { beds = 2; baths = 2; }
+                          else if (cat === "3B1B") { beds = 3; baths = 1; }
                           else if (cat === "3B2B") { beds = 3; baths = 2; }
                           else if (cat === "3B3B") { beds = 3; baths = 3; }
                           setEditingApt({
@@ -2684,6 +2687,7 @@ export default function AdminDashboardPage() {
                         <option value="1B1B">1 Bed / 1 Bath</option>
                         <option value="2B1B">2 Bed / 1 Bath</option>
                         <option value="2B2B">2 Bed / 2 Bath</option>
+                        <option value="3B1B">3 Bed / 1 Bath</option>
                         <option value="3B2B">3 Bed / 2 Bath</option>
                         <option value="3B3B">3 Bed / 3 Bath</option>
                       </select>

@@ -1,4 +1,4 @@
-export type ApartmentCategory = "1B1B" | "2B1B" | "2B2B" | "3B2B" | "3B3B";
+export type ApartmentCategory = "1B1B" | "2B1B" | "2B2B" | "3B1B" | "3B2B" | "3B3B";
 export type FurnishedStatus = "Furnished" | "Unfurnished" | "Either";
 export type PetPolicy = "Dogs & Cats Allowed" | "Cats Only" | "No Pets";
 export type LeadStatus = "New" | "Contacted" | "Qualified" | "Matched" | "Converted" | "Closed";

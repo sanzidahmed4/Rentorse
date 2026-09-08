@@ -60,24 +60,40 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
       : "Philadelphia, PA");
 
   let effectiveDescription = apt.description;
+  effectiveDescription = effectiveDescription
+    .replace(/\b\d+B\/\d+B\b/gi, `${effectiveBedrooms}B/${effectiveBathrooms}B`)
+    .replace(/\b\d+\s*Bed\s*\/\s*\d+\s*Bath\b/gi, `${effectiveBedrooms} Bed / ${effectiveBathrooms} Bath`)
+    .replace(/\b(one|two|three|\d+)-bedroom,\s*(one|two|three|\d+)-bathroom\b/gi, `${effectiveBedrooms}-bedroom, ${effectiveBathrooms}-bathroom`);
+
   if (effectiveBathrooms === 1) {
     effectiveDescription = effectiveDescription
-      .replace(/2\s*Bed\s*\/\s*2\s*Bath/gi, "2 Bed / 1 Bath")
-      .replace(/2B\/2B/gi, "2B/1B")
-      .replace(/two-bedroom,\s*two-bathroom/gi, "two-bedroom, one-bathroom")
-      .replace(/two\s*bathrooms/gi, "one full bathroom")
-      .replace(/dual\s*master/gi, "spacious master")
-      .replace(/dual\s*vanities/gi, "designer vanity")
-      .replace(/double\s*sink\s*vanities/gi, "modern vanity");
+      .replace(/two\s*bathrooms|three\s*bathrooms|three\s*lavish\s*full\s*bathrooms/gi, "one full bathroom")
+      .replace(/dual\s*master|triple\s*master/gi, "spacious master")
+      .replace(/dual\s*vanities|double\s*vanity|double\s*sink\s*vanities/gi, "designer vanity")
+      .replace(/every\s*single\s*bedroom\s*has\s*its\s*own\s*private\s*ensuite\s*bathroom/gi, "convenient central bathroom layout")
+      .replace(/each\s*bedroom\s*with\s*en-suite\s*bath/gi, "central bathroom layout")
+      .replace(/marble\s*bathrooms/gi, "designer marble bathroom");
   } else if (effectiveBathrooms === 2) {
     effectiveDescription = effectiveDescription
-      .replace(/2\s*Bed\s*\/\s*1\s*Bath/gi, "2 Bed / 2 Bath")
-      .replace(/2B\/1B/gi, "2B/2B")
-      .replace(/two-bedroom,\s*one-bathroom/gi, "two-bedroom, two-bathroom");
+      .replace(/three\s*bathrooms|three\s*lavish\s*full\s*bathrooms|one\s*bathroom/gi, "two full bathrooms")
+      .replace(/triple\s*master/gi, "dual master")
+      .replace(/every\s*single\s*bedroom\s*has\s*its\s*own\s*private\s*ensuite\s*bathroom/gi, "private master suite plus guest bath")
+      .replace(/each\s*bedroom\s*with\s*en-suite\s*bath/gi, "master ensuite and hallway bath");
+  } else if (effectiveBathrooms === 3) {
+    effectiveDescription = effectiveDescription
+      .replace(/one\s*bathroom|two\s*bathrooms/gi, "three full bathrooms");
+  }
+
+  let effectiveTitle = apt.title;
+  if (effectiveTitle.includes("3B/2B") || effectiveTitle.includes("3B/3B")) {
+    effectiveTitle = effectiveTitle.replace(/\s*3B\/[23]B/g, ` ${effectiveBedrooms}B/${effectiveBathrooms}B`);
+  } else if (effectiveTitle.includes("2B/2B")) {
+    effectiveTitle = effectiveTitle.replace(/\s*2B\/2B/g, ` ${effectiveBedrooms}B/${effectiveBathrooms}B`);
   }
 
   const effectiveApartment: IApartment = {
     ...apt,
+    title: effectiveTitle,
     category: effectiveCategory,
     bedrooms: effectiveBedrooms,
     bathrooms: effectiveBathrooms,

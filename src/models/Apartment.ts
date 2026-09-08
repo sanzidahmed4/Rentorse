@@ -11,7 +11,7 @@ const ApartmentSchema = new Schema<IApartmentDocument>(
     description: { type: String, required: true },
     category: {
       type: String,
-      enum: ["1B1B", "2B1B", "2B2B", "3B2B", "3B3B"],
+      enum: ["1B1B", "2B1B", "2B2B", "3B1B", "3B2B", "3B3B"],
       required: true,
     },
     bedrooms: { type: Number, required: true },

@@ -753,6 +753,8 @@ export default function ApartmentFinderFunnel() {
                         ? "2B1B"
                         : formData.bedrooms === 2 && formData.bathrooms === 2
                         ? "2B2B"
+                        : formData.bedrooms === 3 && formData.bathrooms === 1
+                        ? "3B1B"
                         : formData.bedrooms === 3 && formData.bathrooms === 2
                         ? "3B2B"
                         : formData.bedrooms === 3 && formData.bathrooms === 3
@@ -766,6 +768,7 @@ export default function ApartmentFinderFunnel() {
                       if (val === "1B1B") { beds = 1; baths = 1; }
                       else if (val === "2B1B") { beds = 2; baths = 1; }
                       else if (val === "2B2B") { beds = 2; baths = 2; }
+                      else if (val === "3B1B") { beds = 3; baths = 1; }
                       else if (val === "3B2B") { beds = 3; baths = 2; }
                       else if (val === "3B3B") { beds = 3; baths = 3; }
                       setFormData((prev) => ({
@@ -779,6 +782,7 @@ export default function ApartmentFinderFunnel() {
                     <option value="1B1B">1 Bed / 1 Bath</option>
                     <option value="2B1B">2 Bed / 1 Bath</option>
                     <option value="2B2B">2 Bed / 2 Bath</option>
+                    <option value="3B1B">3 Bed / 1 Bath</option>
                     <option value="3B2B">3 Bed / 2 Bath</option>
                     <option value="3B3B">3 Bed / 3 Bath</option>
                   </select>

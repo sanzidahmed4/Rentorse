@@ -183,26 +183,43 @@ export async function matchApartments(
     const effectiveCategory = `${targetBedrooms}B${targetBathrooms}B` as any;
     const displayLocation = resolvedLoc.getCorridor(index, effectiveCategory || apt.category);
 
-    // Harmonize description so bathroom wording seamlessly matches user criteria
+    // Harmonize description so bedroom and bathroom wording seamlessly matches user criteria
     let adaptedDescription = apt.description;
+    adaptedDescription = adaptedDescription
+      .replace(/\b\d+B\/\d+B\b/gi, `${targetBedrooms}B/${targetBathrooms}B`)
+      .replace(/\b\d+\s*Bed\s*\/\s*\d+\s*Bath\b/gi, `${targetBedrooms} Bed / ${targetBathrooms} Bath`)
+      .replace(/\b(one|two|three|\d+)-bedroom,\s*(one|two|three|\d+)-bathroom\b/gi, `${targetBedrooms}-bedroom, ${targetBathrooms}-bathroom`);
+
     if (targetBathrooms === 1) {
       adaptedDescription = adaptedDescription
-        .replace(/2\s*Bed\s*\/\s*2\s*Bath/gi, "2 Bed / 1 Bath")
-        .replace(/2B\/2B/gi, "2B/1B")
-        .replace(/two-bedroom,\s*two-bathroom/gi, "two-bedroom, one-bathroom")
-        .replace(/two\s*bathrooms/gi, "one full bathroom")
-        .replace(/dual\s*master/gi, "spacious master")
-        .replace(/dual\s*vanities/gi, "designer vanity")
-        .replace(/double\s*sink\s*vanities/gi, "modern vanity");
+        .replace(/two\s*bathrooms|three\s*bathrooms|three\s*lavish\s*full\s*bathrooms/gi, "one full bathroom")
+        .replace(/dual\s*master|triple\s*master/gi, "spacious master")
+        .replace(/dual\s*vanities|double\s*vanity|double\s*sink\s*vanities/gi, "designer vanity")
+        .replace(/every\s*single\s*bedroom\s*has\s*its\s*own\s*private\s*ensuite\s*bathroom/gi, "convenient central bathroom layout")
+        .replace(/each\s*bedroom\s*with\s*en-suite\s*bath/gi, "central bathroom layout")
+        .replace(/marble\s*bathrooms/gi, "designer marble bathroom");
     } else if (targetBathrooms === 2) {
       adaptedDescription = adaptedDescription
-        .replace(/2\s*Bed\s*\/\s*1\s*Bath/gi, "2 Bed / 2 Bath")
-        .replace(/2B\/1B/gi, "2B/2B")
-        .replace(/two-bedroom,\s*one-bathroom/gi, "two-bedroom, two-bathroom");
+        .replace(/three\s*bathrooms|three\s*lavish\s*full\s*bathrooms|one\s*bathroom/gi, "two full bathrooms")
+        .replace(/triple\s*master/gi, "dual master")
+        .replace(/every\s*single\s*bedroom\s*has\s*its\s*own\s*private\s*ensuite\s*bathroom/gi, "private master suite plus guest bath")
+        .replace(/each\s*bedroom\s*with\s*en-suite\s*bath/gi, "master ensuite and hallway bath");
+    } else if (targetBathrooms === 3) {
+      adaptedDescription = adaptedDescription
+        .replace(/one\s*bathroom|two\s*bathrooms/gi, "three full bathrooms");
+    }
+
+    // Harmonize title layout suffix if present
+    let adaptedTitle = apt.title;
+    if (adaptedTitle.includes("3B/2B") || adaptedTitle.includes("3B/3B")) {
+      adaptedTitle = adaptedTitle.replace(/\s*3B\/[23]B/g, ` ${targetBedrooms}B/${targetBathrooms}B`);
+    } else if (adaptedTitle.includes("2B/2B")) {
+      adaptedTitle = adaptedTitle.replace(/\s*2B\/2B/g, ` ${targetBedrooms}B/${targetBathrooms}B`);
     }
 
     return {
       ...apt,
+      title: adaptedTitle,
       category: effectiveCategory,
       bedrooms: targetBedrooms,
       bathrooms: targetBathrooms,
