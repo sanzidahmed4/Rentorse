@@ -133,6 +133,34 @@ export default function AdminDashboardPage() {
     return String(lead._id || lead.id || `lead_${lead.serialNumber || fallbackIdx}`);
   };
 
+  const formatDuration = (ms: number): string => {
+    if (ms < 60 * 1000) {
+      return `${Math.max(1, Math.floor(ms / 1000))}s`;
+    }
+    const minutes = Math.floor(ms / (60 * 1000));
+    if (minutes < 60) {
+      return `${minutes}m`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remMinutes = minutes % 60;
+    if (hours < 24) {
+      return remMinutes > 0 ? `${hours}h ${remMinutes}m` : `${hours}h`;
+    }
+    const days = Math.floor(hours / 24);
+    return `${days}d`;
+  };
+
+  const formatTimeAgo = (date: Date): string => {
+    const diffMs = Date.now() - date.getTime();
+    if (diffMs < 60 * 1000) return "Just now";
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
+
   const handleSelectRow = (rowId: string | null) => {
     setSelectedRowId(rowId);
     if (typeof window !== "undefined") {
@@ -2024,7 +2052,7 @@ export default function AdminDashboardPage() {
                           )}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100 text-xs">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100 text-xs">
                           <div className="space-y-0.5">
                             <span className="text-slate-400 font-semibold text-[11px] block">Last Login</span>
                             <p className="font-bold text-slate-800">
@@ -2037,6 +2065,15 @@ export default function AdminDashboardPage() {
                                     hour12: true,
                                   })
                                 : "No login recorded"}
+                            </p>
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <span className="text-slate-400 font-semibold text-[11px] block">Session Time</span>
+                            <p className="font-bold text-slate-800">
+                              {user.isActive
+                                ? (user.lastLogin ? `${formatDuration(Date.now() - new Date(user.lastLogin).getTime())} (Active)` : "Active Now")
+                                : "No active session"}
                             </p>
                           </div>
 
@@ -2054,7 +2091,7 @@ export default function AdminDashboardPage() {
                             </p>
                           </div>
 
-                          <div className="space-y-0.5">
+                          <div className="space-y-0.5 sm:col-span-2">
                             <span className="text-slate-400 font-semibold text-[11px] block">Device / Browser</span>
                             <p className="text-slate-700 truncate" title={user.lastDevice || "—"}>
                               {user.lastDevice || "—"}
@@ -2118,8 +2155,8 @@ export default function AdminDashboardPage() {
                       className="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 outline-none focus:border-blue-600 cursor-pointer"
                     >
                       <option value="ALL">All Status</option>
-                      <option value="SUCCESS">Successful Logins</option>
-                      <option value="FAILED">Failed Attempts</option>
+                      <option value="SUCCESS">Success</option>
+                      <option value="FAILED">Failed</option>
                     </select>
                   </div>
                 </div>
@@ -2132,6 +2169,7 @@ export default function AdminDashboardPage() {
                         <th className="py-3.5 px-4">User</th>
                         <th className="py-3.5 px-4">Status</th>
                         <th className="py-3.5 px-4">Login Time</th>
+                        <th className="py-3.5 px-4">Session Time</th>
                         <th className="py-3.5 px-4">IP Address</th>
                         <th className="py-3.5 px-4">Device & Browser</th>
                       </tr>
@@ -2139,7 +2177,7 @@ export default function AdminDashboardPage() {
                     <tbody className="divide-y divide-slate-100">
                       {filteredLogs.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="py-12 text-center text-slate-400 font-medium">
+                          <td colSpan={6} className="py-12 text-center text-slate-400 font-medium">
                             No login activity recorded matching your filters.
                           </td>
                         </tr>
@@ -2169,12 +2207,12 @@ export default function AdminDashboardPage() {
                                 {log.status === "SUCCESS" ? (
                                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-200">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                    Successful Login
+                                    Success
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 font-bold text-[11px] border border-rose-200">
                                     <X className="w-3.5 h-3.5 text-rose-600" />
-                                    Failed Attempt
+                                    Failed
                                   </span>
                                 )}
                               </td>
@@ -2192,9 +2230,40 @@ export default function AdminDashboardPage() {
                                     })}
                                   </span>
                                   <span className="text-[10px] text-slate-400">
-                                    {isRecent ? "Recent session" : "Past session"}
+                                    {formatTimeAgo(logDate)}
                                   </span>
                                 </div>
+                              </td>
+
+                              <td className="py-3.5 px-4">
+                                {log.status === "SUCCESS" ? (
+                                  isRecent ? (
+                                    <div className="space-y-0.5">
+                                      <span className="inline-flex items-center gap-1 text-emerald-700 font-bold text-[11px]">
+                                        <span className="relative flex h-1.5 w-1.5">
+                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                                        </span>
+                                        Active Now
+                                      </span>
+                                      <span className="text-[10px] text-slate-500 block font-medium">
+                                        {formatDuration(Date.now() - logDate.getTime())} elapsed
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-0.5">
+                                      <span className="text-slate-700 font-medium text-[11px] flex items-center gap-1">
+                                        <Clock className="w-3 h-3 text-slate-400" />
+                                        {formatDuration(Math.min(Date.now() - logDate.getTime(), 7 * 24 * 3600 * 1000))}
+                                      </span>
+                                      <span className="text-[10px] text-slate-400 block">
+                                        Completed session
+                                      </span>
+                                    </div>
+                                  )
+                                ) : (
+                                  <span className="text-slate-400 font-mono text-[11px]">—</span>
+                                )}
                               </td>
 
                               <td className="py-3.5 px-4">
