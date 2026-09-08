@@ -367,6 +367,8 @@ export default function AdminDashboardPage() {
     setTimeout(() => setNotification(""), 3500);
   };
 
+  const [revokingSessions, setRevokingSessions] = useState(false);
+
   const handleLogout = async () => {
     try {
       sessionStorage.removeItem("apartmento_admin_cache");
@@ -378,6 +380,40 @@ export default function AdminDashboardPage() {
     await fetch("/api/admin/logout", { method: "POST" });
     router.replace("/admin/login");
     router.refresh();
+  };
+
+  const handleLogoutAllDevices = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to log out all devices? This will invalidate all active admin sessions across every computer and mobile device immediately."
+      )
+    ) {
+      return;
+    }
+    setRevokingSessions(true);
+    try {
+      const res = await fetch("/api/admin/logout-all", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        showToast("All admin sessions across all devices have been terminated.");
+        try {
+          sessionStorage.clear();
+          localStorage.removeItem("apartmento_admin_selected_row");
+          document.cookie = "apartmento_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        } catch (_) {}
+        setTimeout(() => {
+          router.replace("/admin/login");
+          router.refresh();
+        }, 800);
+      } else {
+        showToast(data.error || "Failed to revoke sessions");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("Network error while revoking sessions");
+    } finally {
+      setRevokingSessions(false);
+    }
   };
 
   const handleSeedDatabase = async () => {
@@ -1905,7 +1941,7 @@ export default function AdminDashboardPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 shadow-xs">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -1913,6 +1949,16 @@ export default function AdminDashboardPage() {
                     </span>
                     {adminUsers.filter((u) => u.isActive).length} Admin Currently Active
                   </span>
+
+                  <button
+                    onClick={handleLogoutAllDevices}
+                    disabled={revokingSessions}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200 shadow-xs transition cursor-pointer disabled:cursor-not-allowed"
+                    title="Terminate all active admin sessions across all devices immediately"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-rose-600" />
+                    {revokingSessions ? "Revoking Sessions..." : "Log Out All Devices"}
+                  </button>
                 </div>
               </div>
 

@@ -68,6 +68,49 @@ async function getHmacKey(secret: string): Promise<CryptoKey> {
   );
 }
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __apartmento_session_revoked_before: number | undefined;
+}
+
+/**
+ * Global baseline epoch: All sessions created on or before this timestamp are strictly invalidated.
+ * Setting this logs out every active session across all devices immediately.
+ */
+export const BASELINE_REVOCATION_EPOCH = 1788888900;
+
+/**
+ * Returns the timestamp threshold before which all issued tokens are considered revoked.
+ */
+export function getRevocationEpoch(): number {
+  if (typeof globalThis !== "undefined" && typeof globalThis.__apartmento_session_revoked_before === "number") {
+    return Math.max(globalThis.__apartmento_session_revoked_before, BASELINE_REVOCATION_EPOCH);
+  }
+
+  if (typeof process !== "undefined" && process.env && process.env.ADMIN_SESSION_REVOKED_BEFORE) {
+    const parsed = parseInt(process.env.ADMIN_SESSION_REVOKED_BEFORE, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      return Math.max(parsed, BASELINE_REVOCATION_EPOCH);
+    }
+  }
+
+  return BASELINE_REVOCATION_EPOCH;
+}
+
+/**
+ * Revokes all active admin sessions across all devices immediately.
+ */
+export function revokeAllAdminSessions(): number {
+  const newCutoff = Math.floor(Date.now() / 1000);
+  if (typeof globalThis !== "undefined") {
+    globalThis.__apartmento_session_revoked_before = newCutoff;
+    if ((globalThis as any).__apartmento_admin_activity) {
+      (globalThis as any).__apartmento_admin_activity = {};
+    }
+  }
+  return newCutoff;
+}
+
 export interface AdminTokenPayload {
   sub: string;
   iat: number;
@@ -201,6 +244,12 @@ export async function verifyAdminToken(
     const now = Math.floor(Date.now() / 1000);
     if (typeof payload.exp === "number" && payload.exp < now) {
       return { valid: false, error: "Token expired" };
+    }
+
+    // STRICT: Invalidate tokens issued on or before global revocation cutoff
+    const minValidIat = getRevocationEpoch();
+    if (typeof payload.iat === "number" && payload.iat <= minValidIat) {
+      return { valid: false, error: "Session has been invalidated across all devices" };
     }
 
     // STRICT: Ensure token subject belongs to an active, authorized admin
