@@ -314,9 +314,12 @@ export default function ResultsPage() {
                   </button>
 
                   <Link
-                    href={`/apartments/${apt.slug || apt.id || apt._id}${
-                      apt.displayLocation ? `?loc=${encodeURIComponent(apt.displayLocation)}` : ""
-                    }`}
+                    href={`/apartments/${apt.slug || apt.id || apt._id}?${new URLSearchParams({
+                      ...(apt.displayLocation ? { loc: apt.displayLocation } : {}),
+                      beds: String(apt.bedrooms),
+                      baths: String(apt.bathrooms),
+                      rent: String(apt.displayRent),
+                    }).toString()}`}
                     className="py-3 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
                     title="View Apartment Specs"
                   >

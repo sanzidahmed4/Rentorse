@@ -81,20 +81,53 @@ export async function matchApartments(
     (apt) => !matchedIds.has(apt._id || apt.id) && (!apt.isManual || !apt.addressTemplate || !apt.addressTemplate.trim())
   );
 
-  // Filter chameleon candidates by preferred bedroom count
-  let candidatePool = chameleonPool.filter((apt) => apt.bedrooms === criteria.bedrooms);
-  if (candidatePool.length === 0) {
-    candidatePool = chameleonPool.length > 0 ? chameleonPool : allApartments.filter((apt) => !matchedIds.has(apt._id || apt.id));
-  }
+  const targetBedrooms = Number(criteria.bedrooms) || 1;
+  const targetBathrooms = Number(criteria.bathrooms) || 1;
+
+  // Helper to shuffle an array organically
+  const shuffle = <T>(arr: T[]): T[] => {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
+  // Prioritize candidates:
+  // 1. Exact match on BOTH bedrooms AND bathrooms
+  // 2. Exact match on bedrooms
+  // 3. Fallback to general pool if needed
+  const exactLayoutPool = chameleonPool.filter(
+    (apt) => apt.bedrooms === targetBedrooms && apt.bathrooms === targetBathrooms
+  );
+  const sameBedPool = chameleonPool.filter(
+    (apt) => apt.bedrooms === targetBedrooms && apt.bathrooms !== targetBathrooms
+  );
+  const fallbackPool = chameleonPool.filter(
+    (apt) => apt.bedrooms !== targetBedrooms
+  );
+
+  const prioritizedCandidates = [
+    ...shuffle(exactLayoutPool),
+    ...shuffle(sameBedPool),
+    ...shuffle(fallbackPool),
+  ];
+
+  const candidatePool = prioritizedCandidates.length > 0
+    ? prioritizedCandidates.slice(0, Math.max(remainingSlots, 8))
+    : allApartments.filter((apt) => !matchedIds.has(apt._id || apt.id)).slice(0, remainingSlots);
 
   // Score chameleon candidates
   const scoredChameleons = candidatePool.map((apt) => {
-    let score = 75;
+    let score = 80;
     const highlights: string[] = [];
 
-    if (apt.bathrooms === criteria.bathrooms) {
+    if (apt.bathrooms === targetBathrooms) {
       score += 10;
-      highlights.push(`${apt.bathrooms} Full Bathrooms`);
+      highlights.push(`${targetBathrooms} Full Bathroom${targetBathrooms > 1 ? "s" : ""}`);
+    } else {
+      highlights.push(`${targetBathrooms} Full Bathroom${targetBathrooms > 1 ? "s" : ""}`);
     }
 
     if (criteria.furnished === "Either" || apt.furnished === criteria.furnished || apt.furnished === "Either") {
@@ -131,15 +164,9 @@ export async function matchApartments(
     };
   });
 
-  // Randomize chameleon pool slightly for organic feel
-  for (let i = scoredChameleons.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [scoredChameleons[i], scoredChameleons[j]] = [scoredChameleons[j], scoredChameleons[i]];
-  }
-
   const selectedChameleons = scoredChameleons.slice(0, remainingSlots);
 
-  // Dynamic Adaptation for Chameleon Units: Real-world US Neighborhood & Budget Calibration
+  // Dynamic Adaptation for Chameleon Units: Real-world US Neighborhood, Budget & Floorplan Calibration
   const resolvedLoc = resolveUSLocation(queryLocation);
   const minB = Math.max(400, criteria.budgetMin || 800);
   const maxB = Math.max(minB + 100, criteria.budgetMax || minB + 400);
@@ -153,10 +180,33 @@ export async function matchApartments(
     const calibratedRent = Math.round(rawRent / 10) * 10 - (index % 2 === 0 ? 5 : 0);
     const finalRent = Math.max(minB, Math.min(maxB, calibratedRent));
 
-    const displayLocation = resolvedLoc.getCorridor(index, apt.category);
+    const effectiveCategory = `${targetBedrooms}B${targetBathrooms}B` as any;
+    const displayLocation = resolvedLoc.getCorridor(index, effectiveCategory || apt.category);
+
+    // Harmonize description so bathroom wording seamlessly matches user criteria
+    let adaptedDescription = apt.description;
+    if (targetBathrooms === 1) {
+      adaptedDescription = adaptedDescription
+        .replace(/2\s*Bed\s*\/\s*2\s*Bath/gi, "2 Bed / 1 Bath")
+        .replace(/2B\/2B/gi, "2B/1B")
+        .replace(/two-bedroom,\s*two-bathroom/gi, "two-bedroom, one-bathroom")
+        .replace(/two\s*bathrooms/gi, "one full bathroom")
+        .replace(/dual\s*master/gi, "spacious master")
+        .replace(/dual\s*vanities/gi, "designer vanity")
+        .replace(/double\s*sink\s*vanities/gi, "modern vanity");
+    } else if (targetBathrooms === 2) {
+      adaptedDescription = adaptedDescription
+        .replace(/2\s*Bed\s*\/\s*1\s*Bath/gi, "2 Bed / 2 Bath")
+        .replace(/2B\/1B/gi, "2B/2B")
+        .replace(/two-bedroom,\s*one-bathroom/gi, "two-bedroom, two-bathroom");
+    }
 
     return {
       ...apt,
+      category: effectiveCategory,
+      bedrooms: targetBedrooms,
+      bathrooms: targetBathrooms,
+      description: adaptedDescription,
       isManual: false,
       isExactMatch: false,
       displayLocation,

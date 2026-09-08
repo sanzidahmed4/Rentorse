@@ -1,6 +1,7 @@
 import { getApartmentByIdOrSlug, getApartments } from "@/lib/store";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { IApartment } from "@/types";
 import ApartmentTourCTA from "@/components/booking/ApartmentTourCTA";
 import ApartmentPhotoGallery from "@/components/apartments/ApartmentPhotoGallery";
 import {
@@ -20,7 +21,13 @@ import {
 
 interface Props {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ loc?: string; from?: string }>;
+  searchParams?: Promise<{
+    loc?: string;
+    from?: string;
+    beds?: string;
+    baths?: string;
+    rent?: string;
+  }>;
 }
 
 export async function generateStaticParams() {
@@ -39,6 +46,11 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
     notFound();
   }
 
+  const effectiveBedrooms = sp.beds ? Number(sp.beds) : apt.bedrooms;
+  const effectiveBathrooms = sp.baths ? Number(sp.baths) : apt.bathrooms;
+  const effectiveRent = sp.rent ? Number(sp.rent) : apt.baseRent;
+  const effectiveCategory = `${effectiveBedrooms}B${effectiveBathrooms}B` as any;
+
   const effectiveLocation =
     queryLoc?.trim() ||
     apt.displayLocation?.trim() ||
@@ -46,6 +58,35 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
     (apt.addressTemplate?.includes(",")
       ? apt.addressTemplate.split(",").slice(-2).join(",").trim()
       : "Philadelphia, PA");
+
+  let effectiveDescription = apt.description;
+  if (effectiveBathrooms === 1) {
+    effectiveDescription = effectiveDescription
+      .replace(/2\s*Bed\s*\/\s*2\s*Bath/gi, "2 Bed / 1 Bath")
+      .replace(/2B\/2B/gi, "2B/1B")
+      .replace(/two-bedroom,\s*two-bathroom/gi, "two-bedroom, one-bathroom")
+      .replace(/two\s*bathrooms/gi, "one full bathroom")
+      .replace(/dual\s*master/gi, "spacious master")
+      .replace(/dual\s*vanities/gi, "designer vanity")
+      .replace(/double\s*sink\s*vanities/gi, "modern vanity");
+  } else if (effectiveBathrooms === 2) {
+    effectiveDescription = effectiveDescription
+      .replace(/2\s*Bed\s*\/\s*1\s*Bath/gi, "2 Bed / 2 Bath")
+      .replace(/2B\/1B/gi, "2B/2B")
+      .replace(/two-bedroom,\s*one-bathroom/gi, "two-bedroom, two-bathroom");
+  }
+
+  const effectiveApartment: IApartment = {
+    ...apt,
+    category: effectiveCategory,
+    bedrooms: effectiveBedrooms,
+    bathrooms: effectiveBathrooms,
+    baseRent: effectiveRent,
+    displayRent: effectiveRent,
+    displayLocation: effectiveLocation,
+    addressTemplate: effectiveLocation,
+    description: effectiveDescription,
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -76,19 +117,19 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
             <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm grid grid-cols-3 gap-4 text-center">
               <div className="p-3 rounded-2xl bg-slate-50">
                 <BedDouble className="w-5 h-5 mx-auto text-blue-600 mb-1" />
-                <span className="block text-base font-bold text-slate-900">{apt.bedrooms} Bed</span>
+                <span className="block text-base font-bold text-slate-900">{effectiveApartment.bedrooms} Bed</span>
                 <span className="text-xs text-slate-500">Bedrooms</span>
               </div>
 
               <div className="p-3 rounded-2xl bg-slate-50">
                 <Bath className="w-5 h-5 mx-auto text-blue-600 mb-1" />
-                <span className="block text-base font-bold text-slate-900">{apt.bathrooms} Bath</span>
+                <span className="block text-base font-bold text-slate-900">{effectiveApartment.bathrooms} Bath</span>
                 <span className="text-xs text-slate-500">Bathrooms</span>
               </div>
 
               <div className="p-3 rounded-2xl bg-slate-50">
                 <Maximize2 className="w-5 h-5 mx-auto text-blue-600 mb-1" />
-                <span className="block text-base font-bold text-slate-900">{apt.squareFeet}</span>
+                <span className="block text-base font-bold text-slate-900">{effectiveApartment.squareFeet}</span>
                 <span className="text-xs text-slate-500">Square Feet</span>
               </div>
             </div>
@@ -96,7 +137,7 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
             {/* Description */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-3">
               <h3 className="text-lg font-bold text-slate-900">About This Home</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">{apt.description}</p>
+              <p className="text-slate-600 text-sm leading-relaxed">{effectiveApartment.description}</p>
 
               <div className="pt-4 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
                 <div>
@@ -170,7 +211,7 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
                   Leasing Overview
                 </span>
                 <div className="text-2xl font-black text-slate-900 mt-1">
-                  ${apt.baseRent} <span className="text-xs font-normal text-slate-500">/ mo</span>
+                  ${effectiveApartment.baseRent} <span className="text-xs font-normal text-slate-500">/ mo</span>
                 </div>
               </div>
 
@@ -196,7 +237,7 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
                   <div className="flex justify-between">
                     <span className="text-slate-500">Category Layout:</span>
                     <span className="font-bold text-slate-800">
-                      {apt.category?.replace(/(\d+B)(\d+B)/i, "$1/$2") || apt.category}
+                      {effectiveApartment.category?.replace(/(\d+B)(\d+B)/i, "$1/$2") || effectiveApartment.category}
                     </span>
                   </div>
                 </div>
@@ -236,7 +277,7 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
                 </div>
               </div>
 
-              <ApartmentTourCTA apartment={apt} />
+              <ApartmentTourCTA apartment={effectiveApartment} />
 
               <Link
                 href="/find-apartment"
