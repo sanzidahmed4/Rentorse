@@ -167,7 +167,7 @@ export async function matchApartments(
   const selectedChameleons = scoredChameleons.slice(0, remainingSlots);
 
   // Dynamic Adaptation for Chameleon Units: Real-world US Neighborhood, Budget & Floorplan Calibration
-  const resolvedLoc = resolveUSLocation(queryLocation);
+  const resolvedLoc = await resolveUSLocation(queryLocation);
   const minB = Math.max(400, criteria.budgetMin || 800);
   const maxB = Math.max(minB + 100, criteria.budgetMax || minB + 400);
 
