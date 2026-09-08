@@ -1,6 +1,6 @@
 import { getApartments } from "./store";
 import { FunnelFormData, IApartment } from "@/types";
-import { resolveUSLocation } from "./us-locations";
+import { resolveUSLocation, cleanStreetOrIntersection } from "./us-locations";
 import { matchLocation } from "./location-matcher";
 
 export interface MatchedApartmentResult extends IApartment {
@@ -181,7 +181,8 @@ export async function matchApartments(
     const finalRent = Math.max(minB, Math.min(maxB, calibratedRent));
 
     const effectiveCategory = `${targetBedrooms}B${targetBathrooms}B` as any;
-    const displayLocation = resolvedLoc.getCorridor(index, effectiveCategory || apt.category);
+    const rawLocation = resolvedLoc.getCorridor(index, effectiveCategory || apt.category);
+    const displayLocation = cleanStreetOrIntersection(rawLocation);
 
     // Harmonize description so bedroom and bathroom wording seamlessly matches user criteria
     let adaptedDescription = apt.description;

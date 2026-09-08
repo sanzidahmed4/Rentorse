@@ -2,6 +2,7 @@ import { getApartmentByIdOrSlug, getApartments } from "@/lib/store";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { IApartment } from "@/types";
+import { cleanStreetOrIntersection } from "@/lib/us-locations";
 import ApartmentTourCTA from "@/components/booking/ApartmentTourCTA";
 import ApartmentPhotoGallery from "@/components/apartments/ApartmentPhotoGallery";
 import {
@@ -51,13 +52,14 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
   const effectiveRent = sp.rent ? Number(sp.rent) : apt.baseRent;
   const effectiveCategory = `${effectiveBedrooms}B${effectiveBathrooms}B` as any;
 
-  const effectiveLocation =
+  const effectiveLocation = cleanStreetOrIntersection(
     queryLoc?.trim() ||
     apt.displayLocation?.trim() ||
     apt.cityState?.trim() ||
     (apt.addressTemplate?.includes(",")
       ? apt.addressTemplate.split(",").slice(-2).join(",").trim()
-      : "Philadelphia, PA");
+      : "Philadelphia, PA")
+  );
 
   let effectiveDescription = apt.description;
   effectiveDescription = effectiveDescription
