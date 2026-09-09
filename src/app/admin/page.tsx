@@ -1966,8 +1966,19 @@ export default function AdminDashboardPage() {
                                 <span className="font-bold text-slate-500 text-xs italic">
                                   Deleted User
                                 </span>
-                                <span className="text-[10px] text-slate-400 mt-0.5">
-                                  {apt.createdAt ? new Date(apt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Pre-existing"}
+                                <span
+                                  className="text-[10px] text-slate-400 mt-0.5"
+                                  title={apt.createdAt ? new Date(apt.createdAt).toLocaleString("en-US") : undefined}
+                                >
+                                  {apt.createdAt
+                                    ? new Date(apt.createdAt).toLocaleString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })
+                                    : "Pre-existing"}
                                 </span>
                               </div>
                             ) : (
@@ -1979,8 +1990,19 @@ export default function AdminDashboardPage() {
                                 <span className="font-bold text-slate-800 group-hover/creator:text-blue-600 text-xs transition">
                                   {apt.createdByName || (apt.createdBy === "sihabali" || apt.createdBy === "sihab" ? "Sihab Ali" : apt.createdBy ? apt.createdBy.charAt(0).toUpperCase() + apt.createdBy.slice(1) : "Sanzid")}
                                 </span>
-                                <span className="text-[10px] text-slate-400 mt-0.5">
-                                  {apt.createdAt ? new Date(apt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Pre-existing"}
+                                <span
+                                  className="text-[10px] text-slate-400 mt-0.5"
+                                  title={apt.createdAt ? new Date(apt.createdAt).toLocaleString("en-US") : undefined}
+                                >
+                                  {apt.createdAt
+                                    ? new Date(apt.createdAt).toLocaleString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })
+                                    : "Pre-existing"}
                                 </span>
                               </Link>
                             )}
