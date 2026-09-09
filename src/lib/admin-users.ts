@@ -353,13 +353,29 @@ export async function deleteAdminUser(params: {
   const cleanUsername = params.username ? params.username.trim().toLowerCase() : "";
   const requesting = params.requestingUsername ? params.requestingUsername.trim().toLowerCase() : "";
 
-  // 1. Find user in local storage
-  let users = loadPersistedAdminUsers();
-  const target = users.find(
-    (u) =>
-      (params.id && (u.id === params.id || u._id === params.id)) ||
-      (cleanUsername && u.username.toLowerCase() === cleanUsername)
-  );
+  // 1. Find user from MongoDB Atlas or local storage
+  let target = await findAdminUser(cleanUsername);
+  if (!target && params.id) {
+    try {
+      const isDb = await connectToDatabase();
+      if (isDb) {
+        const doc = await AdminUser.findById(params.id).lean().exec();
+        if (doc) {
+          target = {
+            _id: (doc as any)._id?.toString(),
+            id: (doc as any)._id?.toString(),
+            username: (doc as any).username,
+            password: (doc as any).password,
+            displayName: (doc as any).displayName || (doc as any).username,
+            role: ((doc as any).role as AdminUserRole) || "editor",
+            createdBy: (doc as any).createdBy || "system",
+            isActive: (doc as any).isActive !== false,
+            createdAt: (doc as any).createdAt instanceof Date ? (doc as any).createdAt.toISOString() : String((doc as any).createdAt),
+          };
+        }
+      }
+    } catch (_) {}
+  }
 
   if (!target) {
     throw new Error("User not found.");
@@ -377,11 +393,7 @@ export async function deleteAdminUser(params: {
     throw new Error("Root administrator accounts (Sanzid, Sihab Ali) are protected and cannot be deleted.");
   }
 
-  // 2. Delete from local storage
-  users = users.filter((u) => u.username.toLowerCase() !== targetUsername && u.id !== target.id && u._id !== target._id);
-  savePersistedAdminUsers(users);
-
-  // 3. Delete from MongoDB Atlas if connected
+  // 2. Delete from MongoDB Atlas if connected
   try {
     const isDb = await connectToDatabase();
     if (isDb) {
@@ -396,6 +408,13 @@ export async function deleteAdminUser(params: {
   } catch (err) {
     console.error("Error deleting AdminUser from MongoDB:", err);
   }
+
+  // 3. Delete from local storage cache
+  try {
+    let users = loadPersistedAdminUsers();
+    users = users.filter((u) => u.username.toLowerCase() !== targetUsername && u.id !== target!.id && u._id !== target!._id);
+    savePersistedAdminUsers(users);
+  } catch (_) {}
 
   // 4. Invalidate memory activity
   if (globalThis.__apartmento_admin_activity && globalThis.__apartmento_admin_activity[targetUsername]) {
@@ -440,16 +459,14 @@ export async function updateAdminUserRole(params: {
     throw new Error("You cannot demote your own account.");
   }
 
-  // 1. Update in local storage
-  const users = loadPersistedAdminUsers();
-  const target = users.find((u) => u.username.toLowerCase() === cleanUsername);
+  // 1. Find user from MongoDB Atlas or local storage
+  const target = await findAdminUser(cleanUsername);
   if (!target) {
     throw new Error(`User @${cleanUsername} not found.`);
   }
 
   target.role = newRole;
   target.updatedAt = new Date().toISOString();
-  savePersistedAdminUsers(users);
 
   // 2. Update in MongoDB Atlas if connected
   try {
@@ -463,6 +480,17 @@ export async function updateAdminUserRole(params: {
   } catch (err) {
     console.error("Error updating AdminUser role in MongoDB:", err);
   }
+
+  // 3. Update in local storage cache
+  try {
+    const users = loadPersistedAdminUsers();
+    const localTarget = users.find((u) => u.username.toLowerCase() === cleanUsername);
+    if (localTarget) {
+      localTarget.role = newRole;
+      localTarget.updatedAt = new Date().toISOString();
+      savePersistedAdminUsers(users);
+    }
+  } catch (_) {}
 
   return {
     success: true,
@@ -492,8 +520,8 @@ export async function updateAdminUserProfile(params: {
     throw new Error("Unauthorized: You do not have permission to modify this account.");
   }
 
-  const users = loadPersistedAdminUsers();
-  const target = users.find((u) => u.username.toLowerCase() === currentUsername);
+  // 1. Find target user from MongoDB Atlas or local storage
+  const target = await findAdminUser(currentUsername);
   if (!target) {
     throw new Error(`User @${currentUsername} not found.`);
   }
@@ -539,10 +567,8 @@ export async function updateAdminUserProfile(params: {
         throw new Error("The username 'admin' is reserved.");
       }
 
-      const existing = users.find(
-        (u) => u.username.toLowerCase() === nextUsername && u.username.toLowerCase() !== currentUsername
-      );
-      if (existing) {
+      const existing = await findAdminUser(nextUsername);
+      if (existing && existing.username.toLowerCase() !== currentUsername) {
         throw new Error(`Username "@${nextUsername}" is already in use by another account.`);
       }
 
@@ -570,9 +596,6 @@ export async function updateAdminUserProfile(params: {
 
   target.updatedAt = new Date().toISOString();
 
-  // Save to local persistence
-  savePersistedAdminUsers(users);
-
   // Save to MongoDB Atlas if connected
   try {
     const isDb = await connectToDatabase();
@@ -599,6 +622,24 @@ export async function updateAdminUserProfile(params: {
   } catch (err) {
     console.error("Error updating AdminUser profile in MongoDB:", err);
   }
+
+  // Also update in local storage cache if available
+  try {
+    const users = loadPersistedAdminUsers();
+    const localTarget = users.find((u) => u.username.toLowerCase() === currentUsername);
+    if (localTarget) {
+      localTarget.displayName = target.displayName;
+      localTarget.role = target.role;
+      localTarget.updatedAt = target.updatedAt;
+      if (params.password && params.password.trim()) {
+        localTarget.password = target.password;
+      }
+      if (usernameChanged) {
+        localTarget.username = target.username;
+      }
+      savePersistedAdminUsers(users);
+    }
+  } catch (_) {}
 
   // 5. Cascade updates to apartments & audit logs
   if (usernameChanged) {

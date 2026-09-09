@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
@@ -19,39 +17,67 @@ if (!global.mongooseCache) {
 }
 
 let lastFailureTime = 0;
-const FAILURE_COOLDOWN_MS = 15000;
+const FAILURE_COOLDOWN_MS = 5000; // 5s retry window (down from 15s)
+
+/**
+ * Clean and normalize the MongoDB URI string.
+ * Strips surrounding single/double quotes, whitespace, and validates scheme.
+ */
+function getSanitizedMongoUri(): string | null {
+  let uri = process.env.MONGODB_URI;
+  if (!uri) return null;
+  uri = uri.trim();
+  // Strip outer quotes if user copied with quotes into Vercel
+  if (
+    (uri.startsWith('"') && uri.endsWith('"')) ||
+    (uri.startsWith("'") && uri.endsWith("'"))
+  ) {
+    uri = uri.slice(1, -1).trim();
+  }
+  if (!uri.startsWith("mongodb://") && !uri.startsWith("mongodb+srv://")) {
+    console.error("Invalid MONGODB_URI format. Must start with mongodb:// or mongodb+srv://");
+    return null;
+  }
+  return uri;
+}
 
 export async function connectToDatabase(): Promise<typeof mongoose | null> {
-  if (!MONGODB_URI) {
-    // Return null to indicate MongoDB is not configured; caller can fall back to local store
+  const uri = getSanitizedMongoUri();
+  if (!uri) {
     return null;
   }
 
+  // Reuse existing active connection
   if (cached.conn && mongoose.connection.readyState === 1) {
     return cached.conn;
   }
 
-  // If a connection attempt recently failed, skip waiting for repeated timeouts
+  // Cooldown check after connection failure
   if (Date.now() - lastFailureTime < FAILURE_COOLDOWN_MS) {
     return null;
   }
 
   if (!cached.promise) {
+    // Generous timeouts suitable for Vercel serverless cold starts & Atlas free tiers
     const opts = {
-      bufferCommands: false,
-      serverSelectionTimeoutMS: 2500,
-      connectTimeoutMS: 2500,
+      bufferCommands: true, // Allow mongoose to buffer commands until connected
+      serverSelectionTimeoutMS: 10000, // 10 seconds (up from 2.5s) for DNS + TLS handshake
+      connectTimeoutMS: 10000, // 10 seconds
+      maxPoolSize: 10,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
-      lastFailureTime = 0;
-      return mongooseInstance;
-    }).catch((err) => {
-      console.warn("MongoDB connection failed, falling back to in-memory store:", err.message);
-      lastFailureTime = Date.now();
-      cached.promise = null;
-      return null as unknown as typeof mongoose;
-    });
+    cached.promise = mongoose
+      .connect(uri, opts)
+      .then((mongooseInstance) => {
+        lastFailureTime = 0;
+        return mongooseInstance;
+      })
+      .catch((err) => {
+        console.warn("MongoDB connection failed, falling back to local store:", err.message);
+        lastFailureTime = Date.now();
+        cached.promise = null;
+        return null as unknown as typeof mongoose;
+      });
   }
 
   try {
@@ -66,5 +92,5 @@ export async function connectToDatabase(): Promise<typeof mongoose | null> {
 }
 
 export function isMongoConfigured(): boolean {
-  return Boolean(process.env.MONGODB_URI && process.env.MONGODB_URI.trim().length > 0);
+  return Boolean(getSanitizedMongoUri());
 }
