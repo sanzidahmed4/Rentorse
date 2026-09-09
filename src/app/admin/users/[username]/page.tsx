@@ -32,7 +32,6 @@ import {
   Search,
   Lock,
   EyeOff,
-  Edit2,
   Key,
 } from "lucide-react";
 import { IApartment, IAdminUserSummary, IAdminLoginLog, AdminUserRole } from "@/types";
@@ -599,42 +598,6 @@ export default function AdminUserDetailPage() {
                     {user.lastDevice || "Mac (Chrome)"}
                   </p>
                 </div>
-              </div>
-
-              {/* Account Security & Password Status Bar */}
-              <div className="p-4 sm:p-6 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
-                    <Lock className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-bold text-slate-900">Account Access Credentials</span>
-                      <span className="text-xs font-mono text-slate-600 bg-slate-200/80 px-2 py-0.5 rounded-md">
-                        @{user.username}
-                      </span>
-                      {isRootFounder && (
-                        <span className="text-[10px] font-bold text-purple-700 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded-md">
-                          Root Protected
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Display Name: <strong className="text-slate-700">{user.displayName || user.username}</strong> • Password: <span className="font-mono text-slate-400">••••••••••••</span>
-                    </p>
-                  </div>
-                </div>
-
-                {(currentUserRole === "admin" || isSelf) && (
-                  <button
-                    type="button"
-                    onClick={handleOpenEditModal}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs cursor-pointer self-start sm:self-auto"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                    <span>Edit User / Password</span>
-                  </button>
-                )}
               </div>
             </div>
 
