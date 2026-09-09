@@ -1107,11 +1107,15 @@ export default function AdminDashboardPage() {
           <div className="flex items-center gap-3">
             {/* Logged in Administrator Indicator */}
             <Link
-              href={currentUser ? `/admin/users/${currentUser}` : "/admin/users"}
-              target="_blank"
-              rel="noreferrer"
+              href={
+                currentUser
+                  ? `/admin/users/${currentUser}?from=${activeTab}`
+                  : currentUserRole === "editor"
+                  ? "/admin?tab=apartments"
+                  : "/admin/users"
+              }
               className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/80 transition cursor-pointer group"
-              title="Open your profile in a new tab"
+              title="Open your profile"
             >
               <div className="w-7 h-7 rounded-full bg-blue-600 group-hover:scale-105 text-white flex items-center justify-center text-xs font-black uppercase shadow-xs transition">
                 {currentUser ? currentUser.charAt(0) : "A"}
@@ -1973,11 +1977,9 @@ export default function AdminDashboardPage() {
                               </div>
                             ) : (
                               <Link
-                                href={`/admin/users/${(apt.createdBy || "sanzid").toLowerCase()}`}
-                                target="_blank"
-                                rel="noreferrer"
+                                href={`/admin/users/${(apt.createdBy || "sanzid").toLowerCase()}?from=apartments`}
                                 className="flex items-center gap-2 group/creator transition cursor-pointer"
-                                title={`Open profile for @${apt.createdBy || "sanzid"} in a new tab`}
+                                title={`View listings by @${apt.createdBy || "sanzid"}`}
                               >
                                 <span className="w-6 h-6 rounded-full bg-blue-100 group-hover/creator:bg-blue-600 group-hover/creator:text-white text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0 transition">
                                   {(apt.createdByName || apt.createdBy || "S").charAt(0).toUpperCase()}

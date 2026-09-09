@@ -120,6 +120,16 @@ export async function GET(req: Request) {
     }
   }
 
+  const isEditor = session.role === "editor";
+  const sanitizedAdminUsers = isEditor
+    ? auditData.users.map((u) => ({
+        ...u,
+        lastIp: undefined,
+        lastDevice: undefined,
+        totalLogins: undefined,
+      }))
+    : auditData.users;
+
   return NextResponse.json({
     success: true,
     authenticated: true,
@@ -130,7 +140,7 @@ export async function GET(req: Request) {
     leads,
     apartments,
     stats,
-    adminUsers: auditData.users,
-    adminLogs: (auditData.logs ?? []).slice(0, 100),
+    adminUsers: sanitizedAdminUsers,
+    adminLogs: isEditor ? [] : (auditData.logs ?? []).slice(0, 100),
   });
 }

@@ -84,6 +84,10 @@ export default function AdminUsersPage() {
       const data = await res.json();
       if (!isMountedRef.current) return;
       if (data.success) {
+        if (data.currentUserRole === "editor") {
+          router.replace("/admin?tab=apartments");
+          return;
+        }
         if (data.adminUsers) setAdminUsers(data.adminUsers);
         if (data.currentUser) setCurrentUser(data.currentUser);
         if (data.currentUserRole) setCurrentUserRole(data.currentUserRole);

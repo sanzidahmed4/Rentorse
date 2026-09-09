@@ -49,6 +49,15 @@ export default function AdminUserDetailPage() {
   const [currentUser, setCurrentUser] = useState<string>("");
   const [currentUserRole, setCurrentUserRole] = useState<"admin" | "editor">("admin");
   const [currentUserDisplayName, setCurrentUserDisplayName] = useState<string>("");
+  const [fromSource, setFromSource] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const from = sp.get("from");
+      if (from) setFromSource(from);
+    } catch (_) {}
+  }, []);
 
   // Loading & UI State
   const [loading, setLoading] = useState(true);
@@ -341,13 +350,25 @@ export default function AdminUserDetailPage() {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Link
-              href="/admin/users"
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Users List</span>
-            </Link>
+            {currentUserRole === "editor" || fromSource === "apartments" ? (
+              <Link
+                href="/admin?tab=apartments"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition cursor-pointer"
+                title="Return to Apartment Inventory"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Apartment Inventory</span>
+              </Link>
+            ) : (
+              <Link
+                href="/admin/users"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 transition cursor-pointer"
+                title="Return to User Accounts Directory"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Users List</span>
+              </Link>
+            )}
 
             <div className="hidden sm:block h-5 w-px bg-slate-200" />
 
@@ -418,11 +439,11 @@ export default function AdminUserDetailPage() {
             </p>
             <div className="pt-2">
               <Link
-                href="/admin/users"
+                href={currentUserRole === "editor" || fromSource === "apartments" ? "/admin?tab=apartments" : "/admin/users"}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Return to Users Directory</span>
+                <span>{currentUserRole === "editor" || fromSource === "apartments" ? "Return to Apartment Inventory" : "Return to Users Directory"}</span>
               </Link>
             </div>
           </div>
@@ -564,41 +585,83 @@ export default function AdminUserDetailPage() {
 
               {/* 4 Overview Metrics */}
               <div className="p-6 border-t border-slate-100 bg-white grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Total Logins
-                  </span>
-                  <p className="text-base font-black text-slate-800">
-                    {user.totalLogins} session{user.totalLogins === 1 ? "" : "s"}
-                  </p>
-                </div>
+                {currentUserRole === "admin" ? (
+                  <>
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Total Logins
+                      </span>
+                      <p className="text-base font-black text-slate-800">
+                        {user.totalLogins} session{user.totalLogins === 1 ? "" : "s"}
+                      </p>
+                    </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Last Login Date
-                  </span>
-                  <p className="text-xs font-bold text-slate-800 truncate" title={user.lastLogin || "—"}>
-                    {formatDateTimeSafe(user.lastLogin, "No login recorded")}
-                  </p>
-                </div>
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Last Login Date
+                      </span>
+                      <p className="text-xs font-bold text-slate-800 truncate" title={user.lastLogin || "—"}>
+                        {formatDateTimeSafe(user.lastLogin, "No login recorded")}
+                      </p>
+                    </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Last Known IP
-                  </span>
-                  <p className="text-xs font-mono font-bold text-slate-700">
-                    {user.lastIp || "127.0.0.1"}
-                  </p>
-                </div>
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Last Known IP
+                      </span>
+                      <p className="text-xs font-mono font-bold text-slate-700">
+                        {user.lastIp || "127.0.0.1"}
+                      </p>
+                    </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Device / Browser
-                  </span>
-                  <p className="text-xs font-bold text-slate-700 truncate" title={user.lastDevice || "—"}>
-                    {user.lastDevice || "Mac (Chrome)"}
-                  </p>
-                </div>
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Device / Browser
+                      </span>
+                      <p className="text-xs font-bold text-slate-700 truncate" title={user.lastDevice || "—"}>
+                        {user.lastDevice || "Mac (Chrome)"}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Total Listings
+                      </span>
+                      <p className="text-base font-black text-slate-800">
+                        {totalUserApartments} listing{totalUserApartments === 1 ? "" : "s"}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Active Listings
+                      </span>
+                      <p className="text-base font-black text-emerald-600">
+                        {liveAptCount}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Offline / Draft
+                      </span>
+                      <p className="text-base font-black text-slate-600">
+                        {draftAptCount}
+                      </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-1">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Role
+                      </span>
+                      <p className="text-xs font-black uppercase text-blue-600 tracking-wider">
+                        {user.role}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -1034,79 +1097,81 @@ export default function AdminUserDetailPage() {
               )}
             </div>
 
-            {/* Section 2: Login Activity & Audit Trail for this User */}
-            <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
-                <div>
-                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-blue-600" />
-                    Login Activity & Security Audit Trail
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Recent authentication attempts and session IP tracking for @{user.username}
-                  </p>
+            {/* Section 2: Login Activity & Audit Trail for this User (Admin Only) */}
+            {currentUserRole === "admin" && (
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                  <div>
+                    <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-blue-600" />
+                      Login Activity & Security Audit Trail
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Recent authentication attempts and session IP tracking for @{user.username}
+                    </p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                    {userLogs.length} Audit Record{userLogs.length === 1 ? "" : "s"}
+                  </span>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
-                  {userLogs.length} Audit Record{userLogs.length === 1 ? "" : "s"}
-                </span>
-              </div>
 
-              {userLogs.length === 0 ? (
-                <div className="py-8 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-center space-y-2">
-                  <Clock className="w-8 h-8 text-slate-300 mx-auto" />
-                  <p className="text-xs font-bold text-slate-600">No login records logged yet</p>
-                  <p className="text-xs text-slate-400">
-                    Audit records will be recorded when this user logs in through the admin authentication portal.
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-200/80 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                        <th className="py-3 px-4">Status</th>
-                        <th className="py-3 px-4">Timestamp</th>
-                        <th className="py-3 px-4">IP Address</th>
-                        <th className="py-3 px-4">Device / Client</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-xs">
-                      {userLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-slate-50/80 transition">
-                          <td className="py-3 px-4">
-                            {log.status === "SUCCESS" ? (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                Success
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold">
-                                <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                                Failed
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4 text-slate-700 font-medium">
-                            <div>
-                              <span>
-                                {formatDateTimeSafe(log.createdAt)}
-                              </span>
-                              <span className="text-[10px] text-slate-400 ml-2">
-                                ({formatTimeAgo(log.createdAt)})
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 font-mono text-slate-700">{log.ip}</td>
-                          <td className="py-3 px-4 text-slate-500 max-w-xs truncate" title={log.device}>
-                            {log.device}
-                          </td>
+                {userLogs.length === 0 ? (
+                  <div className="py-8 px-6 rounded-2xl bg-slate-50 border border-slate-100 text-center space-y-2">
+                    <Clock className="w-8 h-8 text-slate-300 mx-auto" />
+                    <p className="text-xs font-bold text-slate-600">No login records logged yet</p>
+                    <p className="text-xs text-slate-400">
+                      Audit records will be recorded when this user logs in through the admin authentication portal.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-200/80 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                          <th className="py-3 px-4">Status</th>
+                          <th className="py-3 px-4">Timestamp</th>
+                          <th className="py-3 px-4">IP Address</th>
+                          <th className="py-3 px-4">Device / Client</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 text-xs">
+                        {userLogs.map((log) => (
+                          <tr key={log.id} className="hover:bg-slate-50/80 transition">
+                            <td className="py-3 px-4">
+                              {log.status === "SUCCESS" ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                  Success
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                  Failed
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-slate-700 font-medium">
+                              <div>
+                                <span>
+                                  {formatDateTimeSafe(log.createdAt)}
+                                </span>
+                                <span className="text-[10px] text-slate-400 ml-2">
+                                  ({formatTimeAgo(log.createdAt)})
+                                </span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 font-mono text-slate-700">{log.ip}</td>
+                            <td className="py-3 px-4 text-slate-500 max-w-xs truncate" title={log.device}>
+                              {log.device}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </main>
