@@ -2152,7 +2152,7 @@ export default function AdminDashboardPage() {
 
         {/* TAB 4: SITE SETTINGS, HOMEPAGE STATS & FOOTER CONTACT */}
         {activeTab === "stats" && (
-          <div className="max-w-6xl space-y-6 animate-in fade-in">
+          <div className="w-full space-y-6 animate-in fade-in">
             <div>
               <h2 className="text-xl font-black text-slate-900 flex items-center gap-2.5">
                 <LayoutDashboard className="w-6 h-6 text-blue-600" />
