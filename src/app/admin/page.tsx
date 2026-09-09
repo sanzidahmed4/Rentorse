@@ -53,6 +53,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { IApartment, ILead, ISiteStat, LeadStatus, IAdminUserSummary, IAdminLoginLog } from "@/types";
+import TablePagination from "@/components/admin/TablePagination";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -248,6 +249,27 @@ export default function AdminDashboardPage() {
   const [aptStatusFilter, setAptStatusFilter] = useState<string>("ALL");
   const [aptTypeFilter, setAptTypeFilter] = useState<string>("ALL");
   const [aptSearchQuery, setAptSearchQuery] = useState("");
+
+  // Table Pagination States (50 items per page)
+  const ITEMS_PER_PAGE = 50;
+  const [leadsPage, setLeadsPage] = useState(1);
+  const [aptsPage, setAptsPage] = useState(1);
+  const [auditLogsPage, setAuditLogsPage] = useState(1);
+
+  // Reset leads page when filters or search change
+  useEffect(() => {
+    setLeadsPage(1);
+  }, [leadSearchQuery, leadStatusFilter]);
+
+  // Reset apartments page when filters or search change
+  useEffect(() => {
+    setAptsPage(1);
+  }, [aptCategoryFilter, aptFurnishedFilter, aptStatusFilter, aptTypeFilter, aptCreatorFilter, aptSearchQuery]);
+
+  // Reset audit logs page when filters or search change
+  useEffect(() => {
+    setAuditLogsPage(1);
+  }, [adminLogSearch, adminLogStatusFilter, adminLogUserFilter]);
 
   useEffect(() => {
     // Default active tab to "overview" unless explicitly specified via URL param (?tab=...)
@@ -1068,6 +1090,13 @@ export default function AdminDashboardPage() {
       return true;
     });
 
+  // Paginated leads (50 per page)
+  const totalLeadsPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE) || 1;
+  const paginatedLeads = filteredLeads.slice(
+    (leadsPage - 1) * ITEMS_PER_PAGE,
+    leadsPage * ITEMS_PER_PAGE
+  );
+
   // KPI Calculations
   const totalLeadsCount = leads.length;
   const newLeadsCount = leads.filter((l) => l.status === "New").length;
@@ -1498,9 +1527,10 @@ export default function AdminDashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filteredLeads.map((lead, index) => {
+                    {paginatedLeads.map((lead, index) => {
+                      const overallIndex = (leadsPage - 1) * ITEMS_PER_PAGE + index;
                       const aptInfo = getLeadApartmentInfo(lead);
-                      const leadIdStr = getLeadRowId(lead, index);
+                      const leadIdStr = getLeadRowId(lead, overallIndex);
                       const isSelected = selectedRowId === leadIdStr;
                       return (
                         <tr
@@ -1514,7 +1544,7 @@ export default function AdminDashboardPage() {
                         >
                           <td className="py-3.5 px-3 text-center">
                             <span className="text-slate-600 font-semibold text-xs">
-                              {lead.serialNumber || index + 1}
+                              {lead.serialNumber || overallIndex + 1}
                             </span>
                           </td>
 
@@ -1681,6 +1711,15 @@ export default function AdminDashboardPage() {
                   </tbody>
                 </table>
               </div>
+
+              <TablePagination
+                currentPage={leadsPage}
+                totalPages={totalLeadsPages}
+                totalItems={filteredLeads.length}
+                itemsPerPage={ITEMS_PER_PAGE}
+                itemName="leads"
+                onPageChange={setLeadsPage}
+              />
             </div>
           </div>
         )}
@@ -1739,6 +1778,12 @@ export default function AdminDashboardPage() {
               return true;
             })
             .sort((a, b) => (b.serialNumber || 0) - (a.serialNumber || 0));
+
+          const totalAptsPages = Math.ceil(filteredApartments.length / ITEMS_PER_PAGE) || 1;
+          const paginatedApartments = filteredApartments.slice(
+            (aptsPage - 1) * ITEMS_PER_PAGE,
+            aptsPage * ITEMS_PER_PAGE
+          );
 
           return (
             <div className="space-y-6">
@@ -1906,11 +1951,13 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {filteredApartments.map((apt, index) => (
+                      {paginatedApartments.map((apt, index) => {
+                        const overallIndex = (aptsPage - 1) * ITEMS_PER_PAGE + index;
+                        return (
                         <tr key={apt._id || apt.id} className="hover:bg-slate-50/70 transition">
                           {/* Sequential SL Number (Descending) */}
                           <td className="py-3.5 px-4 text-center font-bold text-slate-900 text-sm">
-                            {apt.serialNumber || filteredApartments.length - index}
+                            {apt.serialNumber || filteredApartments.length - overallIndex}
                           </td>
 
                           <td className="py-3.5 px-4">
@@ -2071,7 +2118,8 @@ export default function AdminDashboardPage() {
                             )}
                           </td>
                         </tr>
-                      ))}
+                      );
+                    })}
                       {filteredApartments.length === 0 && (
                         <tr>
                           <td colSpan={8} className="py-8 text-center text-slate-400">
@@ -2082,6 +2130,15 @@ export default function AdminDashboardPage() {
                     </tbody>
                   </table>
                 </div>
+
+                <TablePagination
+                  currentPage={aptsPage}
+                  totalPages={totalAptsPages}
+                  totalItems={filteredApartments.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  itemName="apartments"
+                  onPageChange={setAptsPage}
+                />
               </div>
             </div>
           );
@@ -2181,6 +2238,12 @@ export default function AdminDashboardPage() {
 
             return matchesSearch && matchesStatus && matchesUser;
           });
+
+          const totalLogsPages = Math.ceil(filteredLogs.length / ITEMS_PER_PAGE) || 1;
+          const paginatedLogs = filteredLogs.slice(
+            (auditLogsPage - 1) * ITEMS_PER_PAGE,
+            auditLogsPage * ITEMS_PER_PAGE
+          );
 
           return (
             <div className="space-y-8 animate-in fade-in">
@@ -2470,7 +2533,7 @@ export default function AdminDashboardPage() {
                           </td>
                         </tr>
                       ) : (
-                        filteredLogs.map((log) => {
+                        paginatedLogs.map((log) => {
                           const logDate = new Date(log.createdAt);
                           const isRecent = Date.now() - logDate.getTime() < 15 * 60 * 1000;
                           return (
@@ -2582,6 +2645,15 @@ export default function AdminDashboardPage() {
                     </tbody>
                   </table>
                 </div>
+
+                <TablePagination
+                  currentPage={auditLogsPage}
+                  totalPages={totalLogsPages}
+                  totalItems={filteredLogs.length}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  itemName="events"
+                  onPageChange={setAuditLogsPage}
+                />
               </div>
             </div>
           );

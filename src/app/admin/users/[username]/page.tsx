@@ -35,6 +35,7 @@ import {
   Key,
 } from "lucide-react";
 import { IApartment, IAdminUserSummary, IAdminLoginLog, AdminUserRole } from "@/types";
+import TablePagination from "@/components/admin/TablePagination";
 
 export default function AdminUserDetailPage() {
   const router = useRouter();
@@ -75,6 +76,16 @@ export default function AdminUserDetailPage() {
   const [aptSearch, setAptSearch] = useState("");
   const [aptStatusFilter, setAptStatusFilter] = useState<"ALL" | "LIVE" | "DRAFT">("ALL");
   const [aptSortBy, setAptSortBy] = useState<"newest" | "rent_asc" | "rent_desc">("newest");
+
+  // Table Pagination States (50 items per page)
+  const ITEMS_PER_PAGE = 50;
+  const [userAptsPage, setUserAptsPage] = useState(1);
+  const [userLogsPage, setUserLogsPage] = useState(1);
+
+  // Reset page when filter/search/sort changes
+  useEffect(() => {
+    setUserAptsPage(1);
+  }, [aptStatusFilter, aptSearch, aptSortBy]);
 
   // Edit User Credentials State (Username / Display Name / Password)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -179,8 +190,19 @@ export default function AdminUserDetailPage() {
       return dateB - dateA;
     });
 
+  const totalUserAptsPages = Math.ceil(filteredUserApartments.length / ITEMS_PER_PAGE) || 1;
+  const paginatedUserApartments = filteredUserApartments.slice(
+    (userAptsPage - 1) * ITEMS_PER_PAGE,
+    userAptsPage * ITEMS_PER_PAGE
+  );
+
   // Filter user's audit logs
   const userLogs = adminLogs.filter((log) => log.username && log.username.toLowerCase() === targetUsername);
+  const totalUserLogsPages = Math.ceil(userLogs.length / ITEMS_PER_PAGE) || 1;
+  const paginatedUserLogs = userLogs.slice(
+    (userLogsPage - 1) * ITEMS_PER_PAGE,
+    userLogsPage * ITEMS_PER_PAGE
+  );
 
   const formatTimeAgo = (date: Date | string | number | undefined | null) => {
     if (!date) return "Offline";
@@ -828,7 +850,7 @@ export default function AdminUserDetailPage() {
                   {/* VIEW 1: Show as Icon (Grid Cards) */}
                   {aptViewMode === "icons" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {filteredUserApartments.map((apt) => (
+                      {paginatedUserApartments.map((apt) => (
                         <div
                           key={apt._id || apt.id}
                           className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200 transition group flex flex-col justify-between space-y-3"
@@ -931,7 +953,7 @@ export default function AdminUserDetailPage() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-xs">
-                          {filteredUserApartments.map((apt) => (
+                          {paginatedUserApartments.map((apt) => (
                             <tr key={apt._id || apt.id} className="hover:bg-blue-50/30 transition group">
                               <td className="py-3.5 px-4">
                                 <div className="flex items-center gap-3">
@@ -1019,7 +1041,7 @@ export default function AdminUserDetailPage() {
                   {/* VIEW 3: Compact Rows View */}
                   {aptViewMode === "compact" && (
                     <div className="space-y-2">
-                      {filteredUserApartments.map((apt) => (
+                      {paginatedUserApartments.map((apt) => (
                         <div
                           key={apt._id || apt.id}
                           className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 transition flex items-center justify-between gap-4"
@@ -1087,12 +1109,21 @@ export default function AdminUserDetailPage() {
 
                   <div className="pt-2 flex items-center justify-between text-xs text-slate-400 font-medium">
                     <span>
-                      Showing {filteredUserApartments.length} of {totalUserApartments} listing{totalUserApartments === 1 ? "" : "s"}
+                      Showing {filteredUserApartments.length === 0 ? 0 : (userAptsPage - 1) * ITEMS_PER_PAGE + 1} – {Math.min(userAptsPage * ITEMS_PER_PAGE, filteredUserApartments.length)} of {filteredUserApartments.length} filtered ({totalUserApartments} total)
                     </span>
                     <span>
                       View mode: <strong className="capitalize text-slate-600">{aptViewMode === "icons" ? "Icons" : aptViewMode === "list" ? "In List" : "Compact"}</strong>
                     </span>
                   </div>
+
+                  <TablePagination
+                    currentPage={userAptsPage}
+                    totalPages={totalUserAptsPages}
+                    totalItems={filteredUserApartments.length}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    itemName="apartments"
+                    onPageChange={setUserAptsPage}
+                  />
                 </>
               )}
             </div>
@@ -1124,51 +1155,62 @@ export default function AdminUserDetailPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="border-b border-slate-200/80 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                          <th className="py-3 px-4">Status</th>
-                          <th className="py-3 px-4">Timestamp</th>
-                          <th className="py-3 px-4">IP Address</th>
-                          <th className="py-3 px-4">Device / Client</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 text-xs">
-                        {userLogs.map((log) => (
-                          <tr key={log.id} className="hover:bg-slate-50/80 transition">
-                            <td className="py-3 px-4">
-                              {log.status === "SUCCESS" ? (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                  Success
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                                  Failed
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3 px-4 text-slate-700 font-medium">
-                              <div>
-                                <span>
-                                  {formatDateTimeSafe(log.createdAt)}
-                                </span>
-                                <span className="text-[10px] text-slate-400 ml-2">
-                                  ({formatTimeAgo(log.createdAt)})
-                                </span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4 font-mono text-slate-700">{log.ip}</td>
-                            <td className="py-3 px-4 text-slate-500 max-w-xs truncate" title={log.device}>
-                              {log.device}
-                            </td>
+                  <>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="border-b border-slate-200/80 bg-slate-50/75 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                            <th className="py-3 px-4">Status</th>
+                            <th className="py-3 px-4">Timestamp</th>
+                            <th className="py-3 px-4">IP Address</th>
+                            <th className="py-3 px-4">Device / Client</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-xs">
+                          {paginatedUserLogs.map((log) => (
+                            <tr key={log.id} className="hover:bg-slate-50/80 transition">
+                              <td className="py-3 px-4">
+                                {log.status === "SUCCESS" ? (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    Success
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-bold">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                    Failed
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3 px-4 text-slate-700 font-medium">
+                                <div>
+                                  <span>
+                                    {formatDateTimeSafe(log.createdAt)}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 ml-2">
+                                    ({formatTimeAgo(log.createdAt)})
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 font-mono text-slate-700">{log.ip}</td>
+                              <td className="py-3 px-4 text-slate-500 max-w-xs truncate" title={log.device}>
+                                {log.device}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <TablePagination
+                      currentPage={userLogsPage}
+                      totalPages={totalUserLogsPages}
+                      totalItems={userLogs.length}
+                      itemsPerPage={ITEMS_PER_PAGE}
+                      itemName="audit records"
+                      onPageChange={setUserLogsPage}
+                    />
+                  </>
                 )}
               </div>
             )}

@@ -21,6 +21,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { IAdminUserSummary, AdminUserRole } from "@/types";
+import TablePagination from "@/components/admin/TablePagination";
 
 export default function AdminUsersPage() {
   const router = useRouter();
@@ -39,6 +40,15 @@ export default function AdminUsersPage() {
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<"ALL" | "admin" | "editor" | "ACTIVE">("ALL");
+
+  // Table Pagination States (50 items per page)
+  const ITEMS_PER_PAGE = 50;
+  const [usersPage, setUsersPage] = useState(1);
+
+  // Reset page on search or filter change
+  useEffect(() => {
+    setUsersPage(1);
+  }, [searchQuery, roleFilter]);
 
   // User Role Updating
   const [updatingUserRole, setUpdatingUserRole] = useState<string | null>(null);
@@ -234,6 +244,12 @@ export default function AdminUsersPage() {
 
     return true;
   });
+
+  const totalUsersPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE) || 1;
+  const paginatedUsers = filteredUsers.slice(
+    (usersPage - 1) * ITEMS_PER_PAGE,
+    usersPage * ITEMS_PER_PAGE
+  );
 
   const totalAdmins = adminUsers.filter((u) => u.role === "admin").length;
   const totalEditors = adminUsers.filter((u) => u.role === "editor").length;
@@ -443,7 +459,7 @@ export default function AdminUsersPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-xs">
-                  {filteredUsers.map((user) => {
+                  {paginatedUsers.map((user) => {
                     const isSelf = user.username.toLowerCase() === currentUser.toLowerCase();
                     const isRootFounder = ["sanzid", "sihabali"].includes(user.username.toLowerCase());
                     const isProtected = isRootFounder || isSelf;
@@ -600,6 +616,15 @@ export default function AdminUsersPage() {
                 </tbody>
               </table>
             </div>
+
+            <TablePagination
+              currentPage={usersPage}
+              totalPages={totalUsersPages}
+              totalItems={filteredUsers.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              itemName="users"
+              onPageChange={setUsersPage}
+            />
 
             <div className="px-6 py-4 bg-slate-50/60 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500">
               <span className="font-medium">
