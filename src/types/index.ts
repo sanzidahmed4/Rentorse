@@ -87,6 +87,8 @@ export interface ISiteStat {
   propertiesListed: string;
   customersServed: string;
   satisfactionRate: string;
+  supportEmail?: string;
+  supportPhone?: string;
   updatedAt?: string | Date;
 }
 

@@ -106,6 +106,8 @@ export default function AdminDashboardPage() {
     propertiesListed: "4,200+",
     customersServed: "9,800+",
     satisfactionRate: "99.4%",
+    supportEmail: "leasing@apartmento.us",
+    supportPhone: "+1 (800) 492-7836",
   });
 
   const [loading, setLoading] = useState(true);
@@ -560,11 +562,14 @@ export default function AdminDashboardPage() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast("Homepage statistics updated live!");
+        showToast("Site statistics & footer contact info updated live!");
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("apartmento_stats_updated"));
+        }
       }
     } catch (e) {
       console.error(e);
-      showToast("Failed to update stats.");
+      showToast("Failed to update site settings.");
     } finally {
       setSavingStats(false);
     }
@@ -1199,7 +1204,7 @@ export default function AdminDashboardPage() {
             { id: "overview", label: "Overview", icon: TrendingUp },
             { id: "leads", label: loading ? "Leads CRM" : `Leads CRM (${leads.length})`, icon: Users },
             { id: "apartments", label: loading ? "Apartment Inventory" : `Apartment Inventory (${apartments.length})`, icon: Building2 },
-            { id: "stats", label: "Homepage Statistics", icon: Sliders },
+            { id: "stats", label: "Homepage Stats & Footer Info", icon: Sliders },
             { id: "admins", label: "Admin", icon: ShieldCheck },
           ]
             .filter((tab) => {
@@ -2144,76 +2149,189 @@ export default function AdminDashboardPage() {
           );
         })()}
 
-        {/* TAB 4: HOMEPAGE STATS */}
+        {/* TAB 4: SITE SETTINGS, HOMEPAGE STATS & FOOTER CONTACT */}
         {activeTab === "stats" && (
-          <div className="max-w-2xl bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-6">
+          <div className="max-w-4xl space-y-6 animate-in fade-in">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Homepage Live Statistics</h3>
+              <h2 className="text-xl font-black text-slate-900 flex items-center gap-2.5">
+                <Sliders className="w-6 h-6 text-blue-600" />
+                Site Settings, Statistics & Footer Information
+              </h2>
               <p className="text-xs text-slate-500 mt-1">
-                These numbers update the dynamic statistics section on the public homepage in real time.
+                Customize the dynamic numbers on the homepage floating stats card, and update the global footer contact & support info.
               </p>
             </div>
 
-            <form onSubmit={handleSaveStats} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    Active Apartments
-                  </label>
-                  <input
-                    type="text"
-                    value={stats.activeApartments}
-                    onChange={(e) => setStats({ ...stats, activeApartments: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
-                  />
+            <form onSubmit={handleSaveStats} className="space-y-6">
+              {/* SECTION 1: HOMEPAGE LIVE STATISTICS */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-blue-600" />
+                      Homepage Live Statistics
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      These numbers appear on the homepage floating stats card directly under the search bar.
+                    </p>
+                  </div>
+                  <span className="self-start sm:self-auto text-[11px] font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                    Live on Homepage
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    Active Renters
-                  </label>
-                  <input
-                    type="text"
-                    value={stats.activeRenters}
-                    onChange={(e) => setStats({ ...stats, activeRenters: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
-                  />
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">
+                      Active Apartments
+                    </label>
+                    <input
+                      type="text"
+                      value={stats.activeApartments}
+                      onChange={(e) => setStats({ ...stats, activeApartments: e.target.value })}
+                      placeholder="e.g. 3,250+"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    Properties Listed
-                  </label>
-                  <input
-                    type="text"
-                    value={stats.propertiesListed}
-                    onChange={(e) => setStats({ ...stats, propertiesListed: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">
+                      Active Renters
+                    </label>
+                    <input
+                      type="text"
+                      value={stats.activeRenters}
+                      onChange={(e) => setStats({ ...stats, activeRenters: e.target.value })}
+                      placeholder="e.g. 12,500+"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">
-                    Customers Served
-                  </label>
-                  <input
-                    type="text"
-                    value={stats.customersServed}
-                    onChange={(e) => setStats({ ...stats, customersServed: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
-                  />
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">
+                      Properties Listed
+                    </label>
+                    <input
+                      type="text"
+                      value={stats.propertiesListed}
+                      onChange={(e) => setStats({ ...stats, propertiesListed: e.target.value })}
+                      placeholder="e.g. 4,200+"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-600 mb-1">
+                      Customers Served
+                    </label>
+                    <input
+                      type="text"
+                      value={stats.customersServed}
+                      onChange={(e) => setStats({ ...stats, customersServed: e.target.value })}
+                      placeholder="e.g. 9,800+"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-4">
+              {/* SECTION 2: FOOTER CONTACT & SUPPORT INFORMATION */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-emerald-600" />
+                      Footer Contact & Support Information
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Update the support phone number and leasing email displayed in the website footer across all pages.
+                    </p>
+                  </div>
+                  <span className="self-start sm:self-auto text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                    Live in Footer
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-blue-600" />
+                      Support / Leasing Email Address
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={stats.supportEmail || ""}
+                        onChange={(e) => setStats({ ...stats, supportEmail: e.target.value })}
+                        placeholder="e.g. leasing@apartmento.us"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-semibold outline-none focus:bg-white focus:border-blue-500 transition"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Displayed in the footer &amp; acts as a direct clickable mailto link for renters.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                      Support / Leasing Phone Number
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={stats.supportPhone || ""}
+                        onChange={(e) => setStats({ ...stats, supportPhone: e.target.value })}
+                        placeholder="e.g. +1 (800) 492-7836"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-semibold outline-none focus:bg-white focus:border-blue-500 transition"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Displayed in the footer &amp; acts as a direct clickable tel hotline link.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Live Preview of Footer Contact Widget */}
+                <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="font-bold text-slate-600 uppercase tracking-wider">
+                      Footer Live Preview
+                    </span>
+                    <span className="text-slate-400 font-medium">
+                      (As seen in public site footer)
+                    </span>
+                  </div>
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center gap-6 text-xs text-slate-700">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      <span className="font-bold text-slate-900">
+                        {stats.supportEmail?.trim() || "leasing@apartmento.us"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                      <span className="font-bold text-slate-900">
+                        {stats.supportPhone?.trim() || "+1 (800) 492-7836"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* SAVE BUTTON */}
+              <div className="pt-2 flex flex-wrap items-center gap-4">
                 <button
                   type="submit"
                   disabled={savingStats}
-                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-bold text-xs shadow-md shadow-blue-600/20 transition flex items-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {savingStats ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Save Homepage Statistics
+                  Save All Settings &amp; Footer Info
                 </button>
+                <span className="text-xs text-slate-500">
+                  Updates will instantly take effect across the entire public website.
+                </span>
               </div>
             </form>
           </div>

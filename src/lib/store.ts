@@ -130,10 +130,24 @@ function loadPersistedStats(): ISiteStat {
           propertiesListed: "4,200+",
           customersServed: "9,800+",
           satisfactionRate: "99.4%",
+          supportEmail: "leasing@apartmento.us",
+          supportPhone: "+1 (800) 492-7836",
         };
       }
       const parsed = JSON.parse(data);
-      if (parsed && typeof parsed === "object") return parsed;
+      if (parsed && typeof parsed === "object") {
+        return {
+          _id: "stat_default",
+          activeApartments: "3,250+",
+          activeRenters: "12,500+",
+          propertiesListed: "4,200+",
+          customersServed: "9,800+",
+          satisfactionRate: "99.4%",
+          supportEmail: "leasing@apartmento.us",
+          supportPhone: "+1 (800) 492-7836",
+          ...parsed,
+        };
+      }
     }
   } catch (e) {
     console.error("Error loading stats from file:", e);
@@ -145,6 +159,8 @@ function loadPersistedStats(): ISiteStat {
     propertiesListed: "4,200+",
     customersServed: "9,800+",
     satisfactionRate: "99.4%",
+    supportEmail: "leasing@apartmento.us",
+    supportPhone: "+1 (800) 492-7836",
   };
 }
 

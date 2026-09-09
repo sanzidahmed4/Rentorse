@@ -2,11 +2,48 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ShieldCheck, Heart, MapPin, Mail, Phone } from "lucide-react";
 
+const DEFAULT_SUPPORT_EMAIL = "leasing@apartmento.us";
+const DEFAULT_SUPPORT_PHONE = "+1 (800) 492-7836";
+
 export default function Footer() {
   const pathname = usePathname();
+  const [supportEmail, setSupportEmail] = useState(DEFAULT_SUPPORT_EMAIL);
+  const [supportPhone, setSupportPhone] = useState(DEFAULT_SUPPORT_PHONE);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadStats = async () => {
+      try {
+        const res = await fetch("/api/stats");
+        const data = await res.json();
+        if (isMounted && data?.success && data?.stats) {
+          if (data.stats.supportEmail) {
+            setSupportEmail(data.stats.supportEmail);
+          }
+          if (data.stats.supportPhone) {
+            setSupportPhone(data.stats.supportPhone);
+          }
+        }
+      } catch (_) {}
+    };
+
+    loadStats();
+
+    const handleUpdate = () => {
+      loadStats();
+    };
+    window.addEventListener("apartmento_stats_updated", handleUpdate);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("apartmento_stats_updated", handleUpdate);
+    };
+  }, []);
 
   if (pathname?.startsWith("/admin")) {
     return null;
@@ -117,12 +154,24 @@ export default function Footer() {
             <h4 className="text-slate-900 font-bold text-sm mb-4">Contact & Support</h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li className="flex items-center gap-2 text-slate-600">
-                <Mail className="w-4 h-4 text-blue-600" />
-                <span>leasing@apartmento.us</span>
+                <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <a
+                  href={`mailto:${supportEmail}`}
+                  className="hover:text-blue-600 transition truncate"
+                  title="Contact Leasing Support Email"
+                >
+                  {supportEmail}
+                </a>
               </li>
               <li className="flex items-center gap-2 text-slate-600">
-                <Phone className="w-4 h-4 text-blue-600" />
-                <span>+1 (800) 492-7836</span>
+                <Phone className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <a
+                  href={`tel:${supportPhone.replace(/[^0-9+]/g, "")}`}
+                  className="hover:text-blue-600 transition"
+                  title="Call Leasing Support Hotline"
+                >
+                  {supportPhone}
+                </a>
               </li>
             </ul>
           </div>
