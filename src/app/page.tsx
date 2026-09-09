@@ -38,7 +38,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* HERO SECTION */}
-      <section className="relative z-10 bg-slate-950 text-white pt-[69px] pb-[101px] lg:pt-[85px] lg:pb-[133px]">
+      <section className="relative bg-slate-950 text-white pt-[69px] pb-[101px] lg:pt-[85px] lg:pb-[133px]">
         {/* Background Apartment Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <Image
@@ -55,7 +55,7 @@ export default async function HomePage() {
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.25)_0%,_transparent_70%)] pointer-events-none" />
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30 text-center">
           <div className="inline-block text-blue-300 text-xs sm:text-sm font-semibold tracking-wide mb-3 sm:mb-3.5">
             <span>The Smarter Way to Rent an Apartment</span>
           </div>

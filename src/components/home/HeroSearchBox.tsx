@@ -83,7 +83,10 @@ export default function HeroSearchBox() {
   };
 
   return (
-    <div ref={containerRef} className="w-full max-w-2xl mx-auto relative mb-6 sm:mb-8">
+    <div
+      ref={containerRef}
+      className={`w-full max-w-2xl mx-auto relative mb-6 sm:mb-8 ${isOpen ? "z-40" : "z-10"}`}
+    >
       {/* Main Zillow-Style Search Bar */}
       <form
         onSubmit={handleSubmit}
