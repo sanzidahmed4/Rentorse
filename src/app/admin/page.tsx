@@ -1962,36 +1962,26 @@ export default function AdminDashboardPage() {
                           {/* Listed By Creator & Date */}
                           <td className="py-3.5 px-4 whitespace-nowrap">
                             {apt.createdBy === "deleted_user" || apt.createdByName === "Deleted User" ? (
-                              <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-[10px] shrink-0">
-                                  D
+                              <div className="flex flex-col leading-tight">
+                                <span className="font-bold text-slate-500 text-xs italic">
+                                  Deleted User
                                 </span>
-                                <div className="flex flex-col leading-tight">
-                                  <span className="font-bold text-slate-500 text-xs italic">
-                                    Deleted User
-                                  </span>
-                                  <span className="text-[10px] text-slate-400 mt-0.5">
-                                    {apt.createdAt ? new Date(apt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Pre-existing"}
-                                  </span>
-                                </div>
+                                <span className="text-[10px] text-slate-400 mt-0.5">
+                                  {apt.createdAt ? new Date(apt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Pre-existing"}
+                                </span>
                               </div>
                             ) : (
                               <Link
                                 href={`/admin/users/${(apt.createdBy || "sanzid").toLowerCase()}?from=apartments`}
-                                className="flex items-center gap-2 group/creator transition cursor-pointer"
+                                className="flex flex-col leading-tight group/creator transition cursor-pointer"
                                 title={`View listings by @${apt.createdBy || "sanzid"}`}
                               >
-                                <span className="w-6 h-6 rounded-full bg-blue-100 group-hover/creator:bg-blue-600 group-hover/creator:text-white text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0 transition">
-                                  {(apt.createdByName || apt.createdBy || "S").charAt(0).toUpperCase()}
+                                <span className="font-bold text-slate-800 group-hover/creator:text-blue-600 text-xs transition">
+                                  {apt.createdByName || (apt.createdBy === "sihabali" || apt.createdBy === "sihab" ? "Sihab Ali" : apt.createdBy ? apt.createdBy.charAt(0).toUpperCase() + apt.createdBy.slice(1) : "Sanzid")}
                                 </span>
-                                <div className="flex flex-col leading-tight">
-                                  <span className="font-bold text-slate-800 group-hover/creator:text-blue-600 text-xs transition">
-                                    {apt.createdByName || (apt.createdBy === "sihabali" || apt.createdBy === "sihab" ? "Sihab Ali" : apt.createdBy ? apt.createdBy.charAt(0).toUpperCase() + apt.createdBy.slice(1) : "Sanzid")}
-                                  </span>
-                                  <span className="text-[10px] text-slate-400 mt-0.5">
-                                    {apt.createdAt ? new Date(apt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Pre-existing"}
-                                  </span>
-                                </div>
+                                <span className="text-[10px] text-slate-400 mt-0.5">
+                                  {apt.createdAt ? new Date(apt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Pre-existing"}
+                                </span>
                               </Link>
                             )}
                           </td>
