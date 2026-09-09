@@ -44,8 +44,7 @@ export default function AdminLoginPage() {
         } catch (_) {}
         // Navigate to the originally requested page, or overview as fallback
         const destination = redirectUrl || "/admin?tab=overview";
-        router.replace(destination);
-        router.refresh();
+        window.location.href = destination;
       } else {
         setError(data.error || "Invalid username or password");
         setLoading(false);

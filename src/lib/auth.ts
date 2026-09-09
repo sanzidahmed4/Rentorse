@@ -200,36 +200,20 @@ export function getAllowedAdminUsernames(): string[] {
 
 /**
  * Validates whether a username is an active, authorized administrator.
- * Rejects legacy or unrecognized usernames.
+ * Rejects legacy 'admin' or invalid format usernames.
+ * Live user existence and active status are verified asynchronously in resolveLiveSession.
  */
 export function isAuthorizedAdminUsername(username: string | undefined | null): boolean {
   if (!username || typeof username !== "string") return false;
   const clean = username.trim().toLowerCase();
   if (clean === "admin") return false;
 
-  const allowed = getAllowedAdminUsernames();
-  if (allowed.includes(clean)) return true;
-
-  // Check persisted users file in Node environment if available
-  try {
-    if (typeof process !== "undefined" && typeof require !== "undefined") {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const fs = require("fs");
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const path = require("path");
-      const usersFile = path.join(process.cwd(), ".data", "admin_users.json");
-      if (fs.existsSync(usersFile)) {
-        const users = JSON.parse(fs.readFileSync(usersFile, "utf-8"));
-        if (Array.isArray(users) && users.some((u: any) => u.username.toLowerCase() === clean && u.isActive !== false)) {
-          return true;
-        }
-      }
-    }
-  } catch {
-    // Ignore in non-Node environments
+  // Reject malformed usernames
+  if (!/^[a-zA-Z0-9_-]+$/.test(clean) || clean.length < 3 || clean.length > 50) {
+    return false;
   }
 
-  return false;
+  return true;
 }
 
 /**
@@ -279,7 +263,7 @@ export async function verifyAdminToken(
       return { valid: false, error: "Session has been invalidated across all devices" };
     }
 
-    // STRICT: Ensure token subject belongs to an active, authorized user
+    // STRICT: Ensure token subject belongs to an authorized username format (not legacy 'admin')
     if (!payload.sub || !isAuthorizedAdminUsername(payload.sub)) {
       return { valid: false, error: "Unauthorized admin account or session revoked" };
     }
