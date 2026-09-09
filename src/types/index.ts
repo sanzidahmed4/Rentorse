@@ -36,6 +36,11 @@ export interface IApartment {
   laundry?: string;
   parking?: string;
   cityState?: string;
+  // Creator & Timestamp Tracking
+  createdBy?: string;
+  createdByName?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
   // Dynamically populated chameleon fields for user search:
   displayLocation?: string;
   displayRent?: number;
@@ -128,13 +133,34 @@ export interface IAdminLoginLog {
   createdAt: string;
 }
 
-export interface IAdminUserSummary {
+export type AdminUserRole = "admin" | "editor";
+
+export interface IAdminUser {
+  _id?: string;
+  id?: string;
   username: string;
-  role: string;
+  password?: string;
+  displayName: string;
+  role: AdminUserRole;
+  createdBy?: string;
+  isActive: boolean;
+  createdAt: string | Date;
+  updatedAt?: string | Date;
+}
+
+export interface IAdminUserSummary {
+  id?: string;
+  username: string;
+  displayName: string;
+  role: AdminUserRole;
+  createdBy?: string;
   isActive: boolean;
   lastLogin: string | null;
   lastActiveAt: string | null;
   lastIp: string | null;
   lastDevice: string | null;
   totalLogins: number;
+  createdAt?: string | Date;
 }
+
+

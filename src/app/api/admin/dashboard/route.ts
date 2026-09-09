@@ -39,6 +39,8 @@ export async function GET(req: Request) {
       success: true,
       authenticated: true,
       currentUser: session.username || "sanzid",
+      currentUserRole: session.role || "admin",
+      currentUserDisplayName: session.displayName || session.username || "Sanzid",
       leads,
       apartments,
       stats,

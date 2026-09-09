@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-server";
+import { requireAdmin, getAdminSession } from "@/lib/auth-server";
 import { getApartments, createApartment } from "@/lib/store";
 
 export async function GET(req: Request) {
@@ -19,15 +19,21 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    // Restrict apartment creation strictly to authenticated admins
+    // Both admin and editor can list apartments
     const unauthorized = await requireAdmin(req);
     if (unauthorized) return unauthorized;
 
+    const session = await getAdminSession(req);
     const body = await req.json();
     if (!body.title || !body.category) {
       return NextResponse.json({ error: "Title and Category are required" }, { status: 400 });
     }
-    const created = await createApartment(body);
+
+    const created = await createApartment({
+      ...body,
+      createdBy: session.username || "sanzid",
+      createdByName: session.displayName || session.username || "Sanzid",
+    });
     return NextResponse.json({ success: true, apartment: created }, { status: 201 });
   } catch (error) {
     console.error("Error creating apartment:", error);

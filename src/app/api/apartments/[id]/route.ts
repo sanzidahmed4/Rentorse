@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-server";
-import { getApartmentByIdOrSlug, updateApartment } from "@/lib/store";
+import { requireAdmin, requireAdminRole } from "@/lib/auth-server";
+import { getApartmentByIdOrSlug, updateApartment, deleteApartment } from "@/lib/store";
 
 export async function GET(
   req: Request,
@@ -24,7 +24,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Restrict apartment updates strictly to authenticated admins
+    // Both admin and editor can update apartment details
     const unauthorized = await requireAdmin(req);
     if (unauthorized) return unauthorized;
 
@@ -40,3 +40,25 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to update apartment" }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // STRICT: Only users with "admin" role can delete apartments
+    const forbidden = await requireAdminRole(req);
+    if (forbidden) return forbidden;
+
+    const { id } = await params;
+    const deleted = await deleteApartment(id);
+    if (!deleted) {
+      return NextResponse.json({ error: "Apartment not found or already deleted" }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, message: "Apartment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting apartment:", error);
+    return NextResponse.json({ error: "Failed to delete apartment" }, { status: 500 });
+  }
+}
+

@@ -8,6 +8,7 @@ import {
   resetLoginAttempts,
 } from "@/lib/auth";
 import { recordAdminLogin } from "@/lib/admin-audit";
+import { verifyUserCredentials } from "@/lib/admin-users";
 
 interface AdminUser {
   username: string;
@@ -120,22 +121,48 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3. Ensure credentials are configured via environment variables
-    const validUsers = getValidAdminUsers();
+    // 3. Authenticate against registered users (MongoDB + local store + env fallback)
+    const verifiedUser = await verifyUserCredentials(cleanUsername, password);
 
-    if (validUsers.length === 0) {
-      console.error(
-        "CRITICAL SECURITY: No admin users configured in environment variables (ADMIN_USERS or ADMIN_USERNAME/ADMIN_PASSWORD)."
-      );
-      return NextResponse.json(
-        {
-          error: "Admin authentication is not configured on this server. Please contact administrator.",
-        },
-        { status: 500 }
-      );
+    if (verifiedUser) {
+      // Reset rate limit on success
+      resetLoginAttempts(clientIp);
+
+      const cookieStore = await cookies();
+      // Generate cryptographically signed token for the specific authenticated user with role
+      const token = await createAdminToken({
+        username: verifiedUser.username,
+        role: verifiedUser.role,
+        displayName: verifiedUser.displayName,
+      });
+
+      cookieStore.set("apartmento_admin_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        path: "/",
+      });
+
+      // Record successful login audit
+      await recordAdminLogin({
+        username: verifiedUser.username,
+        ip: clientIp,
+        userAgent: req.headers.get("user-agent"),
+        status: "SUCCESS",
+      });
+
+      return NextResponse.json({
+        success: true,
+        user: verifiedUser.username,
+        role: verifiedUser.role,
+        displayName: verifiedUser.displayName,
+        message: "Logged in successfully",
+      });
     }
 
-    // 4. Constant-time check across authorized users
+    // 4. Fallback check for any legacy valid users configured in env
+    const validUsers = getValidAdminUsers();
     let matchedUser: AdminUser | null = null;
     for (const u of validUsers) {
       const isUserMatch = safeCompare(cleanUsername, u.username.toLowerCase());
@@ -147,22 +174,23 @@ export async function POST(req: Request) {
     }
 
     if (matchedUser) {
-      // Reset rate limit on success
       resetLoginAttempts(clientIp);
 
       const cookieStore = await cookies();
-      // Generate cryptographically signed token for the specific authenticated user
-      const token = await createAdminToken(matchedUser.username);
+      const token = await createAdminToken({
+        username: matchedUser.username,
+        role: "admin",
+        displayName: matchedUser.username === "sihabali" || matchedUser.username === "sihab" ? "Sihab Ali" : "Sanzid",
+      });
 
       cookieStore.set("apartmento_admin_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7,
         path: "/",
       });
 
-      // Record successful login audit
       await recordAdminLogin({
         username: matchedUser.username,
         ip: clientIp,
@@ -173,6 +201,8 @@ export async function POST(req: Request) {
       return NextResponse.json({
         success: true,
         user: matchedUser.username,
+        role: "admin",
+        displayName: matchedUser.username === "sihabali" || matchedUser.username === "sihab" ? "Sihab Ali" : "Sanzid",
         message: "Logged in successfully",
       });
     }

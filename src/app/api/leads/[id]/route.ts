@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-server";
+import { requireAdmin, requireAdminRole } from "@/lib/auth-server";
 import { getLeadById, updateLead, deleteLead } from "@/lib/store";
 
 export async function GET(
@@ -48,8 +48,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const unauthorized = await requireAdmin(req);
-    if (unauthorized) return unauthorized;
+    // STRICT: Only users with "admin" role can delete leads
+    const forbidden = await requireAdminRole(req);
+    if (forbidden) return forbidden;
 
     const { id } = await params;
     const deleted = await deleteLead(id);

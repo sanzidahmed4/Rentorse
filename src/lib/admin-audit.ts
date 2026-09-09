@@ -3,6 +3,7 @@ import path from "path";
 import { connectToDatabase } from "./mongodb";
 import AdminLog from "@/models/AdminLog";
 import { IAdminLoginLog, IAdminUserSummary } from "@/types";
+import { getAllAdminUsers } from "./admin-users";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -13,6 +14,33 @@ declare global {
 
 const DATA_DIR = path.join(process.cwd(), ".data");
 const LOGS_FILE = path.join(DATA_DIR, "admin_logs.json");
+const ACTIVITY_FILE = path.join(DATA_DIR, "admin_activity.json");
+
+function loadPersistedActivity(): Record<string, { lastActiveAt: number; lastIp?: string }> {
+  ensureDataDir();
+  try {
+    if (fs.existsSync(ACTIVITY_FILE)) {
+      const data = fs.readFileSync(ACTIVITY_FILE, "utf-8");
+      if (!data || !data.trim()) return {};
+      const parsed = JSON.parse(data);
+      if (parsed && typeof parsed === "object") {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error("Error reading admin activity file:", e);
+  }
+  return {};
+}
+
+function savePersistedActivity(act: Record<string, { lastActiveAt: number; lastIp?: string }>) {
+  ensureDataDir();
+  try {
+    fs.writeFileSync(ACTIVITY_FILE, JSON.stringify(act, null, 2), "utf-8");
+  } catch (e) {
+    console.error("Error writing admin activity file:", e);
+  }
+}
 
 function ensureDataDir() {
   try {
@@ -80,6 +108,7 @@ function loadPersistedLogs(): IAdminLoginLog[] {
   try {
     if (fs.existsSync(LOGS_FILE)) {
       const data = fs.readFileSync(LOGS_FILE, "utf-8");
+      if (!data || !data.trim()) return getInitialSeedLogs();
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed;
@@ -226,12 +255,63 @@ export function touchAdminActivity(username: string, ip?: string): void {
   if (!username) return;
   const cleanIp = ip === "::1" ? "127.0.0.1" : ip;
   if (!globalThis.__apartmento_admin_activity) {
-    globalThis.__apartmento_admin_activity = {};
+    globalThis.__apartmento_admin_activity = loadPersistedActivity();
   }
-  globalThis.__apartmento_admin_activity[username.toLowerCase()] = {
-    lastActiveAt: Date.now(),
+  const key = username.toLowerCase();
+  const existing = globalThis.__apartmento_admin_activity[key];
+  const now = Date.now();
+  if (existing && now - existing.lastActiveAt < 60000 && existing.lastIp === cleanIp) {
+    return;
+  }
+  globalThis.__apartmento_admin_activity[key] = {
+    lastActiveAt: now,
     lastIp: cleanIp,
   };
+  savePersistedActivity(globalThis.__apartmento_admin_activity);
+}
+
+/**
+ * Update username across audit logs & active activity when a user is renamed
+ */
+export async function updateAuditLogsUsername(oldUsername: string, newUsername: string): Promise<void> {
+  const oldLower = oldUsername.trim().toLowerCase();
+  const newClean = newUsername.trim().toLowerCase();
+
+  // 1. Update activity map
+  const act = globalThis.__apartmento_admin_activity || loadPersistedActivity();
+  if (act[oldLower]) {
+    act[newClean] = act[oldLower];
+    delete act[oldLower];
+    globalThis.__apartmento_admin_activity = act;
+    savePersistedActivity(act);
+  }
+
+  // 2. Update local logs cache & file
+  const memoryLogs = globalThis.__apartmento_admin_logs_cache || loadPersistedLogs();
+  let logsModified = false;
+  for (const log of memoryLogs) {
+    if (log.username && log.username.toLowerCase() === oldLower) {
+      log.username = newClean;
+      logsModified = true;
+    }
+  }
+  if (logsModified) {
+    globalThis.__apartmento_admin_logs_cache = memoryLogs;
+    savePersistedLogs(memoryLogs);
+  }
+
+  // 3. Update MongoDB logs if connected
+  try {
+    const isDb = await connectToDatabase();
+    if (isDb) {
+      await AdminLog.updateMany(
+        { username: { $regex: new RegExp(`^${oldLower}$`, "i") } },
+        { $set: { username: newClean } }
+      ).exec();
+    }
+  } catch (e) {
+    console.error("Error updating audit logs username in MongoDB:", e);
+  }
 }
 
 /**
@@ -301,29 +381,39 @@ export async function getAdminAuditData(): Promise<{
   }
 
   const now = Date.now();
-  const activityMap = globalThis.__apartmento_admin_activity || {};
-  const configuredUsernames = getConfiguredAdminUsernames();
+  const activityMap = globalThis.__apartmento_admin_activity || loadPersistedActivity();
+  globalThis.__apartmento_admin_activity = activityMap;
+  const registeredUsers = await getAllAdminUsers();
 
-  // 2. Aggregate stats for each configured user
-  const users: IAdminUserSummary[] = configuredUsernames.map((username) => {
-    const userLower = username.toLowerCase();
-    const userLogs = logs.filter((l) => l.username.toLowerCase() === userLower && l.status === "SUCCESS");
-    const lastSuccessLog = userLogs[0] || null;
 
-    const activity = activityMap[userLower];
-    const isRecentlyActive = activity ? now - activity.lastActiveAt < ACTIVE_THRESHOLD_MS : false;
+  // 2. Aggregate stats for each registered user
+  const users: IAdminUserSummary[] = registeredUsers
+    .filter((u) => u && u.username)
+    .map((u) => {
+      const userLower = u.username.toLowerCase();
+      const userLogs = logs.filter(
+        (l) => l && l.username && l.username.toLowerCase() === userLower && l.status === "SUCCESS"
+      );
+      const lastSuccessLog = userLogs[0] || null;
 
-    return {
-      username,
-      role: "System Administrator",
-      isActive: isRecentlyActive,
-      lastLogin: lastSuccessLog ? lastSuccessLog.createdAt : null,
-      lastActiveAt: activity ? new Date(activity.lastActiveAt).toISOString() : (lastSuccessLog?.createdAt || null),
-      lastIp: activity?.lastIp || lastSuccessLog?.ip || "127.0.0.1",
-      lastDevice: lastSuccessLog ? `${lastSuccessLog.device} (${lastSuccessLog.browser})` : "Mac (Chrome)",
-      totalLogins: Math.max(userLogs.length, 1),
-    };
-  });
+      const activity = activityMap[userLower];
+      const isRecentlyActive = activity ? now - activity.lastActiveAt < ACTIVE_THRESHOLD_MS : false;
+
+      return {
+        id: String(u._id || u.id || `usr_${u.username}`),
+        username: u.username,
+        displayName: u.displayName || u.username,
+        role: u.role || "editor",
+        createdBy: u.createdBy || "system",
+        isActive: isRecentlyActive,
+        createdAt: u.createdAt instanceof Date ? u.createdAt.toISOString() : String(u.createdAt || ""),
+        lastLogin: lastSuccessLog ? lastSuccessLog.createdAt : null,
+        lastActiveAt: activity ? new Date(activity.lastActiveAt).toISOString() : (lastSuccessLog?.createdAt || null),
+        lastIp: activity?.lastIp || lastSuccessLog?.ip || "127.0.0.1",
+        lastDevice: lastSuccessLog ? `${lastSuccessLog.device} (${lastSuccessLog.browser})` : "Mac (Chrome)",
+        totalLogins: Math.max(userLogs.length, 1),
+      };
+    });
 
   return {
     users,

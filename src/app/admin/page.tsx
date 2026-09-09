@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -47,6 +48,9 @@ import {
   Globe,
   Activity,
   UserCheck,
+  UserPlus,
+  User,
+  ArrowUpRight,
 } from "lucide-react";
 import { IApartment, ILead, ISiteStat, LeadStatus, IAdminUserSummary, IAdminLoginLog } from "@/types";
 
@@ -73,6 +77,24 @@ export default function AdminDashboardPage() {
   const [adminLogSearch, setAdminLogSearch] = useState("");
   const [adminLogStatusFilter, setAdminLogStatusFilter] = useState<"ALL" | "SUCCESS" | "FAILED">("ALL");
   const [adminLogUserFilter, setAdminLogUserFilter] = useState<string>("ALL");
+
+  // RBAC & Creator Tracking State
+  const [currentUserRole, setCurrentUserRole] = useState<"admin" | "editor">("admin");
+  const [currentUserDisplayName, setCurrentUserDisplayName] = useState<string>("");
+  const [aptCreatorFilter, setAptCreatorFilter] = useState<string>("ALL");
+  const [isNewUserModalOpen, setIsNewUserModalOpen] = useState(false);
+  const [newUserData, setNewUserData] = useState({
+    username: "",
+    displayName: "",
+    password: "",
+    role: "editor" as "admin" | "editor",
+  });
+  const [isSubmittingUser, setIsSubmittingUser] = useState(false);
+  const [userRegistrationError, setUserRegistrationError] = useState("");
+  const [userToDelete, setUserToDelete] = useState<IAdminUserSummary | null>(null);
+  const [deletingUser, setDeletingUser] = useState(false);
+  const [deleteUserError, setDeleteUserError] = useState("");
+  const [updatingUserRole, setUpdatingUserRole] = useState<string | null>(null);
 
   // State
   const [leads, setLeads] = useState<ILead[]>([]);
@@ -132,6 +154,7 @@ export default function AdminDashboardPage() {
   };
 
   const formatDuration = (ms: number): string => {
+    if (isNaN(ms) || ms <= 0) return "Just now";
     if (ms < 60 * 1000) {
       return `${Math.max(1, Math.floor(ms / 1000))}s`;
     }
@@ -148,16 +171,20 @@ export default function AdminDashboardPage() {
     return `${days}d`;
   };
 
-  const formatTimeAgo = (date: Date): string => {
-    const diffMs = Date.now() - date.getTime();
+  const formatTimeAgo = (date: Date | string | number | undefined | null): string => {
+    if (!date) return "Offline";
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return "Offline";
+    const diffMs = Math.max(0, Date.now() - d.getTime());
     if (diffMs < 60 * 1000) return "Just now";
     const mins = Math.floor(diffMs / 60000);
     if (mins < 60) return `${mins}m ago`;
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return `${hours}hr ago`;
     const days = Math.floor(hours / 24);
     return `${days}d ago`;
   };
+
 
   const handleSelectRow = (rowId: string | null) => {
     setSelectedRowId(rowId);
@@ -293,6 +320,8 @@ export default function AdminDashboardPage() {
         if (parsed.currentUser && parsed.currentUser.toLowerCase() !== "admin") {
           setCurrentUser(parsed.currentUser);
         }
+        if (parsed.currentUserRole) setCurrentUserRole(parsed.currentUserRole);
+        if (parsed.currentUserDisplayName) setCurrentUserDisplayName(parsed.currentUserDisplayName);
         setLoading(false);
       }
     } catch (_) {}
@@ -338,6 +367,13 @@ export default function AdminDashboardPage() {
     } catch (_) {}
   }, [leads]);
 
+  // Restrict editor role strictly to overview, leads, and apartments
+  useEffect(() => {
+    if (currentUserRole === "editor" && (activeTab === "stats" || activeTab === "admins")) {
+      handleTabChange("overview");
+    }
+  }, [currentUserRole, activeTab]);
+
   const fetchDashboardData = async (isBackground = false) => {
     if (!isBackground) setRefreshing(true);
     try {
@@ -362,6 +398,8 @@ export default function AdminDashboardPage() {
         if (data.apartments) setApartments(data.apartments);
         if (data.stats) setStats(data.stats);
         if (data.currentUser) setCurrentUser(data.currentUser);
+        if (data.currentUserRole) setCurrentUserRole(data.currentUserRole);
+        if (data.currentUserDisplayName) setCurrentUserDisplayName(data.currentUserDisplayName);
         if (data.adminUsers) setAdminUsers(data.adminUsers);
         if (data.adminLogs) setAdminLogs(data.adminLogs);
 
@@ -373,6 +411,8 @@ export default function AdminDashboardPage() {
               apartments: data.apartments,
               stats: data.stats,
               currentUser: data.currentUser,
+              currentUserRole: data.currentUserRole,
+              currentUserDisplayName: data.currentUserDisplayName,
               adminUsers: data.adminUsers,
               adminLogs: data.adminLogs,
             })
@@ -743,6 +783,10 @@ export default function AdminDashboardPage() {
   };
 
   const handleDeleteLead = async (leadId: string) => {
+    if (currentUserRole !== "admin") {
+      showToast("Only administrators can delete leads.");
+      return;
+    }
     if (!window.confirm("Are you sure you want to delete this lead? This action cannot be undone.")) {
       return;
     }
@@ -760,7 +804,8 @@ export default function AdminDashboardPage() {
         }
         showToast("Lead deleted successfully!");
       } else {
-        showToast("Failed to delete lead.");
+        const errData = await res.json().catch(() => ({}));
+        showToast(errData.error || "Failed to delete lead.");
       }
     } catch (err) {
       console.error(err);
@@ -769,6 +814,10 @@ export default function AdminDashboardPage() {
   };
 
   const handleClearAllLeads = async () => {
+    if (currentUserRole !== "admin") {
+      showToast("Only administrators can reset leads.");
+      return;
+    }
     if (!window.confirm("WARNING: Are you sure you want to delete ALL captured leads? This cannot be undone.")) {
       return;
     }
@@ -782,13 +831,118 @@ export default function AdminDashboardPage() {
         handleCloseLeadModal();
         showToast("All leads cleared successfully!");
       } else {
-        showToast("Failed to clear leads.");
+        const errData = await res.json().catch(() => ({}));
+        showToast(errData.error || "Failed to clear leads.");
       }
     } catch (err) {
       console.error(err);
       showToast("Error clearing leads.");
     }
   };
+
+  const handleDeleteApartment = async (aptId: string) => {
+    if (!aptId) return;
+    if (currentUserRole !== "admin") {
+      showToast("Only administrators can delete apartments.");
+      return;
+    }
+    if (!window.confirm("Are you sure you want to permanently delete this apartment listing?")) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/apartments/${aptId}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        showToast("Apartment deleted successfully.");
+        fetchDashboardData(true);
+      } else {
+        showToast(data.error || "Failed to delete apartment.");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Error deleting apartment.");
+    }
+  };
+
+  const handleRegisterNewUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUserRegistrationError("");
+    setIsSubmittingUser(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUserData),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setUserRegistrationError(data.error || "Failed to register user");
+        setIsSubmittingUser(false);
+        return;
+      }
+
+      showToast(data.message || `User registered successfully as ${newUserData.role.toUpperCase()}!`);
+      setIsNewUserModalOpen(false);
+      setNewUserData({ username: "", displayName: "", password: "", role: "editor" });
+      fetchDashboardData(true);
+    } catch (err: any) {
+      setUserRegistrationError(err?.message || "An unexpected error occurred");
+    } finally {
+      setIsSubmittingUser(false);
+    }
+  };
+
+  const handleConfirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    setDeletingUser(true);
+    setDeleteUserError("");
+    try {
+      const res = await fetch(`/api/admin/users?username=${encodeURIComponent(userToDelete.username)}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete user");
+      }
+      showToast(data.message || `User @${userToDelete.username} deleted successfully`);
+      setAdminUsers((prev) => prev.filter((u) => u.username.toLowerCase() !== userToDelete.username.toLowerCase()));
+      setUserToDelete(null);
+      fetchDashboardData(true);
+    } catch (err: any) {
+      setDeleteUserError(err?.message || "Failed to delete user");
+    } finally {
+      setDeletingUser(false);
+    }
+  };
+
+  const handleUpdateUserRole = async (username: string, newRole: "admin" | "editor") => {
+    setUpdatingUserRole(username);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, role: newRole }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to update user role");
+      }
+      showToast(data.message || `Role for @${username} changed to ${newRole.toUpperCase()}!`);
+      setAdminUsers((prev) =>
+        prev.map((u) =>
+          u.username.toLowerCase() === username.toLowerCase()
+            ? { ...u, role: newRole }
+            : u
+        )
+      );
+      fetchDashboardData(true);
+    } catch (err: any) {
+      showToast(err?.message || "Failed to update user role");
+    } finally {
+      setUpdatingUserRole(null);
+    }
+  };
+
 
 
   // Helper to resolve apartment info and price for a lead
@@ -947,21 +1101,29 @@ export default function AdminDashboardPage() {
           {/* Quick Actions */}
           <div className="flex items-center gap-3">
             {/* Logged in Administrator Indicator */}
-            <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80">
-              <div className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black uppercase shadow-xs">
+            <Link
+              href={currentUser ? `/admin/users/${currentUser}` : "/admin/users"}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/80 transition cursor-pointer group"
+              title="Open your profile in a new tab"
+            >
+              <div className="w-7 h-7 rounded-full bg-blue-600 group-hover:scale-105 text-white flex items-center justify-center text-xs font-black uppercase shadow-xs transition">
                 {currentUser ? currentUser.charAt(0) : "A"}
               </div>
               <div className="text-left leading-tight">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-800">{currentUser}</span>
+                  <span className="text-xs font-bold text-slate-800 group-hover:text-blue-600 transition">{currentUser}</span>
                   <span className="relative flex h-2 w-2" title="Active Session">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                   </span>
                 </div>
-                <span className="text-[10px] text-emerald-600 font-semibold">Active Admin</span>
+                <span className="text-[10px] text-emerald-600 font-semibold">
+                  {currentUserRole === "editor" ? "Active Editor" : "Active Admin"}
+                </span>
               </div>
-            </div>
+            </Link>
 
             <button
               onClick={() => fetchDashboardData()}
@@ -1000,8 +1162,15 @@ export default function AdminDashboardPage() {
             { id: "leads", label: loading ? "Leads CRM" : `Leads CRM (${leads.length})`, icon: Users },
             { id: "apartments", label: loading ? "Apartment Inventory" : `Apartment Inventory (${apartments.length})`, icon: Building2 },
             { id: "stats", label: "Homepage Statistics", icon: Sliders },
-            { id: "admins", label: `Admin Users (${adminUsers.length || 2})`, icon: ShieldCheck },
-          ].map((tab) => {
+            { id: "admins", label: "Admin", icon: ShieldCheck },
+          ]
+            .filter((tab) => {
+              if (currentUserRole === "editor") {
+                return tab.id === "overview" || tab.id === "leads" || tab.id === "apartments";
+              }
+              return true;
+            })
+            .map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
             return (
@@ -1283,7 +1452,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
-                {leads.length > 0 && (
+                {currentUserRole === "admin" && leads.length > 0 && (
                   <button
                     onClick={handleClearAllLeads}
                     className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs border border-rose-200 transition cursor-pointer"
@@ -1509,6 +1678,20 @@ export default function AdminDashboardPage() {
 
         {/* TAB 3: APARTMENTS INVENTORY */}
         {activeTab === "apartments" && (() => {
+          const availableCreators = (() => {
+            const map = new Map<string, string>();
+            apartments.forEach((apt) => {
+              const key = (apt.createdBy || "sanzid").toLowerCase();
+              const name = apt.createdByName || (key === "sanzid" ? "Sanzid" : key === "sihabali" || key === "sihab" ? "Sihab Ali" : apt.createdBy || "Sanzid");
+              if (!map.has(key)) map.set(key, name);
+            });
+            adminUsers.forEach((u) => {
+              const key = u.username.toLowerCase();
+              if (!map.has(key)) map.set(key, u.displayName || u.username);
+            });
+            return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
+          })();
+
           const filteredApartments = apartments
             .filter((apt) => {
               if (aptCategoryFilter !== "ALL" && apt.category !== aptCategoryFilter) {
@@ -1528,6 +1711,14 @@ export default function AdminDashboardPage() {
               }
               if (aptTypeFilter === "chameleon" && (apt.isManual && apt.addressTemplate)) {
                 return false;
+              }
+              if (aptCreatorFilter !== "ALL") {
+                const target = aptCreatorFilter.toLowerCase();
+                const creatorUser = (apt.createdBy || "sanzid").toLowerCase();
+                const creatorName = (apt.createdByName || "").toLowerCase();
+                if (creatorUser !== target && creatorName !== target) {
+                  return false;
+                }
               }
               if (aptSearchQuery.trim()) {
                 const q = aptSearchQuery.toLowerCase();
@@ -1655,7 +1846,22 @@ export default function AdminDashboardPage() {
                     <option value="chameleon">Chameleon Only</option>
                   </select>
 
-                  {(aptCategoryFilter !== "ALL" || aptFurnishedFilter !== "ALL" || aptStatusFilter !== "ALL" || aptTypeFilter !== "ALL" || aptSearchQuery) && (
+                  {/* Creator / Listed By Dropdown Filter */}
+                  <select
+                    value={aptCreatorFilter}
+                    onChange={(e) => setAptCreatorFilter(e.target.value)}
+                    className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 outline-none focus:bg-white focus:border-blue-500 transition cursor-pointer font-medium"
+                    title="Filter by user who listed the apartment"
+                  >
+                    <option value="ALL">All Creators</option>
+                    {availableCreators.map((creator) => (
+                      <option key={creator.id} value={creator.id}>
+                        {creator.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {(aptCategoryFilter !== "ALL" || aptFurnishedFilter !== "ALL" || aptStatusFilter !== "ALL" || aptTypeFilter !== "ALL" || aptCreatorFilter !== "ALL" || aptSearchQuery) && (
                     <button
                       type="button"
                       onClick={() => {
@@ -1663,6 +1869,7 @@ export default function AdminDashboardPage() {
                         setAptFurnishedFilter("ALL");
                         setAptStatusFilter("ALL");
                         setAptTypeFilter("ALL");
+                        setAptCreatorFilter("ALL");
                         setAptSearchQuery("");
                       }}
                       className="text-xs text-blue-600 hover:text-blue-800 font-semibold cursor-pointer underline px-1"
@@ -1681,6 +1888,7 @@ export default function AdminDashboardPage() {
                       <tr>
                         <th className="py-3.5 px-4 font-semibold text-center w-12">SL</th>
                         <th className="py-3.5 px-4 font-semibold">Title / Location</th>
+                        <th className="py-3.5 px-4 font-semibold">Listed By</th>
                         <th className="py-3.5 px-4 font-semibold">Beds / Baths</th>
                         <th className="py-3.5 px-4 font-semibold">Base Rent</th>
                         <th className="py-3.5 px-4 font-semibold">Furnished</th>
@@ -1744,6 +1952,45 @@ export default function AdminDashboardPage() {
                             </div>
                           </td>
 
+                          {/* Listed By Creator & Date */}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            {apt.createdBy === "deleted_user" || apt.createdByName === "Deleted User" ? (
+                              <div className="flex items-center gap-2">
+                                <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center font-bold text-[10px] shrink-0">
+                                  D
+                                </span>
+                                <div className="flex flex-col leading-tight">
+                                  <span className="font-bold text-slate-500 text-xs italic">
+                                    Deleted User
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 mt-0.5">
+                                    {apt.createdAt ? new Date(apt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Pre-existing"}
+                                  </span>
+                                </div>
+                              </div>
+                            ) : (
+                              <Link
+                                href={`/admin/users/${(apt.createdBy || "sanzid").toLowerCase()}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-2 group/creator transition cursor-pointer"
+                                title={`Open profile for @${apt.createdBy || "sanzid"} in a new tab`}
+                              >
+                                <span className="w-6 h-6 rounded-full bg-blue-100 group-hover/creator:bg-blue-600 group-hover/creator:text-white text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0 transition">
+                                  {(apt.createdByName || apt.createdBy || "S").charAt(0).toUpperCase()}
+                                </span>
+                                <div className="flex flex-col leading-tight">
+                                  <span className="font-bold text-slate-800 group-hover/creator:text-blue-600 text-xs transition">
+                                    {apt.createdByName || (apt.createdBy === "sihabali" || apt.createdBy === "sihab" ? "Sihab Ali" : apt.createdBy ? apt.createdBy.charAt(0).toUpperCase() + apt.createdBy.slice(1) : "Sanzid")}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 mt-0.5">
+                                    {apt.createdAt ? new Date(apt.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Pre-existing"}
+                                  </span>
+                                </div>
+                              </Link>
+                            )}
+                          </td>
+
                           <td className="py-3.5 px-4 text-slate-700">
                             {apt.bedrooms} Bed / {apt.bathrooms} Bath ({apt.squareFeet} sq ft)
                           </td>
@@ -1797,7 +2044,7 @@ export default function AdminDashboardPage() {
                             </button>
                           </td>
 
-                          <td className="py-3.5 px-4 text-right">
+                          <td className="py-3.5 px-4 text-right whitespace-nowrap">
                             <button
                               onClick={() => {
                                 setEditingApt({
@@ -1817,12 +2064,22 @@ export default function AdminDashboardPage() {
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
+
+                            {currentUserRole === "admin" && (
+                              <button
+                                onClick={() => handleDeleteApartment(apt._id || apt.id as string)}
+                                className="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 transition inline-block cursor-pointer"
+                                title="Delete Apartment"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
                       {filteredApartments.length === 0 && (
                         <tr>
-                          <td colSpan={9} className="py-8 text-center text-slate-400">
+                          <td colSpan={10} className="py-8 text-center text-slate-400">
                             No matching apartments found. Try adjusting your filters.
                           </td>
                         </tr>
@@ -1950,19 +2207,22 @@ export default function AdminDashboardPage() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                    {adminUsers.filter((u) => u.isActive).length} Admin Currently Active
+                    Active {adminUsers.filter((u) => u.isActive).length}
                   </span>
 
-                  <button
-                    onClick={handleLogoutAllDevices}
-                    disabled={revokingSessions}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200 shadow-xs transition cursor-pointer disabled:cursor-not-allowed"
-                    title="Terminate all active admin sessions across all devices immediately"
+                  <Link
+                    href="/admin/users"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 text-xs font-bold border border-slate-200 shadow-xs transition cursor-pointer"
+                    title="Open User Accounts Directory in a new tab"
                   >
-                    <Shield className="w-3.5 h-3.5 text-rose-600" />
-                    {revokingSessions ? "Revoking Sessions..." : "Log Out All Devices"}
-                  </button>
+                    <Users className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Users ({adminUsers.length})</span>
+                    <ArrowUpRight className="w-3 h-3 text-slate-400" />
+                  </Link>
                 </div>
+
               </div>
 
               {/* Registered Administrator Accounts Grid */}
@@ -1988,41 +2248,89 @@ export default function AdminDashboardPage() {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-3.5">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-black text-lg uppercase shadow-sm">
+                            <Link
+                              href={`/admin/users/${user.username}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-black text-lg uppercase shadow-sm hover:scale-105 transition flex-shrink-0 cursor-pointer"
+                              title={`Open profile for @${user.username} in a new tab`}
+                            >
                               {user.username.charAt(0)}
-                            </div>
+                            </Link>
                             <div>
                               <div className="flex items-center gap-2">
-                                <h4 className="text-base font-black text-slate-900">
-                                  {user.username}
-                                </h4>
+                                <Link
+                                  href={`/admin/users/${user.username}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-base font-black text-slate-900 hover:text-blue-600 transition flex items-center gap-1 group/link cursor-pointer"
+                                  title={`Open profile for @${user.username} in a new tab`}
+                                >
+                                  <span>{user.displayName || user.username}</span>
+                                  <ArrowUpRight className="w-3.5 h-3.5 text-blue-600 opacity-0 group-hover/link:opacity-100 transition" />
+                                </Link>
                                 {isSelf && (
                                   <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-[10px] font-bold">
                                     You (Current)
                                   </span>
                                 )}
                               </div>
-                              <span className="text-xs text-slate-500 font-medium">
-                                System Administrator
-                              </span>
+                              <Link
+                                href={`/admin/users/${user.username}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs text-slate-500 hover:text-blue-600 font-medium transition block"
+                                title={`Open profile for @${user.username} in a new tab`}
+                              >
+                                {user.role === "editor" ? "Editor" : "System Administrator"}
+                              </Link>
                             </div>
                           </div>
 
-                          {user.isActive ? (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-xs">
-                              <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                          <div className="flex items-center gap-2">
+                            {user.isActive ? (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-xs">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                Active Now
                               </span>
-                              Active Now
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold">
-                              <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-                              Offline
-                            </span>
-                          )}
+                            ) : (
+                              <span
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold"
+                                title={
+                                  user.lastActiveAt
+                                    ? `Last active: ${new Date(user.lastActiveAt).toLocaleString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })}`
+                                    : user.lastLogin
+                                    ? `Last login: ${new Date(user.lastLogin).toLocaleString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })}`
+                                    : undefined
+                                }
+                              >
+                                <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                                {user.lastActiveAt
+                                  ? formatTimeAgo(new Date(user.lastActiveAt))
+                                  : user.lastLogin
+                                  ? formatTimeAgo(new Date(user.lastLogin))
+                                  : "Offline"}
+                              </span>
+                            )}
+                          </div>
                         </div>
+
+
 
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100 text-xs">
                           <div className="space-y-0.5">
@@ -2070,6 +2378,8 @@ export default function AdminDashboardPage() {
                             </p>
                           </div>
                         </div>
+
+
                       </div>
                     );
                   })}
@@ -2130,7 +2440,18 @@ export default function AdminDashboardPage() {
                       <option value="SUCCESS">Success</option>
                       <option value="FAILED">Failed</option>
                     </select>
+
+                    <button
+                      onClick={handleLogoutAllDevices}
+                      disabled={revokingSessions}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200 shadow-xs transition cursor-pointer disabled:cursor-not-allowed whitespace-nowrap"
+                      title="Terminate all active admin sessions across all devices immediately"
+                    >
+                      <Shield className="w-3.5 h-3.5 text-rose-600" />
+                      {revokingSessions ? "Revoking Sessions..." : "Log Out All Devices"}
+                    </button>
                   </div>
+
                 </div>
 
                 {/* Audit Table */}
@@ -2160,19 +2481,25 @@ export default function AdminDashboardPage() {
                           return (
                             <tr key={log.id} className="hover:bg-slate-50/70 transition">
                               <td className="py-3.5 px-4">
-                                <div className="flex items-center gap-2.5">
-                                  <div className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-700 uppercase text-xs">
+                                <Link
+                                  href={`/admin/users/${log.username}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="flex items-center gap-2.5 group/audituser transition cursor-pointer"
+                                  title={`Open profile for @${log.username} in a new tab`}
+                                >
+                                  <div className="w-7 h-7 rounded-full bg-slate-100 group-hover/audituser:bg-blue-600 group-hover/audituser:text-white border border-slate-200 flex items-center justify-center font-bold text-slate-700 uppercase text-xs transition">
                                     {log.username.charAt(0)}
                                   </div>
                                   <div>
-                                    <span className="font-bold text-slate-900 block">
+                                    <span className="font-bold text-slate-900 group-hover/audituser:text-blue-600 block transition">
                                       {log.username}
                                     </span>
                                     {log.username.toLowerCase() === currentUser.toLowerCase() && (
                                       <span className="text-[10px] text-blue-600 font-semibold">You</span>
                                     )}
                                   </div>
-                                </div>
+                                </Link>
                               </td>
 
                               <td className="py-3.5 px-4">
@@ -2592,14 +2919,16 @@ export default function AdminDashboardPage() {
                   </select>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleDeleteLead((selectedLead._id || selectedLead.id) as string)}
-                  className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs border border-rose-200 transition cursor-pointer flex items-center gap-1.5"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete Lead</span>
-                </button>
+                {currentUserRole === "admin" && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteLead((selectedLead._id || selectedLead.id) as string)}
+                    className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs border border-rose-200 transition cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Lead</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -3186,6 +3515,203 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* REGISTER NEW USER MODAL (Admin Only) */}
+      {isNewUserModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/20">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Register New User</h3>
+                  <p className="text-xs text-slate-500">Create an authorized account with role-based limitations</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsNewUserModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-200/60 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleRegisterNewUser} className="p-6 space-y-4 overflow-y-auto">
+              {userRegistrationError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+                  {userRegistrationError}
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Display Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={newUserData.displayName}
+                    onChange={(e) => setNewUserData({ ...newUserData, displayName: e.target.value })}
+                    placeholder="e.g. Sihab Ali or Rahim"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-blue-500 transition"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Username (Login ID)</label>
+                  <input
+                    type="text"
+                    required
+                    value={newUserData.username}
+                    onChange={(e) => setNewUserData({ ...newUserData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "") })}
+                    placeholder="e.g. sihab or rahim"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono outline-none focus:border-blue-500 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={newUserData.password}
+                  onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                  placeholder="Minimum 6 characters"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-blue-500 transition"
+                />
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <label className="text-xs font-bold text-slate-700 block">Select Access Role</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Editor Option */}
+                  <div
+                    onClick={() => setNewUserData({ ...newUserData, role: "editor" })}
+                    className={`p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col justify-between ${
+                      newUserData.role === "editor"
+                        ? "border-blue-600 bg-blue-50/50 shadow-sm"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 text-blue-600" />
+                          Editor
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                          Restricted
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-relaxed">
+                        Can only access <strong>Overview</strong>, <strong>Leads CRM</strong>, and <strong>Apartment Inventory</strong>. Can list new apartments and view leads. <strong>Cannot delete anything</strong>.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Admin Option */}
+                  <div
+                    onClick={() => setNewUserData({ ...newUserData, role: "admin" })}
+                    className={`p-4 rounded-2xl border-2 cursor-pointer transition flex flex-col justify-between ${
+                      newUserData.role === "admin"
+                        ? "border-purple-600 bg-purple-50/50 shadow-sm"
+                        : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                          <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                          Admin
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-700">
+                          Full Access
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 leading-relaxed">
+                        Full access across all 5 tabs. Can register new users, delete leads, delete apartments, and modify homepage statistics.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsNewUserModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingUser}
+                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm cursor-pointer disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSubmittingUser && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{isSubmittingUser ? "Registering..." : "Register User"}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE USER CONFIRMATION MODAL (Admin Only) */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-100 space-y-5 animate-in zoom-in-95">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-sm">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-black text-slate-900">Delete User Account?</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to delete <strong className="text-slate-800">{userToDelete.displayName}</strong> (<code className="text-slate-700 font-mono">@{userToDelete.username}</code>)?
+                This user will permanently lose all access to the admin panel. This action cannot be undone.
+              </p>
+            </div>
+            {deleteUserError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold text-center">
+                {deleteUserError}
+              </div>
+            )}
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setUserToDelete(null);
+                  setDeleteUserError("");
+                }}
+                disabled={deletingUser}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteUser}
+                disabled={deletingUser}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deletingUser ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete User"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth-server";
+import { requireAdmin, requireAdminRole } from "@/lib/auth-server";
 import { getLeads, createLead, clearAllLeads } from "@/lib/store";
 
 export async function GET(req: Request) {
@@ -39,9 +39,9 @@ export async function POST(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    // Restrict clearing all leads strictly to authenticated admins
-    const unauthorized = await requireAdmin(req);
-    if (unauthorized) return unauthorized;
+    // STRICT: Only users with "admin" role can reset/clear leads
+    const forbidden = await requireAdminRole(req);
+    if (forbidden) return forbidden;
 
     await clearAllLeads();
     return NextResponse.json({ success: true, message: "All leads cleared successfully" });

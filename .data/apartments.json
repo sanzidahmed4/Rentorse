@@ -35,7 +35,9 @@
     "_id": "apt_1",
     "serialNumber": 1,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-02",
@@ -73,7 +75,9 @@
     "_id": "apt_2",
     "serialNumber": 2,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-03",
@@ -109,7 +113,9 @@
     "_id": "apt_3",
     "serialNumber": 3,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-04",
@@ -146,7 +152,9 @@
     "_id": "apt_4",
     "serialNumber": 4,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-05",
@@ -181,7 +189,9 @@
     "_id": "apt_5",
     "serialNumber": 5,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-06",
@@ -218,7 +228,9 @@
     "_id": "apt_6",
     "serialNumber": 6,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-07",
@@ -254,7 +266,9 @@
     "_id": "apt_7",
     "serialNumber": 7,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-08",
@@ -290,7 +304,9 @@
     "_id": "apt_8",
     "serialNumber": 8,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-09",
@@ -327,7 +343,9 @@
     "_id": "apt_9",
     "serialNumber": 9,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-10",
@@ -363,7 +381,9 @@
     "_id": "apt_10",
     "serialNumber": 10,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-11",
@@ -399,7 +419,9 @@
     "_id": "apt_11",
     "serialNumber": 11,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-1b1b-12",
@@ -435,7 +457,9 @@
     "_id": "apt_12",
     "serialNumber": 12,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-01",
@@ -474,7 +498,9 @@
     "_id": "apt_13",
     "serialNumber": 13,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-02",
@@ -512,7 +538,9 @@
     "_id": "apt_14",
     "serialNumber": 14,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-03",
@@ -548,7 +576,9 @@
     "_id": "apt_15",
     "serialNumber": 15,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-04",
@@ -585,7 +615,9 @@
     "_id": "apt_16",
     "serialNumber": 16,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-05",
@@ -622,7 +654,9 @@
     "_id": "apt_17",
     "serialNumber": 17,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-06",
@@ -658,7 +692,9 @@
     "_id": "apt_18",
     "serialNumber": 18,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-07",
@@ -695,7 +731,9 @@
     "_id": "apt_19",
     "serialNumber": 19,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-08",
@@ -732,7 +770,9 @@
     "_id": "apt_20",
     "serialNumber": 20,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-09",
@@ -768,7 +808,9 @@
     "_id": "apt_21",
     "serialNumber": 21,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-10",
@@ -805,7 +847,9 @@
     "_id": "apt_22",
     "serialNumber": 22,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-11",
@@ -841,7 +885,9 @@
     "_id": "apt_23",
     "serialNumber": 23,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-2b2b-12",
@@ -877,7 +923,9 @@
     "_id": "apt_24",
     "serialNumber": 24,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b2b-01",
@@ -916,7 +964,9 @@
     "_id": "apt_25",
     "serialNumber": 25,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b3b-02",
@@ -955,7 +1005,9 @@
     "_id": "apt_26",
     "serialNumber": 26,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b2b-03",
@@ -992,7 +1044,9 @@
     "_id": "apt_27",
     "serialNumber": 27,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b3b-04",
@@ -1031,7 +1085,9 @@
     "_id": "apt_28",
     "serialNumber": 28,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b2b-05",
@@ -1068,7 +1124,9 @@
     "_id": "apt_29",
     "serialNumber": 29,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b3b-06",
@@ -1105,7 +1163,9 @@
     "_id": "apt_30",
     "serialNumber": 30,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b2b-07",
@@ -1142,7 +1202,9 @@
     "_id": "apt_31",
     "serialNumber": 31,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b3b-08",
@@ -1180,7 +1242,9 @@
     "_id": "apt_32",
     "serialNumber": 32,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b2b-09",
@@ -1216,7 +1280,9 @@
     "_id": "apt_33",
     "serialNumber": 33,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b3b-10",
@@ -1254,7 +1320,9 @@
     "_id": "apt_34",
     "serialNumber": 34,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "id": "apt-3b2b-11",
@@ -1291,7 +1359,9 @@
     "_id": "apt_35",
     "serialNumber": 35,
     "isManual": false,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "_id": "apt_1788799672059",
@@ -1324,7 +1394,9 @@
     "propertyType": "Apartment",
     "laundry": "In-unit laundry",
     "parking": "Street parking",
-    "cityState": "18 Nantucket Dr, Medford, NY 11763"
+    "cityState": "18 Nantucket Dr, Medford, NY 11763",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "_id": "6a9ef3d44b0b1102375a5cfe",
@@ -1365,7 +1437,9 @@
     "isManual": true,
     "createdAt": "2026-09-07T17:26:44.618Z",
     "updatedAt": "2026-09-08T14:50:38.666Z",
-    "__v": 0
+    "__v": 0,
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "_id": "apt_1788863937917",
@@ -1411,7 +1485,9 @@
     "reviewsCount": 15,
     "addressTemplate": "Hackensack, NJ",
     "isManual": true,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "_id": "apt_1788864486139",
@@ -1453,7 +1529,9 @@
     "reviewsCount": 15,
     "addressTemplate": "Godwin Ave, Paterson, NJ",
     "isManual": true,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "_id": "apt_1788865193888",
@@ -1490,7 +1568,9 @@
     "reviewsCount": 15,
     "addressTemplate": "Pople Ave, Flushing, NY",
     "isManual": true,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "_id": "apt_1788868744091",
@@ -1533,7 +1613,9 @@
     "reviewsCount": 15,
     "addressTemplate": "Philadelphia, PA",
     "isManual": true,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   },
   {
     "_id": "apt_1788872616931",
@@ -1573,6 +1655,8 @@
     "reviewsCount": 15,
     "addressTemplate": "Millvale, PA",
     "isManual": true,
-    "climate": "Central AC & Heating"
+    "climate": "Central AC & Heating",
+    "createdBy": "sanzid",
+    "createdByName": "Sanzid"
   }
 ]

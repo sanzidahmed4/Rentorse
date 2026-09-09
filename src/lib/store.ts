@@ -36,6 +36,7 @@ function loadPersistedLeads(): ILead[] {
   try {
     if (fs.existsSync(LEADS_FILE)) {
       const data = fs.readFileSync(LEADS_FILE, "utf-8");
+      if (!data || !data.trim()) return [];
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed)) {
         let needsSave = false;
@@ -75,15 +76,20 @@ function loadPersistedApartments(): IApartment[] {
   try {
     if (fs.existsSync(APARTMENTS_FILE)) {
       const data = fs.readFileSync(APARTMENTS_FILE, "utf-8");
+      if (!data || !data.trim()) return SEED_APARTMENTS;
       const parsed: IApartment[] = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
         let needsSave = false;
-        // Sync any updated addressTemplate and assign sequential serialNumber if missing
+        // Sync any updated addressTemplate, creator tracking, and assign sequential serialNumber if missing
         const synced = parsed.map((apt, idx) => {
           const seed = SEED_APARTMENTS.find((s) => s.id === apt.id || s.slug === apt.slug);
           let updated = seed ? { ...apt, isManual: apt.isManual !== undefined ? apt.isManual : false } : { ...apt, isManual: apt.isManual !== undefined ? apt.isManual : true };
           if (!updated.serialNumber) {
             updated = { ...updated, serialNumber: idx + 1 };
+            needsSave = true;
+          }
+          if (!updated.createdBy) {
+            updated = { ...updated, createdBy: "sanzid", createdByName: "Sanzid" };
             needsSave = true;
           }
           return updated;
@@ -97,7 +103,7 @@ function loadPersistedApartments(): IApartment[] {
   } catch (e) {
     console.error("Error loading apartments from file:", e);
   }
-  const defaults = [...SEED_APARTMENTS.map((apt, idx) => ({ ...apt, _id: `apt_${idx + 1}`, serialNumber: idx + 1, isManual: false }))];
+  const defaults = [...SEED_APARTMENTS.map((apt, idx) => ({ ...apt, _id: `apt_${idx + 1}`, serialNumber: idx + 1, isManual: false, createdBy: "sanzid", createdByName: "Sanzid" }))];
   savePersistedApartments(defaults);
   return defaults;
 }
@@ -116,6 +122,16 @@ function loadPersistedStats(): ISiteStat {
   try {
     if (fs.existsSync(STATS_FILE)) {
       const data = fs.readFileSync(STATS_FILE, "utf-8");
+      if (!data || !data.trim()) {
+        return {
+          _id: "stat_default",
+          activeApartments: "3,250+",
+          activeRenters: "12,500+",
+          propertiesListed: "4,200+",
+          customersServed: "9,800+",
+          satisfactionRate: "99.4%",
+        };
+      }
       const parsed = JSON.parse(data);
       if (parsed && typeof parsed === "object") return parsed;
     }
@@ -246,6 +262,8 @@ export async function getApartmentByIdOrSlug(idOrSlug: string): Promise<IApartme
 export async function createApartment(data: Partial<IApartment>): Promise<IApartment> {
   const db = await connectToDatabase();
   const isManualListing = data.isManual !== undefined ? Boolean(data.isManual) : true;
+  const createdBy = data.createdBy || "sanzid";
+  const createdByName = data.createdByName || (createdBy === "sihabali" || createdBy === "sihab" ? "Sihab Ali" : createdBy.charAt(0).toUpperCase() + createdBy.slice(1));
 
   let nextSerial = data.serialNumber;
   if (!nextSerial) {
@@ -273,6 +291,8 @@ export async function createApartment(data: Partial<IApartment>): Promise<IApart
         ...data,
         serialNumber: nextSerial,
         isManual: isManualListing,
+        createdBy,
+        createdByName,
       });
       return {
         ...created.toObject(),
@@ -309,6 +329,9 @@ export async function createApartment(data: Partial<IApartment>): Promise<IApart
     reviewsCount: data.reviewsCount || 10,
     addressTemplate: data.addressTemplate || "Apartment Suite",
     isManual: isManualListing,
+    createdBy,
+    createdByName,
+    createdAt: new Date().toISOString(),
   };
   memoryApartments.unshift(newApt);
   savePersistedApartments(memoryApartments);
@@ -344,6 +367,95 @@ export async function updateApartment(id: string, data: Partial<IApartment>): Pr
     return memoryApartments[idx];
   }
   return null;
+}
+
+export async function deleteApartment(id: string): Promise<boolean> {
+  const db = await connectToDatabase();
+  let deleted = false;
+  if (db) {
+    try {
+      const res = await Apartment.deleteOne({ $or: [{ _id: id }, { id }] });
+      deleted = (res.deletedCount || 0) > 0;
+    } catch (e) {
+      console.error("Error deleting apartment from MongoDB:", e);
+    }
+  }
+
+  const initialLen = memoryApartments.length;
+  memoryApartments = memoryApartments.filter((a) => a._id !== id && a.id !== id);
+  if (memoryApartments.length < initialLen) {
+    deleted = true;
+    savePersistedApartments(memoryApartments);
+  }
+
+  return deleted;
+}
+
+export async function updateApartmentsCreator(
+  oldUsername: string,
+  newUsername: string,
+  newDisplayName?: string,
+  oldDisplayName?: string
+): Promise<number> {
+  const oldLower = oldUsername.trim().toLowerCase();
+  const cleanNewUsername = newUsername.trim().toLowerCase();
+  const cleanDisplayName = newDisplayName?.trim();
+  const cleanOldDisplayName = oldDisplayName?.trim();
+
+  let updatedCount = 0;
+
+  // 1. Update MongoDB
+  const db = await connectToDatabase();
+  if (db) {
+    try {
+      const updateFields: Record<string, unknown> = { createdBy: cleanNewUsername };
+      if (cleanDisplayName) {
+        updateFields.createdByName = cleanDisplayName;
+      }
+      const conditions: any[] = [
+        { createdBy: { $regex: new RegExp(`^${oldLower}$`, "i") } },
+      ];
+      if (cleanOldDisplayName) {
+        conditions.push({
+          createdByName: { $regex: new RegExp(`^${cleanOldDisplayName}$`, "i") },
+        });
+      }
+      const res = await Apartment.updateMany(
+        { $or: conditions },
+        { $set: updateFields }
+      ).exec();
+      updatedCount = res.modifiedCount || 0;
+    } catch (e) {
+      console.error("Error updating apartments creator in MongoDB:", e);
+    }
+  }
+
+  // 2. Update memory store & persisted JSON
+  let memChanged = false;
+  memoryApartments = memoryApartments.map((apt) => {
+    const matchUsername = apt.createdBy && apt.createdBy.toLowerCase() === oldLower;
+    const matchDisplayName = Boolean(
+      cleanOldDisplayName &&
+        apt.createdByName &&
+        apt.createdByName.toLowerCase() === cleanOldDisplayName.toLowerCase()
+    );
+    if (matchUsername || matchDisplayName) {
+      memChanged = true;
+      return {
+        ...apt,
+        createdBy: cleanNewUsername,
+        ...(cleanDisplayName ? { createdByName: cleanDisplayName } : {}),
+      };
+    }
+    return apt;
+  });
+
+  if (memChanged) {
+    globalThis.__apartmento_memory_apartments = memoryApartments;
+    savePersistedApartments(memoryApartments);
+  }
+
+  return updatedCount;
 }
 
 export async function seedApartmentsIfEmpty(): Promise<number> {

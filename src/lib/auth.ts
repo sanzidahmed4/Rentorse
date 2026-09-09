@@ -110,6 +110,8 @@ export function revokeAllAdminSessions(): number {
 
 export interface AdminTokenPayload {
   sub: string;
+  role?: "admin" | "editor";
+  displayName?: string;
   iat: number;
   exp: number;
   nonce: string;
@@ -118,7 +120,13 @@ export interface AdminTokenPayload {
 /**
  * Creates an HMAC-SHA256 cryptographically signed JWT-like token
  */
-export async function createAdminToken(username: string): Promise<string> {
+export async function createAdminToken(
+  userOrUsername: string | { username: string; role?: "admin" | "editor"; displayName?: string }
+): Promise<string> {
+  const username = typeof userOrUsername === "string" ? userOrUsername : userOrUsername.username;
+  const role = typeof userOrUsername === "object" && userOrUsername.role ? userOrUsername.role : "admin";
+  const displayName = typeof userOrUsername === "object" && userOrUsername.displayName ? userOrUsername.displayName : username;
+
   const secret = getSecret();
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + 60 * 60 * 24 * 7; // 7 days validity
@@ -132,6 +140,8 @@ export async function createAdminToken(username: string): Promise<string> {
 
   const payload: AdminTokenPayload = {
     sub: username,
+    role,
+    displayName,
     iat,
     exp,
     nonce,
@@ -187,6 +197,7 @@ export function getAllowedAdminUsernames(): string[] {
   return Array.from(allowed);
 }
 
+
 /**
  * Validates whether a username is an active, authorized administrator.
  * Rejects legacy or unrecognized usernames.
@@ -197,7 +208,28 @@ export function isAuthorizedAdminUsername(username: string | undefined | null): 
   if (clean === "admin") return false;
 
   const allowed = getAllowedAdminUsernames();
-  return allowed.includes(clean);
+  if (allowed.includes(clean)) return true;
+
+  // Check persisted users file in Node environment if available
+  try {
+    if (typeof process !== "undefined" && typeof require !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const fs = require("fs");
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const path = require("path");
+      const usersFile = path.join(process.cwd(), ".data", "admin_users.json");
+      if (fs.existsSync(usersFile)) {
+        const users = JSON.parse(fs.readFileSync(usersFile, "utf-8"));
+        if (Array.isArray(users) && users.some((u: any) => u.username.toLowerCase() === clean && u.isActive !== false)) {
+          return true;
+        }
+      }
+    }
+  } catch {
+    // Ignore in non-Node environments
+  }
+
+  return false;
 }
 
 /**
@@ -205,7 +237,7 @@ export function isAuthorizedAdminUsername(username: string | undefined | null): 
  */
 export async function verifyAdminToken(
   token: string | undefined | null
-): Promise<{ valid: boolean; username?: string; error?: string }> {
+): Promise<{ valid: boolean; username?: string; role?: "admin" | "editor"; displayName?: string; error?: string }> {
   try {
     if (!token || typeof token !== "string") {
       return { valid: false, error: "Missing token" };
@@ -247,12 +279,17 @@ export async function verifyAdminToken(
       return { valid: false, error: "Session has been invalidated across all devices" };
     }
 
-    // STRICT: Ensure token subject belongs to an active, authorized admin
+    // STRICT: Ensure token subject belongs to an active, authorized user
     if (!payload.sub || !isAuthorizedAdminUsername(payload.sub)) {
       return { valid: false, error: "Unauthorized admin account or session revoked" };
     }
 
-    return { valid: true, username: payload.sub };
+    return {
+      valid: true,
+      username: payload.sub,
+      role: payload.role || "admin",
+      displayName: payload.displayName || payload.sub,
+    };
   } catch (err) {
     return { valid: false, error: "Verification failed" };
   }

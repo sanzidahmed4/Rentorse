@@ -46,6 +46,8 @@ const ApartmentSchema = new Schema<IApartmentDocument>(
     laundry: { type: String, default: "In-unit laundry" },
     parking: { type: String, default: "Street parking" },
     cityState: { type: String, default: "Philadelphia, PA" },
+    createdBy: { type: String, default: "sanzid" },
+    createdByName: { type: String, default: "Sanzid" },
   },
   {
     timestamps: true,
