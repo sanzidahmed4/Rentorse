@@ -3,12 +3,66 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, PhoneCall, ShieldCheck } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleScrollTo = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string
+  ) => {
+    setMobileMenuOpen(false);
+
+    if (pathname === "/") {
+      e.preventDefault();
+
+      if (targetId === "home" || targetId === "top") {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+        window.history.pushState(null, "", "/");
+        return;
+      }
+
+      const element = document.getElementById(targetId);
+      if (element) {
+        const navOffset = 76;
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = element.getBoundingClientRect().top;
+        const offsetPosition = elementRect - bodyRect - navOffset;
+
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: "smooth",
+        });
+        window.history.pushState(null, "", `/#${targetId}`);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash) {
+      const targetId = window.location.hash.replace("#", "");
+      const elem = document.getElementById(targetId);
+      if (elem) {
+        const timer = setTimeout(() => {
+          const navOffset = 76;
+          const bodyRect = document.body.getBoundingClientRect().top;
+          const elementRect = elem.getBoundingClientRect().top;
+          const offsetPosition = elementRect - bodyRect - navOffset;
+          window.scrollTo({
+            top: Math.max(0, offsetPosition),
+            behavior: "smooth",
+          });
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [pathname]);
 
   if (pathname?.startsWith("/admin")) {
     return null;
@@ -21,7 +75,11 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center group py-1">
+          <Link
+            href="/"
+            onClick={(e) => handleScrollTo(e, "home")}
+            className="flex items-center group py-1"
+          >
             <Image
               src="/site-logo.png"
               alt="Apartmento — Find Your Next Home"
@@ -36,25 +94,29 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href="/"
-              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition"
+              onClick={(e) => handleScrollTo(e, "home")}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition cursor-pointer"
             >
               Home
             </Link>
             <Link
               href="/#how-it-works"
-              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition"
+              onClick={(e) => handleScrollTo(e, "how-it-works")}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition cursor-pointer"
             >
               Guides
             </Link>
             <Link
               href="/#testimonials"
-              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition"
+              onClick={(e) => handleScrollTo(e, "testimonials")}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition cursor-pointer"
             >
               Reviews
             </Link>
             <Link
               href="/#faq"
-              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition"
+              onClick={(e) => handleScrollTo(e, "faq")}
+              className="text-sm font-medium text-slate-600 hover:text-blue-600 transition cursor-pointer"
             >
               FAQs
             </Link>
@@ -102,29 +164,29 @@ export default function Navbar() {
           <div className="border-t border-slate-100 pt-3 space-y-2 text-sm font-medium text-slate-700">
             <Link
               href="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50"
+              onClick={(e) => handleScrollTo(e, "home")}
+              className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
             >
               Home
             </Link>
             <Link
               href="/#how-it-works"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50"
+              onClick={(e) => handleScrollTo(e, "how-it-works")}
+              className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
             >
               Guides
             </Link>
             <Link
               href="/#testimonials"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50"
+              onClick={(e) => handleScrollTo(e, "testimonials")}
+              className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
             >
               Reviews
             </Link>
             <Link
               href="/#faq"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50"
+              onClick={(e) => handleScrollTo(e, "faq")}
+              className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
             >
               Frequently Asked Questions
             </Link>

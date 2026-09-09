@@ -38,7 +38,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* HERO SECTION */}
-      <section className="relative bg-slate-950 text-white pt-[69px] pb-[101px] lg:pt-[85px] lg:pb-[133px]">
+      <section id="home" className="relative bg-slate-950 text-white pt-[69px] pb-[101px] lg:pt-[85px] lg:pb-[133px] scroll-mt-20">
         {/* Background Apartment Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <Image
@@ -274,7 +274,7 @@ export default async function HomePage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how-it-works" className="py-20 bg-white content-auto">
+      <section id="how-it-works" className="py-20 bg-white scroll-mt-20 sm:scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-xs uppercase tracking-widest font-bold text-blue-600 mb-2">
@@ -337,7 +337,7 @@ export default async function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section id="testimonials" className="py-20 bg-slate-50 border-t border-slate-100 content-auto">
+      <section id="testimonials" className="py-20 bg-slate-50 border-t border-slate-100 scroll-mt-20 sm:scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-xs uppercase tracking-widest font-bold text-blue-600 mb-2">
@@ -398,7 +398,7 @@ export default async function HomePage() {
       </section>
 
       {/* FAQ SECTION */}
-      <section id="faq" className="py-20 bg-white content-auto">
+      <section id="faq" className="py-20 bg-white scroll-mt-20 sm:scroll-mt-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-xs uppercase tracking-widest font-bold text-blue-600 mb-2">
