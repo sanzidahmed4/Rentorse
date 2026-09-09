@@ -29,8 +29,16 @@ export default function AdminUsersPage() {
   // Data State
   const [adminUsers, setAdminUsers] = useState<IAdminUserSummary[]>([]);
   const [currentUser, setCurrentUser] = useState<string>("");
-  const [currentUserRole, setCurrentUserRole] = useState<"admin" | "editor">("admin");
   const [currentUserDisplayName, setCurrentUserDisplayName] = useState<string>("");
+  const [currentUserRole, setCurrentUserRole] = useState<"admin" | "editor">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const storedRole = sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role");
+        if (storedRole === "admin" || storedRole === "editor") return storedRole;
+      } catch (_) {}
+    }
+    return "editor";
+  });
 
   // Loading & Action State
   const [loading, setLoading] = useState(true);
@@ -73,10 +81,17 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     isMountedRef.current = true;
+    try {
+      const storedRole = sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role");
+      if (storedRole === "editor") {
+        router.replace("/admin?tab=apartments");
+        return;
+      }
+    } catch (_) {}
     return () => {
       isMountedRef.current = false;
     };
-  }, []);
+  }, [router]);
 
   const showToast = (msg: string) => {
     setNotification(msg);

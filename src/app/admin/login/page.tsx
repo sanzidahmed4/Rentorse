@@ -40,6 +40,21 @@ export default function AdminLoginPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         try {
+          // 1. Wipe all stale cache from previous sessions immediately
+          sessionStorage.removeItem("apartmento_admin_cache");
+          localStorage.removeItem("apartmento_admin_cache");
+          sessionStorage.removeItem("apartmento_admin_selected_row");
+          localStorage.removeItem("apartmento_admin_selected_row");
+          localStorage.removeItem("apartmento_admin_lead_modal");
+
+          // 2. Store authenticated role and user details immediately
+          const userRole = data.role === "editor" ? "editor" : "admin";
+          sessionStorage.setItem("apartmento_user_role", userRole);
+          sessionStorage.setItem("apartmento_user_name", data.user || "");
+          sessionStorage.setItem("apartmento_user_display_name", data.displayName || data.user || "");
+          localStorage.setItem("apartmento_user_role", userRole);
+          localStorage.setItem("apartmento_user_name", data.user || "");
+
           localStorage.setItem("apartmento_admin_active_tab", "overview");
         } catch (_) {}
         // Navigate to the originally requested page, or overview as fallback

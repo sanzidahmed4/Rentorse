@@ -58,7 +58,22 @@ import TablePagination from "@/components/admin/TablePagination";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"overview" | "leads" | "apartments" | "stats" | "admins">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "leads" | "apartments" | "stats" | "admins">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        const urlTab = sp.get("tab");
+        const storedRole = sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role");
+        const allowed = storedRole === "admin"
+          ? ["overview", "leads", "apartments", "stats", "admins"]
+          : ["overview", "leads", "apartments"];
+        if (urlTab && allowed.includes(urlTab)) {
+          return urlTab as any;
+        }
+      } catch (_) {}
+    }
+    return "overview";
+  });
 
   const handleTabChange = (tab: "overview" | "leads" | "apartments" | "stats" | "admins") => {
     setActiveTab(tab);
@@ -73,16 +88,47 @@ export default function AdminDashboardPage() {
   };
 
   // Current Logged In Admin & Audit State
-  const [currentUser, setCurrentUser] = useState<string>("");
+  const [currentUser, setCurrentUser] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return sessionStorage.getItem("apartmento_user_name") || localStorage.getItem("apartmento_user_name") || "";
+      } catch (_) {}
+    }
+    return "";
+  });
   const [adminUsers, setAdminUsers] = useState<IAdminUserSummary[]>([]);
   const [adminLogs, setAdminLogs] = useState<IAdminLoginLog[]>([]);
   const [adminLogSearch, setAdminLogSearch] = useState("");
   const [adminLogStatusFilter, setAdminLogStatusFilter] = useState<"ALL" | "SUCCESS" | "FAILED">("ALL");
   const [adminLogUserFilter, setAdminLogUserFilter] = useState<string>("ALL");
 
-  // RBAC & Creator Tracking State
-  const [currentUserRole, setCurrentUserRole] = useState<"admin" | "editor">("admin");
-  const [currentUserDisplayName, setCurrentUserDisplayName] = useState<string>("");
+  // RBAC & Creator Tracking State — Default to "editor" to prevent any flash of admin settings
+  const [currentUserRole, setCurrentUserRole] = useState<"admin" | "editor">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const storedRole = sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role");
+        if (storedRole === "admin" || storedRole === "editor") {
+          return storedRole;
+        }
+        const cached = sessionStorage.getItem("apartmento_admin_cache");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed.currentUserRole === "admin" || parsed.currentUserRole === "editor") {
+            return parsed.currentUserRole;
+          }
+        }
+      } catch (_) {}
+    }
+    return "editor";
+  });
+  const [currentUserDisplayName, setCurrentUserDisplayName] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return sessionStorage.getItem("apartmento_user_display_name") || "";
+      } catch (_) {}
+    }
+    return "";
+  });
   const [aptCreatorFilter, setAptCreatorFilter] = useState<string>("ALL");
   const [isNewUserModalOpen, setIsNewUserModalOpen] = useState(false);
   const [newUserData, setNewUserData] = useState({
@@ -278,13 +324,21 @@ export default function AdminDashboardPage() {
     // Default active tab to "overview" unless explicitly specified via URL param (?tab=...)
     try {
       const urlTab = new URLSearchParams(window.location.search).get("tab");
-      const targetTab = (urlTab && ["overview", "leads", "apartments", "stats", "admins"].includes(urlTab))
+      const storedRole = (typeof window !== "undefined"
+        ? (sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role"))
+        : null) || currentUserRole;
+
+      const allowedTabs = storedRole === "admin"
+        ? ["overview", "leads", "apartments", "stats", "admins"]
+        : ["overview", "leads", "apartments"];
+
+      const targetTab = (urlTab && allowedTabs.includes(urlTab))
         ? (urlTab as "overview" | "leads" | "apartments" | "stats" | "admins")
         : "overview";
 
       setActiveTab(targetTab);
       localStorage.setItem("apartmento_admin_active_tab", targetTab);
-      if (!urlTab) {
+      if (!urlTab || urlTab !== targetTab) {
         const url = new URL(window.location.href);
         url.searchParams.set("tab", targetTab);
         window.history.replaceState(null, "", url.toString());
@@ -295,7 +349,10 @@ export default function AdminDashboardPage() {
       try {
         const searchParams = new URLSearchParams(window.location.search);
         const urlTab = searchParams.get("tab") as any;
-        if (urlTab && ["overview", "leads", "apartments", "stats", "admins"].includes(urlTab)) {
+        const allowedTabs = currentUserRole === "admin"
+          ? ["overview", "leads", "apartments", "stats", "admins"]
+          : ["overview", "leads", "apartments"];
+        if (urlTab && allowedTabs.includes(urlTab)) {
           setActiveTab(urlTab);
         }
         const urlLead = searchParams.get("lead");
@@ -321,33 +378,44 @@ export default function AdminDashboardPage() {
     };
     window.addEventListener("popstate", onPopState);
 
-    // Instant display from session cache if available
+    // Instant display from session cache ONLY if it matches the current user & role
     try {
-      const cached = sessionStorage.getItem("apartmento_admin_cache");
+      const cached = sessionStorage.getItem("apartmento_admin_cache") || localStorage.getItem("apartmento_admin_cache");
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (parsed.leads) {
-          setLeads(parsed.leads);
-          const searchParams = new URLSearchParams(window.location.search);
-          const urlLead = searchParams.get("lead");
-          const hasModal = searchParams.get("leadModal") === "1" || searchParams.get("modal") === "1";
-          const storedModal = sessionStorage.getItem("apartmento_admin_lead_modal") || localStorage.getItem("apartmento_admin_lead_modal");
-          const targetModal = (hasModal && urlLead) ? urlLead : storedModal;
-          if (targetModal) {
-            const found = parsed.leads.find((l: ILead) => String(l._id || l.id) === targetModal);
-            if (found) setSelectedLead(found);
+        const storedRole = sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role");
+        const storedUser = sessionStorage.getItem("apartmento_user_name") || localStorage.getItem("apartmento_user_name");
+
+        const matchesUser = !storedUser || !parsed.currentUser || parsed.currentUser.toLowerCase() === storedUser.toLowerCase();
+        const matchesRole = !storedRole || parsed.currentUserRole === storedRole;
+
+        if (matchesUser && matchesRole) {
+          if (parsed.leads && Array.isArray(parsed.leads)) {
+            setLeads(parsed.leads);
+            const searchParams = new URLSearchParams(window.location.search);
+            const urlLead = searchParams.get("lead");
+            const hasModal = searchParams.get("leadModal") === "1" || searchParams.get("modal") === "1";
+            const storedModal = sessionStorage.getItem("apartmento_admin_lead_modal") || localStorage.getItem("apartmento_admin_lead_modal");
+            const targetModal = (hasModal && urlLead) ? urlLead : storedModal;
+            if (targetModal) {
+              const found = parsed.leads.find((l: ILead) => String(l._id || l.id) === targetModal);
+              if (found) setSelectedLead(found);
+            }
           }
+          if (parsed.apartments) setApartments(parsed.apartments);
+          if (parsed.stats) setStats(parsed.stats);
+          if (parsed.adminUsers) setAdminUsers(parsed.adminUsers);
+          if (parsed.adminLogs) setAdminLogs(parsed.adminLogs);
+          if (parsed.currentUser && parsed.currentUser.toLowerCase() !== "admin") {
+            setCurrentUser(parsed.currentUser);
+          }
+          if (parsed.currentUserRole) setCurrentUserRole(parsed.currentUserRole);
+          if (parsed.currentUserDisplayName) setCurrentUserDisplayName(parsed.currentUserDisplayName);
+          setLoading(false);
+        } else {
+          sessionStorage.removeItem("apartmento_admin_cache");
+          localStorage.removeItem("apartmento_admin_cache");
         }
-        if (parsed.apartments) setApartments(parsed.apartments);
-        if (parsed.stats) setStats(parsed.stats);
-        if (parsed.adminUsers) setAdminUsers(parsed.adminUsers);
-        if (parsed.adminLogs) setAdminLogs(parsed.adminLogs);
-        if (parsed.currentUser && parsed.currentUser.toLowerCase() !== "admin") {
-          setCurrentUser(parsed.currentUser);
-        }
-        if (parsed.currentUserRole) setCurrentUserRole(parsed.currentUserRole);
-        if (parsed.currentUserDisplayName) setCurrentUserDisplayName(parsed.currentUserDisplayName);
-        setLoading(false);
       }
     } catch (_) {}
 
@@ -427,9 +495,26 @@ export default function AdminDashboardPage() {
         }
         if (data.apartments) setApartments(data.apartments);
         if (data.stats) setStats(data.stats);
-        if (data.currentUser) setCurrentUser(data.currentUser);
-        if (data.currentUserRole) setCurrentUserRole(data.currentUserRole);
-        if (data.currentUserDisplayName) setCurrentUserDisplayName(data.currentUserDisplayName);
+        if (data.currentUser) {
+          setCurrentUser(data.currentUser);
+          try {
+            sessionStorage.setItem("apartmento_user_name", data.currentUser);
+            localStorage.setItem("apartmento_user_name", data.currentUser);
+          } catch (_) {}
+        }
+        if (data.currentUserRole) {
+          setCurrentUserRole(data.currentUserRole);
+          try {
+            sessionStorage.setItem("apartmento_user_role", data.currentUserRole);
+            localStorage.setItem("apartmento_user_role", data.currentUserRole);
+          } catch (_) {}
+        }
+        if (data.currentUserDisplayName) {
+          setCurrentUserDisplayName(data.currentUserDisplayName);
+          try {
+            sessionStorage.setItem("apartmento_user_display_name", data.currentUserDisplayName);
+          } catch (_) {}
+        }
         if (data.adminUsers) setAdminUsers(data.adminUsers);
         if (data.adminLogs) setAdminLogs(data.adminLogs);
 
@@ -469,6 +554,11 @@ export default function AdminDashboardPage() {
   const handleLogout = async () => {
     try {
       sessionStorage.removeItem("apartmento_admin_cache");
+      sessionStorage.removeItem("apartmento_user_role");
+      sessionStorage.removeItem("apartmento_user_name");
+      sessionStorage.removeItem("apartmento_user_display_name");
+      localStorage.removeItem("apartmento_user_role");
+      localStorage.removeItem("apartmento_user_name");
       sessionStorage.removeItem("apartmento_admin_selected_row");
       localStorage.removeItem("apartmento_admin_selected_row");
       localStorage.removeItem("apartmento_admin_lead_modal");
@@ -496,6 +586,8 @@ export default function AdminDashboardPage() {
         showToast("All admin sessions across all devices have been terminated.");
         try {
           sessionStorage.clear();
+          localStorage.removeItem("apartmento_user_role");
+          localStorage.removeItem("apartmento_user_name");
           localStorage.removeItem("apartmento_admin_selected_row");
           localStorage.removeItem("apartmento_admin_active_tab");
           document.cookie = "apartmento_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -1154,7 +1246,7 @@ export default function AdminDashboardPage() {
               title="Open your profile"
             >
               <div className="w-7 h-7 rounded-full bg-blue-600 group-hover:scale-105 text-white flex items-center justify-center text-xs font-black uppercase shadow-xs transition">
-                {currentUser ? currentUser.charAt(0) : "A"}
+                {currentUser ? currentUser.charAt(0) : (currentUserRole === "admin" ? "A" : "E")}
               </div>
               <div className="text-left leading-tight">
                 <div className="flex items-center gap-1.5">
@@ -1165,7 +1257,7 @@ export default function AdminDashboardPage() {
                   </span>
                 </div>
                 <span className="text-[10px] text-emerald-600 font-semibold">
-                  {currentUserRole === "editor" ? "Active Editor" : "Active Admin"}
+                  {currentUserRole === "admin" ? "Active Admin" : "Active Editor"}
                 </span>
               </div>
             </Link>
@@ -1211,7 +1303,7 @@ export default function AdminDashboardPage() {
               { id: "admins", label: "Admin", icon: ShieldCheck },
             ]
               .filter((tab) => {
-                if (currentUserRole === "editor") {
+                if (currentUserRole !== "admin") {
                   return tab.id === "overview" || tab.id === "leads" || tab.id === "apartments";
                 }
                 return true;
@@ -2186,7 +2278,7 @@ export default function AdminDashboardPage() {
         })()}
 
         {/* TAB 4: SITE SETTINGS, HOMEPAGE STATS & FOOTER CONTACT */}
-        {activeTab === "stats" && (
+        {activeTab === "stats" && currentUserRole === "admin" && (
           <div className="w-full space-y-6 animate-in fade-in">
             <div>
               <h2 className="text-xl font-black text-slate-900 flex items-center gap-2.5">
@@ -2344,7 +2436,7 @@ export default function AdminDashboardPage() {
         )}
 
         {/* TAB 5: ADMIN USERS & AUDIT LOGS */}
-        {activeTab === "admins" && (() => {
+        {activeTab === "admins" && currentUserRole === "admin" && (() => {
           const filteredLogs = adminLogs.filter((log) => {
             const matchesSearch =
               !adminLogSearch ||
