@@ -1897,7 +1897,6 @@ export default function AdminDashboardPage() {
                         <th className="py-3.5 px-4 font-semibold">Beds / Baths</th>
                         <th className="py-3.5 px-4 font-semibold">Base Rent</th>
                         <th className="py-3.5 px-4 font-semibold">Furnished</th>
-                        <th className="py-3.5 px-4 font-semibold">Pet Policy</th>
                         <th className="py-3.5 px-4 font-semibold text-center">Status</th>
                         <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
                       </tr>
@@ -2004,7 +2003,6 @@ export default function AdminDashboardPage() {
                           </td>
 
                           <td className="py-3.5 px-4 text-slate-600">{apt.furnished}</td>
-                          <td className="py-3.5 px-4 text-slate-600">{apt.petPolicy}</td>
 
                           {/* Published / Unpublished One-Click Toggle */}
                           <td className="py-3.5 px-4 text-center">
@@ -2062,7 +2060,7 @@ export default function AdminDashboardPage() {
                       ))}
                       {filteredApartments.length === 0 && (
                         <tr>
-                          <td colSpan={9} className="py-8 text-center text-slate-400">
+                          <td colSpan={8} className="py-8 text-center text-slate-400">
                             No matching apartments found. Try adjusting your filters.
                           </td>
                         </tr>
