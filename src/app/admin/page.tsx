@@ -1020,6 +1020,7 @@ export default function AdminDashboardPage() {
   };
 
   const exportLeadsToCSV = () => {
+    if (currentUserRole === "editor") return;
     if (leads.length === 0) return alert("No leads to export.");
     const headers = [
       "SL No.",
@@ -1506,13 +1507,15 @@ export default function AdminDashboardPage() {
                     Reset All Leads
                   </button>
                 )}
-                <button
-                  onClick={exportLeadsToCSV}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Export to CSV
-                </button>
+                {currentUserRole !== "editor" && (
+                  <button
+                    onClick={exportLeadsToCSV}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    Export to CSV
+                  </button>
+                )}
               </div>
             </div>
 
