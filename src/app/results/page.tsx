@@ -248,7 +248,7 @@ export default function ResultsPage() {
                 apt.isManual
                   ? "border-blue-500/60 ring-2 ring-blue-500/15 shadow-lg"
                   : "border-slate-200/80 shadow-sm"
-              } hover:shadow-xl transition-all duration-300 flex flex-col group [transform:translateZ(0)]`}
+              } hover:shadow-xl transition-all duration-300 flex flex-col group`}
             >
               {/* Image Preview */}
               <div className="relative h-60 w-full overflow-hidden bg-slate-100">
@@ -256,7 +256,8 @@ export default function ResultsPage() {
                   src={apt.images?.[0] || "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80"}
                   alt={apt.title}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 380px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
                 {/* Rent Badge */}

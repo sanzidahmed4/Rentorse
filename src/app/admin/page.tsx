@@ -383,6 +383,11 @@ export default function AdminDashboardPage() {
         router.replace("/admin/login");
         return;
       }
+      if (!res.ok && res.status >= 500) {
+        // Server error: don't crash, let finally run to clear loading state
+        console.warn("Dashboard API server error:", res.status);
+        return;
+      }
 
       const data = await res.json();
       if (data.success) {

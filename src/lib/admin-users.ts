@@ -157,6 +157,11 @@ export async function getAllAdminUsers(): Promise<IAdminUser[]> {
         }
         return mapped;
       }
+
+      // MongoDB connected but collection is empty → seed default root users
+      try {
+        await syncSeedUsersToDatabase();
+      } catch (_) {}
     }
   } catch (err) {
     console.error("Error reading admin users from MongoDB:", err);

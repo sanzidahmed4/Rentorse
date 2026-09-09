@@ -42,11 +42,12 @@ export default async function HomePage() {
         {/* Background Apartment Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <Image
-            src="/hero-background.png"
+            src="/hero-background.webp"
             alt="Apartment Interior Background"
             fill
             priority
-            className="object-cover object-center animate-subtle-drift will-change-transform"
+            sizes="100vw"
+            className="object-cover object-center"
           />
           {/* Gradient Overlay for Text Readability & Brand Color */}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-blue-950/75 to-blue-950/90" />
@@ -91,7 +92,7 @@ export default async function HomePage() {
       {/* INVENTORY CATEGORIES */}
       <section id="categories" className="bg-slate-50 relative pb-20">
         {/* DYNAMIC STATISTICS (From MongoDB / Admin) - Elevated Floating Card */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-14 sm:-mt-16 [transform:translateZ(0)]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-14 sm:-mt-16">
           <div className="bg-white border border-slate-200/80 py-7 sm:py-8 px-6 sm:px-8 rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/60">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-slate-100">
               <div className="pt-3 md:pt-0">
@@ -158,7 +159,7 @@ export default async function HomePage() {
               return (
                 <div
                   key={apt._id || apt.id}
-                  className="group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col [transform:translateZ(0)]"
+                  className="group bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col"
                 >
                   {/* Photo Container */}
                   <Link href={targetUrl} className="relative h-60 w-full overflow-hidden bg-slate-100 block">
@@ -169,7 +170,8 @@ export default async function HomePage() {
                       }
                       alt={apt.title}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
                     {/* Featured Amber Badge */}
@@ -272,7 +274,7 @@ export default async function HomePage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how-it-works" className="py-20 bg-white">
+      <section id="how-it-works" className="py-20 bg-white content-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-xs uppercase tracking-widest font-bold text-blue-600 mb-2">
@@ -335,7 +337,7 @@ export default async function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section id="testimonials" className="py-20 bg-slate-50 border-t border-slate-100">
+      <section id="testimonials" className="py-20 bg-slate-50 border-t border-slate-100 content-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-xs uppercase tracking-widest font-bold text-blue-600 mb-2">
@@ -396,7 +398,7 @@ export default async function HomePage() {
       </section>
 
       {/* FAQ SECTION */}
-      <section id="faq" className="py-20 bg-white">
+      <section id="faq" className="py-20 bg-white content-auto">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-xs uppercase tracking-widest font-bold text-blue-600 mb-2">

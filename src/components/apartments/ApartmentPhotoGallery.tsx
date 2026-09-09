@@ -92,7 +92,7 @@ export default function ApartmentPhotoGallery({
               src={validImages[0]}
               alt={title}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
               priority
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
@@ -114,7 +114,7 @@ export default function ApartmentPhotoGallery({
                   src={img}
                   alt={`${title} photo ${idx + 1}`}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
               </div>
@@ -132,7 +132,7 @@ export default function ApartmentPhotoGallery({
                 src={validImages[0]}
                 alt={title}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
                 priority
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
@@ -149,7 +149,7 @@ export default function ApartmentPhotoGallery({
                   src={validImages[1]}
                   alt={`${title} interior`}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
               </div>
@@ -163,7 +163,7 @@ export default function ApartmentPhotoGallery({
                   src={validImages[2]}
                   alt={`${title} layout`}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500 will-change-transform"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
                 {remainingCount > 0 ? (

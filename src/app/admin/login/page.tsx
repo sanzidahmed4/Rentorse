@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Lock, User, ShieldAlert, Loader2, Eye, EyeOff } from "lucide-react";
@@ -12,6 +12,18 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const redir = params.get("redirect");
+      // Only allow redirects within /admin/* paths to prevent open redirect attacks
+      if (redir && redir.startsWith("/admin") && !redir.includes("//") && !redir.includes("..")) {
+        setRedirectUrl(redir);
+      }
+    } catch (_) {}
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +42,9 @@ export default function AdminLoginPage() {
         try {
           localStorage.setItem("apartmento_admin_active_tab", "overview");
         } catch (_) {}
-        router.replace("/admin?tab=overview");
+        // Navigate to the originally requested page, or overview as fallback
+        const destination = redirectUrl || "/admin?tab=overview";
+        router.replace(destination);
         router.refresh();
       } else {
         setError(data.error || "Invalid username or password");

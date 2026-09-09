@@ -99,7 +99,11 @@ export default function AdminUserDetailPage() {
     try {
       const res = await fetch("/api/admin/dashboard");
       if (res.status === 401) {
-        router.replace("/admin/login");
+        const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+        const loginUrl = currentPath
+          ? `/admin/login?redirect=${encodeURIComponent(currentPath)}`
+          : "/admin/login";
+        router.replace(loginUrl);
         return;
       }
       const data = await res.json();

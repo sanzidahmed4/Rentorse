@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Loader2, Building2 } from "lucide-react";
 
@@ -27,49 +26,14 @@ export default function HeroSearchBox() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [matchedCount, setMatchedCount] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const updateCoords = () => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setCoords({
-        top: rect.bottom + window.scrollY + 8,
-        left: rect.left + window.scrollX,
-        width: rect.width,
-      });
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      updateCoords();
-      window.addEventListener("scroll", updateCoords, { passive: true });
-      window.addEventListener("resize", updateCoords);
-      return () => {
-        window.removeEventListener("scroll", updateCoords);
-        window.removeEventListener("resize", updateCoords);
-      };
-    }
-  }, [isOpen]);
-
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      const target = e.target as Node;
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(target) &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(target)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     }
@@ -129,13 +93,9 @@ export default function HeroSearchBox() {
           <input
             type="text"
             value={query}
-            onFocus={() => {
-              updateCoords();
-              setIsOpen(true);
-            }}
+            onFocus={() => setIsOpen(true)}
             onChange={(e) => {
               setQuery(e.target.value);
-              updateCoords();
               setIsOpen(true);
             }}
             placeholder="Enter an address, neighborhood, city, or ZIP code"
@@ -169,17 +129,11 @@ export default function HeroSearchBox() {
         </div>
       )}
 
-      {/* Interactive Live Inventory Dropdown (Portaled to body for absolute top layer) */}
-      {mounted && isOpen && !isSubmitting && coords && createPortal(
+      {/* Interactive Live Inventory Dropdown */}
+      {isOpen && !isSubmitting && (
         <div
           ref={dropdownRef}
-          style={{
-            position: "absolute",
-            top: `${coords.top}px`,
-            left: `${coords.left}px`,
-            width: `${coords.width}px`,
-          }}
-          className="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-[9999] text-left animate-in fade-in slide-in-from-top-2 duration-150"
+          className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 text-left animate-in fade-in slide-in-from-top-2 duration-150"
         >
           <div className="p-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs text-slate-500 font-semibold uppercase tracking-wider">
             <span>Live Available Rental Inventory</span>
@@ -247,8 +201,7 @@ export default function HeroSearchBox() {
               </button>
             ))}
           </div>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   );

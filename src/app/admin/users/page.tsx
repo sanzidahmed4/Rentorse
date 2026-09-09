@@ -78,7 +78,7 @@ export default function AdminUsersPage() {
     try {
       const res = await fetch("/api/admin/dashboard");
       if (res.status === 401) {
-        router.replace("/admin/login");
+        router.replace("/admin/login?redirect=%2Fadmin%2Fusers");
         return;
       }
       const data = await res.json();
