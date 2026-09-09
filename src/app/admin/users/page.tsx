@@ -454,8 +454,6 @@ export default function AdminUsersPage() {
                           <div className="flex items-center gap-3.5">
                             <Link
                               href={`/admin/users/${user.username}`}
-                              target="_blank"
-                              rel="noreferrer"
                               className={`w-10 h-10 rounded-2xl text-white flex items-center justify-center font-black text-sm uppercase shadow-xs transition hover:scale-105 flex-shrink-0 ${
                                 user.role === "admin"
                                   ? "bg-gradient-to-tr from-blue-600 to-indigo-500"
@@ -469,10 +467,8 @@ export default function AdminUsersPage() {
                               <div className="flex items-center gap-2 flex-wrap">
                                 <Link
                                   href={`/admin/users/${user.username}`}
-                                  target="_blank"
-                                  rel="noreferrer"
                                   className="font-black text-slate-900 hover:text-blue-600 transition flex items-center gap-1 group/link"
-                                  title={`Click to view full details for @${user.username} in a new tab`}
+                                  title={`Click to view full details for @${user.username}`}
                                 >
                                   <span>{user.displayName || user.username}</span>
                                   <ArrowUpRight className="w-3.5 h-3.5 text-blue-600 opacity-0 group-hover/link:opacity-100 transition" />
@@ -492,8 +488,6 @@ export default function AdminUsersPage() {
                               </div>
                               <Link
                                 href={`/admin/users/${user.username}`}
-                                target="_blank"
-                                rel="noreferrer"
                                 className="text-[11px] font-mono text-slate-400 hover:text-blue-600 block mt-0.5 transition"
                               >
                                 @{user.username}
@@ -575,10 +569,8 @@ export default function AdminUsersPage() {
                           <div className="flex items-center justify-end gap-1.5">
                             <Link
                               href={`/admin/users/${user.username}`}
-                              target="_blank"
-                              rel="noreferrer"
                               className="p-2 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition cursor-pointer"
-                              title="View Full Content Details in new tab"
+                              title="View Full Content Details"
                             >
                               <Eye className="w-4 h-4" />
                             </Link>
