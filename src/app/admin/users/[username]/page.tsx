@@ -140,9 +140,10 @@ export default function AdminUserDetailPage() {
   const isProtected = isRootFounder || isSelf;
 
   // Filter user's listed apartments
-  const userApartments = apartments.filter(
-    (apt) => apt.createdBy && apt.createdBy.toLowerCase() === targetUsername
-  );
+  const userApartments = apartments.filter((apt) => {
+    const creator = (apt.createdBy || (targetUsername === "sanzid" ? "sanzid" : "")).toLowerCase();
+    return creator === targetUsername;
+  });
 
   const totalUserApartments = userApartments.length;
   const liveAptCount = userApartments.filter((a) => a.isActive).length;
