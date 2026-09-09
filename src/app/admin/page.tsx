@@ -24,6 +24,7 @@ import {
   PawPrint,
   LogOut,
   Sliders,
+  LayoutDashboard,
   Calendar,
   X,
   Check,
@@ -1204,7 +1205,7 @@ export default function AdminDashboardPage() {
             { id: "overview", label: "Overview", icon: TrendingUp },
             { id: "leads", label: loading ? "Leads CRM" : `Leads CRM (${leads.length})`, icon: Users },
             { id: "apartments", label: loading ? "Apartment Inventory" : `Apartment Inventory (${apartments.length})`, icon: Building2 },
-            { id: "stats", label: "Homepage Stats & Footer Info", icon: Sliders },
+            { id: "stats", label: "Dashboard", icon: LayoutDashboard },
             { id: "admins", label: "Admin", icon: ShieldCheck },
           ]
             .filter((tab) => {
@@ -2154,11 +2155,11 @@ export default function AdminDashboardPage() {
           <div className="max-w-4xl space-y-6 animate-in fade-in">
             <div>
               <h2 className="text-xl font-black text-slate-900 flex items-center gap-2.5">
-                <Sliders className="w-6 h-6 text-blue-600" />
-                Site Settings, Statistics & Footer Information
+                <LayoutDashboard className="w-6 h-6 text-blue-600" />
+                Dashboard Settings, Statistics & Footer Information
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Customize the dynamic numbers on the homepage floating stats card, and update the global footer contact & support info.
+                Customize the live statistics and update the global footer contact & support channels.
               </p>
             </div>
 
