@@ -550,6 +550,7 @@ export default function AdminDashboardPage() {
   };
 
   const [revokingSessions, setRevokingSessions] = useState(false);
+  const [resettingLogs, setResettingLogs] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -604,6 +605,42 @@ export default function AdminDashboardPage() {
       showToast("Network error while revoking sessions");
     } finally {
       setRevokingSessions(false);
+    }
+  };
+
+  const handleResetAllLogs = async () => {
+    if (currentUserRole !== "admin") return;
+    if (
+      !confirm(
+        "Are you sure you want to reset and clear all login activity and audit trail records? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    setResettingLogs(true);
+    try {
+      const res = await fetch("/api/admin/logs", { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAdminLogs([]);
+        try {
+          const cached = sessionStorage.getItem("apartmento_admin_cache");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.adminLogs = [];
+            sessionStorage.setItem("apartmento_admin_cache", JSON.stringify(parsed));
+          }
+        } catch (_) {}
+        showToast("All login activity and audit trail records have been reset successfully.");
+      } else {
+        showToast(data.error || "Failed to reset login activity logs.");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Network error while resetting login activity logs.");
+    } finally {
+      setResettingLogs(false);
     }
   };
 
@@ -2715,13 +2752,25 @@ export default function AdminDashboardPage() {
                       <option value="FAILED">Failed</option>
                     </select>
 
+                    {currentUserRole === "admin" && adminLogs.length > 0 && (
+                      <button
+                        onClick={handleResetAllLogs}
+                        disabled={resettingLogs}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white text-xs font-bold border border-rose-200 shadow-xs transition cursor-pointer disabled:cursor-not-allowed whitespace-nowrap"
+                        title="Reset and clear all login audit trail records"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        {resettingLogs ? "Resetting..." : "Reset All"}
+                      </button>
+                    )}
+
                     <button
                       onClick={handleLogoutAllDevices}
                       disabled={revokingSessions}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold border border-rose-200 shadow-xs transition cursor-pointer disabled:cursor-not-allowed whitespace-nowrap"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold border border-slate-200 shadow-xs transition cursor-pointer disabled:cursor-not-allowed whitespace-nowrap"
                       title="Terminate all active admin sessions across all devices immediately"
                     >
-                      <Shield className="w-3.5 h-3.5 text-rose-600" />
+                      <Shield className="w-3.5 h-3.5 text-slate-600" />
                       {revokingSessions ? "Revoking Sessions..." : "Log Out All Devices"}
                     </button>
                   </div>

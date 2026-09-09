@@ -108,9 +108,9 @@ function loadPersistedLogs(): IAdminLoginLog[] {
   try {
     if (fs.existsSync(LOGS_FILE)) {
       const data = fs.readFileSync(LOGS_FILE, "utf-8");
-      if (!data || !data.trim()) return getInitialSeedLogs();
+      if (!data || !data.trim()) return [];
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed;
       }
     }
@@ -118,7 +118,7 @@ function loadPersistedLogs(): IAdminLoginLog[] {
     console.error("Error reading admin logs file:", e);
   }
 
-  // Seed initial realistic activity logs so the dashboard is immediately populated
+  // Seed initial realistic activity logs only if file never existed
   const initial = getInitialSeedLogs();
   savePersistedLogs(initial);
   return initial;
@@ -355,12 +355,14 @@ export async function getAdminAuditData(): Promise<{
 }> {
   // 1. Fetch logs from local cache (persisted JSON) or MongoDB
   let logs: IAdminLoginLog[] = globalThis.__apartmento_admin_logs_cache || loadPersistedLogs();
+  let dbQueried = false;
 
   try {
     const isDb = await connectToDatabase();
     if (isDb) {
       const dbLogs = await AdminLog.find().sort({ createdAt: -1 }).limit(100).lean();
-      if (dbLogs && dbLogs.length > 0) {
+      if (Array.isArray(dbLogs)) {
+        dbQueried = true;
         logs = dbLogs.map((doc: any) => ({
           id: String(doc._id || doc.id),
           username: doc.username,
@@ -370,13 +372,14 @@ export async function getAdminAuditData(): Promise<{
           status: doc.status,
           createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : String(doc.createdAt),
         }));
+        globalThis.__apartmento_admin_logs_cache = logs;
       }
     }
   } catch (err) {
     console.error("Error reading admin logs from MongoDB, using local cache:", err);
   }
 
-  if (!logs || logs.length === 0) {
+  if (!dbQueried && (!logs || !Array.isArray(logs))) {
     logs = loadPersistedLogs();
   }
 
@@ -384,7 +387,6 @@ export async function getAdminAuditData(): Promise<{
   const activityMap = globalThis.__apartmento_admin_activity || loadPersistedActivity();
   globalThis.__apartmento_admin_activity = activityMap;
   const registeredUsers = await getAllAdminUsers();
-
 
   // 2. Aggregate stats for each registered user
   const users: IAdminUserSummary[] = registeredUsers
@@ -411,7 +413,7 @@ export async function getAdminAuditData(): Promise<{
         lastActiveAt: activity ? new Date(activity.lastActiveAt).toISOString() : (lastSuccessLog?.createdAt || null),
         lastIp: activity?.lastIp || lastSuccessLog?.ip || "127.0.0.1",
         lastDevice: lastSuccessLog ? `${lastSuccessLog.device} (${lastSuccessLog.browser})` : "Mac (Chrome)",
-        totalLogins: Math.max(userLogs.length, 1),
+        totalLogins: Math.max(userLogs.length, 0),
       };
     });
 
@@ -419,4 +421,37 @@ export async function getAdminAuditData(): Promise<{
     users,
     logs: logs.slice(0, 100),
   };
+}
+
+/**
+ * Clear all admin login activity and audit logs
+ */
+export async function clearAllAdminLogs(): Promise<{ success: boolean; count: number }> {
+  let count = 0;
+
+  // 1. Delete from MongoDB if available
+  try {
+    const isDb = await connectToDatabase();
+    if (isDb) {
+      const res = await AdminLog.deleteMany({});
+      count = res.deletedCount || 0;
+    }
+  } catch (err) {
+    console.error("Error clearing logs from MongoDB:", err);
+  }
+
+  // 2. Clear persisted JSON file
+  ensureDataDir();
+  try {
+    const current = loadPersistedLogs();
+    if (!count) count = current.length;
+    fs.writeFileSync(LOGS_FILE, JSON.stringify([], null, 2), "utf-8");
+  } catch (err) {
+    console.error("Error clearing admin logs file:", err);
+  }
+
+  // 3. Clear memory cache
+  globalThis.__apartmento_admin_logs_cache = [];
+
+  return { success: true, count };
 }
