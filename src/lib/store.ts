@@ -202,8 +202,8 @@ export async function getApartments(filter?: {
             ...item,
             _id: (item as { _id?: unknown })._id?.toString(),
             serialNumber: serial,
-            createdBy: (item as any).createdBy || "sanzid",
-            createdByName: (item as any).createdByName || "Sanzid",
+            createdBy: (item as any).createdBy || ((item as any).isManual ? "sanzid" : "system"),
+            createdByName: (item as any).createdByName || ((item as any).isManual ? "Sanzid" : "System Inventory"),
           };
         }) as unknown as IApartment[];
 

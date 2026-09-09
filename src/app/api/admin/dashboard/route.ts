@@ -75,8 +75,8 @@ export async function GET(req: Request) {
     _id: `apt_${idx + 1}`,
     serialNumber: apt.serialNumber || idx + 1,
     isManual: false,
-    createdBy: "sanzid",
-    createdByName: "Sanzid",
+    createdBy: "system",
+    createdByName: "System Inventory",
   }));
 
   const seedUsers = getDefaultSeedUsers();

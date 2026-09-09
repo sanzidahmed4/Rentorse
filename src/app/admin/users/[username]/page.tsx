@@ -141,7 +141,7 @@ export default function AdminUserDetailPage() {
 
   // Filter user's listed apartments
   const userApartments = apartments.filter((apt) => {
-    const creator = (apt.createdBy || (targetUsername === "sanzid" ? "sanzid" : "")).toLowerCase();
+    const creator = (apt.createdBy || "").toLowerCase();
     return creator === targetUsername;
   });
 
