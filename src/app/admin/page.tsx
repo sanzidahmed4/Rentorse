@@ -1899,7 +1899,6 @@ export default function AdminDashboardPage() {
                         <th className="py-3.5 px-4 font-semibold">Furnished</th>
                         <th className="py-3.5 px-4 font-semibold">Pet Policy</th>
                         <th className="py-3.5 px-4 font-semibold text-center">Status</th>
-                        <th className="py-3.5 px-4 font-semibold text-center">Featured on Home</th>
                         <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
                       </tr>
                     </thead>
@@ -2028,27 +2027,6 @@ export default function AdminDashboardPage() {
                             </button>
                           </td>
 
-                          {/* Featured on Homepage One-Click Toggle */}
-                          <td className="py-3.5 px-4 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleToggleFeatured(apt)}
-                              title={apt.featured ? "Click to remove from homepage feature" : "Click to feature on homepage"}
-                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer inline-flex items-center gap-1.5 ${
-                                apt.featured
-                                  ? "bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100 shadow-sm"
-                                  : "bg-slate-50 text-slate-400 border-slate-200 hover:bg-slate-100 hover:text-slate-600"
-                              }`}
-                            >
-                              <Star
-                                className={`w-3 h-3 ${
-                                  apt.featured ? "fill-amber-500 text-amber-500" : "text-slate-300"
-                                }`}
-                              />
-                              {apt.featured ? "Featured" : "Standard"}
-                            </button>
-                          </td>
-
                           <td className="py-3.5 px-4 text-right whitespace-nowrap">
                             <button
                               onClick={() => {
@@ -2084,7 +2062,7 @@ export default function AdminDashboardPage() {
                       ))}
                       {filteredApartments.length === 0 && (
                         <tr>
-                          <td colSpan={10} className="py-8 text-center text-slate-400">
+                          <td colSpan={9} className="py-8 text-center text-slate-400">
                             No matching apartments found. Try adjusting your filters.
                           </td>
                         </tr>
