@@ -1994,8 +1994,8 @@ export default function AdminDashboardPage() {
                             )}
                           </td>
 
-                          <td className="py-3.5 px-4 text-slate-700">
-                            {apt.bedrooms} Bed / {apt.bathrooms} Bath ({apt.squareFeet} sq ft)
+                          <td className="py-3.5 px-4 text-slate-700 whitespace-nowrap">
+                            {apt.bedrooms} Bed / {apt.bathrooms} Bath
                           </td>
 
                           <td className="py-3.5 px-4 font-bold text-emerald-600">
