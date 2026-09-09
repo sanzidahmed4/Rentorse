@@ -1200,40 +1200,72 @@ export default function AdminDashboardPage() {
 
       {/* Main Admin Area */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 flex-1 space-y-6">
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-4 overflow-x-auto">
-          {[
-            { id: "overview", label: "Overview", icon: TrendingUp },
-            { id: "leads", label: loading ? "Leads CRM" : `Leads CRM (${leads.length})`, icon: Users },
-            { id: "apartments", label: loading ? "Apartment Inventory" : `Apartment Inventory (${apartments.length})`, icon: Building2 },
-            { id: "stats", label: "Dashboard", icon: LayoutDashboard },
-            { id: "admins", label: "Admin", icon: ShieldCheck },
-          ]
-            .filter((tab) => {
-              if (currentUserRole === "editor") {
-                return tab.id === "overview" || tab.id === "leads" || tab.id === "apartments";
-              }
-              return true;
-            })
-            .map((tab) => {
-            const Icon = tab.icon;
-            const active = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                suppressHydrationWarning
-                onClick={() => handleTabChange(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer ${
-                  active
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                }`}
+        {/* Navigation Tabs & Header Actions */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+            {[
+              { id: "overview", label: "Overview", icon: TrendingUp },
+              { id: "leads", label: loading ? "Leads CRM" : `Leads CRM (${leads.length})`, icon: Users },
+              { id: "apartments", label: loading ? "Apartment Inventory" : `Apartment Inventory (${apartments.length})`, icon: Building2 },
+              { id: "stats", label: "Dashboard", icon: LayoutDashboard },
+              { id: "admins", label: "Admin", icon: ShieldCheck },
+            ]
+              .filter((tab) => {
+                if (currentUserRole === "editor") {
+                  return tab.id === "overview" || tab.id === "leads" || tab.id === "apartments";
+                }
+                return true;
+              })
+              .map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  suppressHydrationWarning
+                  onClick={() => handleTabChange(tab.id as any)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap cursor-pointer ${
+                    active
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* For Editor users on Leads CRM tab: search box & status filter placed directly in tab bar */}
+          {currentUserRole === "editor" && activeTab === "leads" && (
+            <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
+              <div className="relative w-full sm:w-64 md:w-72 lg:w-80">
+                <Search className="w-4 h-4 absolute left-3.5 top-2.5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, phone, email, or city..."
+                  value={leadSearchQuery}
+                  onChange={(e) => setLeadSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-900 outline-none focus:border-blue-500 transition shadow-xs"
+                />
+              </div>
+
+              <select
+                value={leadStatusFilter}
+                onChange={(e) => setLeadStatusFilter(e.target.value)}
+                className="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 outline-none focus:border-blue-500 transition shadow-xs cursor-pointer whitespace-nowrap"
               >
-                <Icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            );
-          })}
+                <option value="ALL">All Statuses</option>
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Qualified">Qualified</option>
+                <option value="Matched">Matched</option>
+                <option value="Converted">Converted</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -1467,47 +1499,47 @@ export default function AdminDashboardPage() {
         {/* TAB 2: LEADS CRM */}
         {activeTab === "leads" && (
           <div className="space-y-6">
-            {/* Filter and Export Bar */}
-            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex flex-1 items-center gap-3 w-full md:w-auto">
-                <div className="relative flex-1 max-w-sm">
-                  <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Search by name, phone, email, or city..."
-                    value={leadSearchQuery}
-                    onChange={(e) => setLeadSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
-                  />
+            {/* Filter and Export Bar (Hidden for editor role as it is relocated to the tab bar above) */}
+            {currentUserRole !== "editor" && (
+              <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex flex-1 items-center gap-3 w-full md:w-auto">
+                  <div className="relative flex-1 max-w-sm">
+                    <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by name, phone, email, or city..."
+                      value={leadSearchQuery}
+                      onChange={(e) => setLeadSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition"
+                    />
+                  </div>
+
+                  <select
+                    value={leadStatusFilter}
+                    onChange={(e) => setLeadStatusFilter(e.target.value)}
+                    className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 outline-none focus:bg-white focus:border-blue-500 transition"
+                  >
+                    <option value="ALL">All Statuses</option>
+                    <option value="New">New</option>
+                    <option value="Contacted">Contacted</option>
+                    <option value="Qualified">Qualified</option>
+                    <option value="Matched">Matched</option>
+                    <option value="Converted">Converted</option>
+                    <option value="Closed">Closed</option>
+                  </select>
                 </div>
 
-                <select
-                  value={leadStatusFilter}
-                  onChange={(e) => setLeadStatusFilter(e.target.value)}
-                  className="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 outline-none focus:bg-white focus:border-blue-500 transition"
-                >
-                  <option value="ALL">All Statuses</option>
-                  <option value="New">New</option>
-                  <option value="Contacted">Contacted</option>
-                  <option value="Qualified">Qualified</option>
-                  <option value="Matched">Matched</option>
-                  <option value="Converted">Converted</option>
-                  <option value="Closed">Closed</option>
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
-                {currentUserRole === "admin" && leads.length > 0 && (
-                  <button
-                    onClick={handleClearAllLeads}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs border border-rose-200 transition cursor-pointer"
-                    title="Delete and reset all leads"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    Reset All Leads
-                  </button>
-                )}
-                {currentUserRole !== "editor" && (
+                <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
+                  {currentUserRole === "admin" && leads.length > 0 && (
+                    <button
+                      onClick={handleClearAllLeads}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold text-xs border border-rose-200 transition cursor-pointer"
+                      title="Delete and reset all leads"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Reset All Leads
+                    </button>
+                  )}
                   <button
                     onClick={exportLeadsToCSV}
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition cursor-pointer"
@@ -1515,9 +1547,9 @@ export default function AdminDashboardPage() {
                     <Download className="w-3.5 h-3.5" />
                     Export to CSV
                   </button>
-                )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Leads Table */}
             <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
