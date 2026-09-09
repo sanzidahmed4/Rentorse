@@ -2270,9 +2270,6 @@ export default function AdminDashboardPage() {
                           placeholder="e.g. leasing@apartmento.us"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-semibold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
-                        <p className="text-[11px] text-slate-400 mt-1">
-                          Clickable mailto link for prospective renters.
-                        </p>
                       </div>
 
                       <div>
@@ -2287,9 +2284,6 @@ export default function AdminDashboardPage() {
                           placeholder="e.g. +1 (800) 492-7836"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-semibold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
-                        <p className="text-[11px] text-slate-400 mt-1">
-                          Clickable tel hotline link for phone calls.
-                        </p>
                       </div>
                     </div>
                   </div>
