@@ -3909,6 +3909,7 @@ export default function AdminDashboardPage() {
                 <input
                   type="password"
                   required
+                  autoComplete="new-password"
                   value={newUserData.password}
                   onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
                   placeholder="Minimum 6 characters"

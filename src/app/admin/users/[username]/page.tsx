@@ -1368,6 +1368,7 @@ export default function AdminUserDetailPage() {
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
                       value={editFormData.newPassword}
                       onChange={(e) => setEditFormData({ ...editFormData, newPassword: e.target.value })}
                       placeholder="Enter new password (min 6 chars)"
@@ -1390,6 +1391,7 @@ export default function AdminUserDetailPage() {
                     <label className="text-[11px] font-semibold text-slate-600">Confirm New Password</label>
                     <input
                       type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
                       value={editFormData.confirmPassword}
                       onChange={(e) => setEditFormData({ ...editFormData, confirmPassword: e.target.value })}
                       placeholder="Re-type new password"
