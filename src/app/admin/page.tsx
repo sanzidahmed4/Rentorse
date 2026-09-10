@@ -533,6 +533,14 @@ export default function AdminDashboardPage() {
             })
           );
         } catch (_) {}
+
+        try {
+          const pendingToast = sessionStorage.getItem("apartmento_toast");
+          if (pendingToast) {
+            sessionStorage.removeItem("apartmento_toast");
+            showToast(pendingToast);
+          }
+        } catch (_) {}
       }
     } catch (err) {
       console.error("Error loading admin data:", err);
@@ -1966,43 +1974,12 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => {
-                      setEditingApt({
-                        title: "",
-                        slug: `apt-${Date.now()}`,
-                        addressTemplate: "",
-                        description: "",
-                        category: "1B1B",
-                        bedrooms: 1,
-                        bathrooms: 1,
-                        propertyType: "Apartment",
-                        climate: "Central AC & Heating",
-                        laundry: "In-unit laundry",
-                        parking: "Street parking",
-                        cityState: "",
-                        baseRent: 0,
-                        squareFeet: 0,
-                        furnished: "Unfurnished",
-                        hasKitchen: true,
-                        petPolicy: "Dogs & Cats Allowed",
-                        amenities: ["Air Conditioning", "Wi-Fi", "Dishwasher"],
-                        images: [],
-                        featured: false,
-                        isActive: true,
-                        deposit: 0,
-                        availableDate: "Immediate",
-                        rating: 4.8,
-                        reviewsCount: 15,
-                        isManual: true,
-                      });
-                      setImageInputUrl("");
-                      setIsNewAptModal(true);
-                    }}
+                  <Link
+                    href="/admin/apartments/new"
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" /> Add Apartment
-                  </button>
+                  </Link>
                 </div>
               </div>
 
