@@ -16,7 +16,7 @@ export default function FindApartmentPage() {
         <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-3">
           Instant Rental Matching
         </span>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight whitespace-nowrap sm:whitespace-normal">
           Find Your Ideal USA Apartment
         </h1>
         <p className="text-slate-600 text-sm sm:text-base mt-2 max-w-xl mx-auto">
