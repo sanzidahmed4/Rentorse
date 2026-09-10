@@ -213,6 +213,26 @@ export function matchLocation(apartmentAddress: string, userQuery: string): Loca
   }
 
   // 4. State-wide Match (e.g. visitor searched "New York", "NY", "New Jersey", "NJ")
+  // IMPORTANT: If user specified a city, only match if apartment is in that same city.
+  // This prevents "Los Angeles, CA" from matching "San Francisco, CA" apartments via CA state.
+  const knownCities = [
+    "new york", "brooklyn", "bronx", "queens", "manhattan",
+    "los angeles", "san francisco", "san diego", "sacramento", "san jose", "fresno",
+    "chicago", "houston", "phoenix", "philadelphia", "dallas", "austin", "fort worth",
+    "miami", "orlando", "tampa", "jacksonville",
+    "seattle", "portland", "denver", "las vegas", "atlanta",
+    "boston", "detroit", "memphis", "nashville", "charlotte",
+    "columbus", "indianapolis", "el paso", "oklahoma city", "albuquerque",
+    "long beach", "virginia beach", "raleigh", "colorado springs", "omaha",
+    "minneapolis", "tulsa", "arlington", "new orleans", "wichita",
+    "bakersfield", "aurora", "anaheim", "santa ana", "riverside",
+    "jersey city", "hoboken", "newark", "paterson",
+    "baltimore", "washington", "louisville", "milwaukee"
+  ];
+
+  // Check if user query includes a specific city name
+  const queryMentionsCity = knownCities.some((city) => normQuery.includes(city));
+
   for (const [code, name] of Object.entries(US_STATES)) {
     const codeRegex = new RegExp(`\\b${code.toLowerCase()}\\b`, "i");
     const nameRegex = new RegExp(`\\b${name.toLowerCase()}\\b`, "i");
@@ -221,11 +241,18 @@ export function matchLocation(apartmentAddress: string, userQuery: string): Loca
     const aptHasState = codeRegex.test(normApt) || nameRegex.test(normApt);
 
     if (queryHasState && aptHasState) {
-      // Check if user is searching for this state specifically
+      // Check if user is searching for this state specifically (no city mentioned)
       const isOnlyState =
         normQuery.trim() === code.toLowerCase() ||
         normQuery.trim() === name.toLowerCase() ||
         normQuery.includes(`state of ${name}`);
+
+      // If user specified a specific city, don't allow a state-only match
+      // (prevents "Los Angeles, CA" from returning "San Francisco, CA" apartments)
+      if (queryMentionsCity && !isOnlyState) {
+        // User typed a city + state combo → require city-level match (already handled above)
+        continue;
+      }
 
       return {
         matches: true,
