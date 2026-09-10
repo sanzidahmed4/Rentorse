@@ -153,51 +153,35 @@ export default function Navbar() {
 
       {/* Mobile Menu dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-3">
+        <div className="md:hidden border-b border-slate-200 bg-white px-4 py-3 space-y-1 text-sm font-medium text-slate-700">
           <Link
-            href="/find-apartment"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 text-white font-semibold text-sm shadow-md"
+            href="/"
+            onClick={(e) => handleScrollTo(e, "home")}
+            className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
           >
-            Start Apartment Match Funnel
+            Home
           </Link>
-          <div className="border-t border-slate-100 pt-3 space-y-2 text-sm font-medium text-slate-700">
-            <Link
-              href="/"
-              onClick={(e) => handleScrollTo(e, "home")}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
-            >
-              Home
-            </Link>
-            <Link
-              href="/#how-it-works"
-              onClick={(e) => handleScrollTo(e, "how-it-works")}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
-            >
-              Guides
-            </Link>
-            <Link
-              href="/#testimonials"
-              onClick={(e) => handleScrollTo(e, "testimonials")}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
-            >
-              Reviews
-            </Link>
-            <Link
-              href="/#faq"
-              onClick={(e) => handleScrollTo(e, "faq")}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
-            >
-              Frequently Asked Questions
-            </Link>
-            <Link
-              href="/admin"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 px-3 rounded-lg hover:bg-slate-50 text-slate-500 text-xs"
-            >
-              Admin Dashboard Login
-            </Link>
-          </div>
+          <Link
+            href="/#how-it-works"
+            onClick={(e) => handleScrollTo(e, "how-it-works")}
+            className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
+          >
+            Guides
+          </Link>
+          <Link
+            href="/#testimonials"
+            onClick={(e) => handleScrollTo(e, "testimonials")}
+            className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
+          >
+            Reviews
+          </Link>
+          <Link
+            href="/#faq"
+            onClick={(e) => handleScrollTo(e, "faq")}
+            className="block py-2 px-3 rounded-lg hover:bg-slate-50 cursor-pointer"
+          >
+            Frequently Asked Questions
+          </Link>
         </div>
       )}
     </header>
