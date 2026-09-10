@@ -38,7 +38,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* HERO SECTION */}
-      <section id="home" className="relative bg-slate-950 text-white pt-[69px] pb-[101px] lg:pt-[85px] lg:pb-[133px] scroll-mt-20">
+      <section id="home" className="relative bg-slate-950 text-white pt-8 pb-14 sm:pt-[69px] sm:pb-[101px] lg:pt-[85px] lg:pb-[133px] scroll-mt-20">
         {/* Background Apartment Image with Gradient Overlay */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <Image
@@ -56,15 +56,15 @@ export default async function HomePage() {
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30 text-center">
-          <div className="inline-block text-blue-300 text-xs sm:text-sm font-semibold tracking-wide mb-3 sm:mb-3.5">
+          <div className="inline-block text-blue-300 text-[11px] sm:text-sm font-semibold tracking-wide mb-2 sm:mb-3.5">
             <span>The Smarter Way to Rent an Apartment</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] mb-4 sm:mb-5">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.2] mb-3 sm:mb-5">
             Find Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-sky-300">Next Apartment</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed mx-auto mb-6 sm:mb-7">
+          <p className="text-xs sm:text-base lg:text-lg text-slate-300 max-w-xl sm:max-w-2xl leading-relaxed mx-auto mb-4 sm:mb-7">
             Discover verified 1, 2, and 3-bedroom rentals across all 50 states. Simply tell us your desired city, budget, and lifestyle requirements—we’ll match you with curated listings in seconds.
           </p>
 
@@ -72,17 +72,17 @@ export default async function HomePage() {
           <HeroSearchBox />
 
           {/* Trust Badges */}
-          <div className="pt-5 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="pt-3.5 sm:pt-5 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs text-slate-400">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
               <span>100% Free Renter Service</span>
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-blue-400" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400" />
               <span>Verified Landlords</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 fill-amber-400" />
               <span>4.9/5 Renter Satisfaction</span>
             </div>
           </div>
@@ -92,7 +92,7 @@ export default async function HomePage() {
       {/* INVENTORY CATEGORIES */}
       <section id="categories" className="bg-slate-50 relative pb-20">
         {/* DYNAMIC STATISTICS (From MongoDB / Admin) - Elevated Floating Card */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-14 sm:-mt-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-10 sm:-mt-16">
           <div className="bg-white border border-slate-200/80 py-7 sm:py-8 px-6 sm:px-8 rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/60">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-slate-100">
               <div className="pt-3 md:pt-0">

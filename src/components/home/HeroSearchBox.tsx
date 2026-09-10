@@ -85,14 +85,14 @@ export default function HeroSearchBox() {
   return (
     <div
       ref={containerRef}
-      className={`w-full max-w-2xl mx-auto relative mb-6 sm:mb-8 ${isOpen ? "z-40" : "z-10"}`}
+      className={`w-full max-w-2xl mx-auto relative mb-4 sm:mb-8 ${isOpen ? "z-40" : "z-10"}`}
     >
       {/* Main Zillow-Style Search Bar */}
       <form
         onSubmit={handleSubmit}
         className="relative flex items-center bg-white rounded-2xl sm:rounded-full shadow-2xl shadow-slate-950/40 border-2 border-white/90 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 transition-all overflow-hidden"
       >
-        <div className="flex-1 flex items-center pl-4 sm:pl-6">
+        <div className="flex-1 flex items-center pl-3.5 sm:pl-6">
           <input
             type="text"
             value={query}
@@ -102,7 +102,7 @@ export default function HeroSearchBox() {
               setIsOpen(true);
             }}
             placeholder="Enter an address, neighborhood, city, or ZIP code"
-            className="w-full py-4 sm:py-4.5 text-slate-900 text-sm sm:text-base font-medium placeholder-slate-400 bg-transparent outline-none"
+            className="w-full py-3 sm:py-4.5 text-slate-900 text-xs sm:text-base font-medium placeholder-slate-400 bg-transparent outline-none"
             disabled={isSubmitting}
           />
         </div>
@@ -112,12 +112,12 @@ export default function HeroSearchBox() {
           type="submit"
           disabled={isSubmitting}
           aria-label="Search available apartments"
-          className="m-1.5 sm:m-2 p-3 sm:p-3.5 rounded-xl sm:rounded-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white transition-all flex items-center justify-center cursor-pointer shadow-md shadow-blue-600/30 flex-shrink-0"
+          className="m-1 sm:m-2 p-2.5 sm:p-3.5 rounded-xl sm:rounded-full bg-blue-600 hover:bg-blue-700 active:scale-95 text-white transition-all flex items-center justify-center cursor-pointer shadow-md shadow-blue-600/30 flex-shrink-0"
         >
           {isSubmitting ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
+            <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
           ) : (
-            <Search className="w-5 h-5 stroke-[2.5]" />
+            <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
           )}
         </button>
       </form>
