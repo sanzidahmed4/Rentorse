@@ -210,13 +210,18 @@ export async function matchApartments(
         .replace(/one\s*bathroom|two\s*bathrooms/gi, "three full bathrooms");
     }
 
-    // Harmonize title layout suffix if present
+    // Harmonize title layout suffix — universal replacement for all bed/bath patterns
     let adaptedTitle = apt.title;
-    if (adaptedTitle.includes("3B/2B") || adaptedTitle.includes("3B/3B")) {
-      adaptedTitle = adaptedTitle.replace(/\s*3B\/[23]B/g, ` ${targetBedrooms}B/${targetBathrooms}B`);
-    } else if (adaptedTitle.includes("2B/2B")) {
-      adaptedTitle = adaptedTitle.replace(/\s*2B\/2B/g, ` ${targetBedrooms}B/${targetBathrooms}B`);
-    }
+    // Replace compact "XB/YB" shorthand (e.g. "1B/1B", "2B/2B", "3B/2B")
+    adaptedTitle = adaptedTitle.replace(
+      /\b\d+B\/\d+B\b/gi,
+      `${targetBedrooms}B/${targetBathrooms}B`
+    );
+    // Replace verbose "X Bed Y Bath" / "X Bed/Y Bath" patterns (e.g. "1 Bed 1 Bath", "2 Bed / 1 Bath")
+    adaptedTitle = adaptedTitle.replace(
+      /\b(\d+)\s*Bed(?:room)?s?\s*[/]?\s*(\d+)\s*Bath(?:room)?s?\b/gi,
+      `${targetBedrooms} Bed ${targetBathrooms} Bath`
+    );
 
     return {
       ...apt,
