@@ -66,24 +66,63 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "RealEstateAgent",
-    name: "Apartmento",
-    description: "USA Apartment Rental Matcher and Qualified Renter Lead Generation",
-    url: "https://apartmento.us",
-    priceRange: "$800 - $1800",
-    areaServed: {
-      "@type": "Country",
-      name: "United States",
+  const jsonLd = [
+    // WebSite schema with SearchAction → enables Google Sitelinks Search Box
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Apartmento",
+      url: "https://apartmento.us",
+      description: "USA Apartment Rental Matching Platform — find verified 1BR, 2BR, and 3BR apartments nationwide.",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://apartmento.us/find-apartment?location={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
     },
-    serviceType: [
-      "Apartment Rental Matching",
-      "Leasing Assistance",
-      "Pet-Friendly Rentals",
-      "Furnished Apartments",
-    ],
-  };
+    // LocalBusiness / RealEstateAgent schema — full service details
+    {
+      "@context": "https://schema.org",
+      "@type": ["RealEstateAgent", "LocalBusiness"],
+      name: "Apartmento",
+      alternateName: "Apartmento USA",
+      description: "Apartmento is a nationwide USA apartment rental matching platform. Find verified 1-bedroom, 2-bedroom, and 3-bedroom rentals in any US city — matched to your exact budget, pet policy, and move-in date.",
+      url: "https://apartmento.us",
+      logo: "https://apartmento.us/apartmento-full-logo.png",
+      image: "https://apartmento.us/site-logo.png",
+      priceRange: "$800 – $1,800/mo",
+      currenciesAccepted: "USD",
+      areaServed: {
+        "@type": "Country",
+        name: "United States",
+      },
+      serviceType: [
+        "Apartment Rental Matching",
+        "Leasing Assistance",
+        "Pet-Friendly Apartment Search",
+        "Furnished Apartment Search",
+        "1 Bedroom Apartment Search",
+        "2 Bedroom Apartment Search",
+        "3 Bedroom Apartment Search",
+      ],
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "USA Apartment Rentals",
+        itemListElement: [
+          { "@type": "Offer", name: "1 Bed / 1 Bath Apartment", priceCurrency: "USD", priceRange: "$800–$1,200/mo" },
+          { "@type": "Offer", name: "2 Bed / 1 Bath Apartment", priceCurrency: "USD", priceRange: "$900–$1,400/mo" },
+          { "@type": "Offer", name: "2 Bed / 2 Bath Apartment", priceCurrency: "USD", priceRange: "$1,000–$1,600/mo" },
+          { "@type": "Offer", name: "3 Bed / 2 Bath Apartment", priceCurrency: "USD", priceRange: "$1,100–$1,800/mo" },
+        ],
+      },
+      sameAs: [
+        "https://apartmento-ten.vercel.app",
+      ],
+    },
+  ];
 
   return (
     <html lang="en" className="h-full antialiased font-sans">

@@ -51,7 +51,7 @@ export default function Footer() {
   return (
     <footer className="bg-slate-50 text-slate-600 text-sm border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
           {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="inline-block group py-1">
@@ -117,37 +117,75 @@ export default function Footer() {
             <h4 className="text-slate-900 font-bold text-sm mb-4">Top Rental Markets</h4>
             <ul className="space-y-2.5 text-xs sm:text-sm">
               <li>
-                <Link href="/find-apartment" className="text-slate-600 hover:text-blue-600 transition">
-                  New York, NY (11004 & NYC)
+                <Link href="/apartments/location/new-york-ny" className="text-slate-600 hover:text-blue-600 transition">
+                  New York, NY Apartments
                 </Link>
               </li>
               <li>
-                <Link href="/find-apartment" className="text-slate-600 hover:text-blue-600 transition">
-                  Chicago, IL (60007 & Metro)
+                <Link href="/apartments/location/los-angeles-ca" className="text-slate-600 hover:text-blue-600 transition">
+                  Los Angeles, CA Apartments
                 </Link>
               </li>
               <li>
-                <Link href="/find-apartment" className="text-slate-600 hover:text-blue-600 transition">
-                  Houston & Dallas, TX
+                <Link href="/apartments/location/chicago-il" className="text-slate-600 hover:text-blue-600 transition">
+                  Chicago, IL Apartments
                 </Link>
               </li>
               <li>
-                <Link href="/find-apartment" className="text-slate-600 hover:text-blue-600 transition">
-                  Los Angeles & San Diego, CA
+                <Link href="/apartments/location/miami-fl" className="text-slate-600 hover:text-blue-600 transition">
+                  Miami, FL Apartments
                 </Link>
               </li>
               <li>
-                <Link href="/find-apartment" className="text-slate-600 hover:text-blue-600 transition">
-                  Atlanta & Savannah, GA
+                <Link href="/apartments/location/dallas-tx" className="text-slate-600 hover:text-blue-600 transition">
+                  Dallas, TX Apartments
                 </Link>
               </li>
               <li>
-                <Link href="/find-apartment" className="text-slate-600 hover:text-blue-600 transition">
-                  Miami & Tampa, FL
+                <Link href="/apartments/location/austin-tx" className="text-slate-600 hover:text-blue-600 transition">
+                  Austin, TX Apartments
                 </Link>
               </li>
             </ul>
           </div>
+
+          {/* Renter Guides */}
+          <div>
+            <h4 className="text-slate-900 font-bold text-sm mb-4">Renter Guides</h4>
+            <ul className="space-y-2.5 text-xs sm:text-sm">
+              <li>
+                <Link href="/guides/how-to-rent-apartment-usa" className="text-slate-600 hover:text-blue-600 transition">
+                  How to Rent in the USA
+                </Link>
+              </li>
+              <li>
+                <Link href="/guides/pet-friendly-apartments-guide" className="text-slate-600 hover:text-blue-600 transition">
+                  Pet-Friendly Apartments Guide
+                </Link>
+              </li>
+              <li>
+                <Link href="/guides/apartment-hunting-checklist" className="text-slate-600 hover:text-blue-600 transition">
+                  Apartment Hunting Checklist
+                </Link>
+              </li>
+              <li>
+                <Link href="/guides/1-bedroom-vs-2-bedroom-apartment" className="text-slate-600 hover:text-blue-600 transition">
+                  1BR vs 2BR Comparison
+                </Link>
+              </li>
+              <li>
+                <Link href="/guides/furnished-vs-unfurnished-apartment" className="text-slate-600 hover:text-blue-600 transition">
+                  Furnished vs Unfurnished
+                </Link>
+              </li>
+              <li>
+                <Link href="/guides" className="text-blue-600 hover:text-blue-700 font-semibold transition">
+                  All Renter Guides →
+                </Link>
+              </li>
+            </ul>
+          </div>
+
 
           {/* Contact / Portal */}
           <div>

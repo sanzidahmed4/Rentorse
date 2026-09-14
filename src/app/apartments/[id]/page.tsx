@@ -1,6 +1,7 @@
 import { getApartmentByIdOrSlug, getApartments } from "@/lib/store";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Metadata } from "next";
 import { IApartment } from "@/types";
 import { cleanStreetOrIntersection } from "@/lib/us-locations";
 import ApartmentTourCTA from "@/components/booking/ApartmentTourCTA";
@@ -20,6 +21,8 @@ import {
   MapPin,
 } from "lucide-react";
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://apartmento.us";
+
 interface Props {
   params: Promise<{ id: string }>;
   searchParams?: Promise<{
@@ -34,6 +37,78 @@ interface Props {
 export async function generateStaticParams() {
   const apts = await getApartments({ isActive: true });
   return apts.map((a) => ({ id: a.slug || a.id || a._id }));
+}
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const sp = searchParams ? await searchParams : {};
+  const apt = await getApartmentByIdOrSlug(id);
+
+  if (!apt) {
+    return {
+      title: "Apartment Not Found | Apartmento",
+      description: "The apartment you are looking for is no longer available. Browse other verified USA rentals on Apartmento.",
+    };
+  }
+
+  const beds = sp.beds ? Number(sp.beds) : apt.bedrooms;
+  const baths = sp.baths ? Number(sp.baths) : apt.bathrooms;
+  const rent = sp.rent ? Number(sp.rent) : apt.baseRent;
+
+  // Derive city from location fields
+  const rawLocation =
+    sp.loc
+      ? decodeURIComponent(sp.loc)
+      : apt.displayLocation || apt.cityState || apt.addressTemplate || "";
+  const locationParts = rawLocation.split(",").map((p) => p.trim());
+  const cityDisplay = locationParts.length >= 2
+    ? locationParts.slice(-2).join(", ")
+    : rawLocation || "USA";
+
+  // Dynamic title: "2 Bed 1 Bath Apartment in Los Angeles, CA | From $950/mo — Apartmento"
+  const dynamicTitle = `${beds} Bed ${baths} Bath Apartment in ${cityDisplay} | From $${rent}/mo — Apartmento`;
+
+  // Dynamic description: first 145 chars of description + key attributes
+  const descSnippet = apt.description.replace(/\s+/g, " ").slice(0, 140).trim();
+  const amenitiesSnippet = apt.amenities.slice(0, 3).join(", ");
+  const dynamicDesc = `${descSnippet}... ${beds}-bedroom, ${baths}-bathroom rental in ${cityDisplay}. ${apt.furnished} | ${amenitiesSnippet}. From $${rent}/mo. Schedule a tour today.`;
+
+  const ogImage = apt.images?.[0] || `${BASE_URL}/site-logo.png`;
+  const canonicalUrl = `${BASE_URL}/apartments/${apt.slug || id}`;
+
+  return {
+    title: dynamicTitle,
+    description: dynamicDesc.slice(0, 160),
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: dynamicTitle,
+      description: `${beds} Bed / ${baths} Bath | ${cityDisplay} | From $${rent}/mo. ${apt.furnished}. ${amenitiesSnippet}.`,
+      url: canonicalUrl,
+      siteName: "Apartmento",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: `${beds} Bed ${baths} Bath Apartment in ${cityDisplay} — Apartmento`,
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: dynamicTitle,
+      description: `${beds} Bed / ${baths} Bath in ${cityDisplay} | From $${rent}/mo. Available now on Apartmento.`,
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
 }
 
 export default async function ApartmentDetailPage({ params, searchParams }: Props) {
@@ -106,8 +181,62 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
     description: effectiveDescription,
   };
 
+  // Build Apartment JSON-LD schema for Google Rich Results
+  const apartmentSchema = {
+    "@context": "https://schema.org",
+    "@type": "Apartment",
+    name: effectiveApartment.title,
+    description: effectiveApartment.description.slice(0, 300),
+    url: `${BASE_URL}/apartments/${apt.slug || id}`,
+    image: apt.images?.[0] || `${BASE_URL}/site-logo.png`,
+    numberOfRooms: effectiveApartment.bedrooms,
+    numberOfBathroomsTotal: effectiveApartment.bathrooms,
+    floorSize: {
+      "@type": "QuantitativeValue",
+      value: effectiveApartment.squareFeet,
+      unitCode: "FTK",
+    },
+    petsAllowed: apt.petPolicy !== "No Pets",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: effectiveLocation,
+      addressCountry: "US",
+    },
+    offers: {
+      "@type": "Offer",
+      price: effectiveRent,
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: effectiveRent,
+        priceCurrency: "USD",
+        referenceQuantity: {
+          "@type": "QuantitativeValue",
+          value: 1,
+          unitCode: "MON",
+        },
+      },
+    },
+    amenityFeature: apt.amenities.map((a) => ({
+      "@type": "LocationFeatureSpecification",
+      name: a,
+      value: true,
+    })),
+    provider: {
+      "@type": "RealEstateAgent",
+      name: "Apartmento",
+      url: BASE_URL,
+    },
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+      {/* Apartment JSON-LD Schema for Google Rich Results */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(apartmentSchema) }}
+      />
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Navigation Breadcrumb */}
         <div className="flex items-center justify-between">
