@@ -227,7 +227,7 @@ export default function Footer() {
             <Link href="/terms-of-service" className="hover:text-slate-900 transition">
               Terms of Service
             </Link>
-            <Link href="/" className="hover:text-slate-900 transition">
+            <Link href="/equal-housing-opportunity" className="hover:text-slate-900 transition">
               Equal Housing Opportunity
             </Link>
           </div>
