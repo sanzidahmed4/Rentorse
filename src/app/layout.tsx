@@ -3,9 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://apartmento-ten.vercel.app");
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

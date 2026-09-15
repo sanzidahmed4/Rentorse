@@ -5,9 +5,7 @@ import { notFound } from "next/navigation";
 import { getApartments } from "@/lib/store";
 import { BedDouble, Bath, MapPin, ArrowRight, CheckCircle, Building2 } from "lucide-react";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://apartmento-ten.vercel.app");
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
 
 const CITY_DATA: Record<string, {
   name: string; state: string; stateCode: string; zip: string;

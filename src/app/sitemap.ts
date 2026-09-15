@@ -4,9 +4,7 @@ import { getApartments } from "@/lib/store";
 export const revalidate = 3600; // Revalidate sitemap every hour
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://apartmento-ten.vercel.app");
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
 
   // ── Static Core Pages ──────────────────────────────────────────────────────
   const staticRoutes: MetadataRoute.Sitemap = [
