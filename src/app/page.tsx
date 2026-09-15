@@ -18,6 +18,7 @@ import {
 import { getSiteStats, getApartments } from "@/lib/store";
 import FaqAccordion from "@/components/home/FaqAccordion";
 import HeroSearchBox from "@/components/home/HeroSearchBox";
+import RecommendationsNewsletter from "@/components/home/RecommendationsNewsletter";
 
 export const revalidate = 60; // ISR cache revalidation
 
@@ -34,6 +35,10 @@ export default async function HomePage() {
             (a) => !featuredList.some((f) => String(f._id || f.id) === String(a._id || a.id))
           ),
         ].slice(0, 3);
+
+  // Pick 3 real apartments for the recommendation card stack
+  const realApartments = allApartments.filter((apt) => apt.isManual && apt.addressTemplate?.trim());
+  const recommendedApartments = (realApartments.length >= 3 ? realApartments : allApartments).slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -396,6 +401,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* APARTMENT RECOMMENDATIONS & NEWSLETTER SECTION */}
+      <RecommendationsNewsletter apartments={recommendedApartments} />
 
       {/* FAQ SECTION */}
       <section id="faq" className="py-20 bg-white scroll-mt-20 sm:scroll-mt-24">
