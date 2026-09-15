@@ -53,22 +53,21 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
   };
 
   return (
-    <section className="py-16 sm:py-24 bg-slate-50/70 border-t border-slate-100 overflow-hidden">
+    <section className="py-14 sm:py-20 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-8 sm:p-12 lg:p-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* Left Column: Heading, description, and newsletter subscription form */}
-          <div className="lg:col-span-6 space-y-6 max-w-xl">
+          <div className="lg:col-span-6 space-y-5 max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">
               <span>Instant Rental Alerts</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-slate-900 tracking-tight leading-tight">
-              Get apartment <br className="hidden sm:inline" />
-              recommendations
+            <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-extrabold text-slate-900 tracking-tight whitespace-normal sm:whitespace-nowrap">
+              Get apartment recommendations
             </h2>
 
-            <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
               Be the first to know when new apartments match your preferences. Get newly listed rentals delivered directly to your inbox.
             </p>
 
