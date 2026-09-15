@@ -11,7 +11,7 @@ interface FaqItem {
 
 const FAQ_ITEMS: FaqItem[] = [
   {
-    q: "Is Apartmento free for prospective renters?",
+    q: "Is Rentorce free for prospective renters?",
     a: "Yes, 100% free! We never charge renters fees to browse, match, or schedule tours. Property managers and leasing companies coordinate directly with you.",
   },
   {

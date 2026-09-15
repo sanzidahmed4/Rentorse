@@ -59,7 +59,7 @@ export default function ApartmentBookingModal({
 
   useEffect(() => {
     if (isOpen && typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("apartmento_last_search");
+      const stored = sessionStorage.getItem("rentorce_last_search") || sessionStorage.getItem("apartmento_last_search");
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
@@ -117,6 +117,7 @@ export default function ApartmentBookingModal({
       const data = await res.json();
       if (res.ok && data.success) {
         if (typeof window !== "undefined" && data.lead?._id) {
+          sessionStorage.setItem("rentorce_lead_id", data.lead._id);
           sessionStorage.setItem("apartmento_lead_id", data.lead._id);
         }
         setSuccess(true);

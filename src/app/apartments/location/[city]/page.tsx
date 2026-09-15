@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { getApartments } from "@/lib/store";
 import { BedDouble, Bath, MapPin, ArrowRight, CheckCircle, Building2 } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://apartmento.us";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
 
 const CITY_DATA: Record<string, {
   name: string; state: string; stateCode: string; zip: string;
@@ -15,19 +15,19 @@ const CITY_DATA: Record<string, {
   "new-york-ny": {
     name: "New York", state: "New York", stateCode: "NY", zip: "10001",
     tagline: "Apartments for Rent in New York, NY",
-    description: "Find verified 1-bedroom, 2-bedroom, and 3-bedroom apartments for rent in New York City. From Manhattan to Brooklyn and Queens, Apartmento matches you with available rentals tailored to your exact budget and move-in date.",
+    description: "Find verified 1-bedroom, 2-bedroom, and 3-bedroom apartments for rent in New York City. From Manhattan to Brooklyn and Queens, Rentorce matches you with available rentals tailored to your exact budget and move-in date.",
     avgRent: "$1,200 – $1,800",
     neighborhoods: ["Manhattan", "Brooklyn", "Queens", "Bronx", "Jersey City"],
     faqs: [
       { q: "What is the average rent in New York City?", a: "Average rent in New York City ranges from $1,200/mo for a studio to $1,800+/mo for a 2-bedroom apartment, depending on the neighborhood." },
       { q: "Are there pet-friendly apartments in New York?", a: "Yes, many New York apartment buildings allow cats and small dogs. Use our matcher to filter for pet-friendly units." },
-      { q: "How do I find a 2-bedroom apartment in NYC under $1,500?", a: "Use Apartmento's matching system — enter New York as your location and select 2 Bed / 1 Bath with a budget up to $1,500. Our algorithm surfaces the best available matches instantly." },
+      { q: "How do I find a 2-bedroom apartment in NYC under $1,500?", a: "Use Rentorce's matching system — enter New York as your location and select 2 Bed / 1 Bath with a budget up to $1,500. Our algorithm surfaces the best available matches instantly." },
     ],
   },
   "los-angeles-ca": {
     name: "Los Angeles", state: "California", stateCode: "CA", zip: "90012",
     tagline: "Apartments for Rent in Los Angeles, CA",
-    description: "Searching for apartments in Los Angeles? Browse verified 1BR, 2BR, and 3BR rentals across LA neighborhoods including Hollywood, Silver Lake, Koreatown, and Downtown LA. Apartmento matches you with pet-friendly and furnished options at your exact budget.",
+    description: "Searching for apartments in Los Angeles? Browse verified 1BR, 2BR, and 3BR rentals across LA neighborhoods including Hollywood, Silver Lake, Koreatown, and Downtown LA. Rentorce matches you with pet-friendly and furnished options at your exact budget.",
     avgRent: "$1,100 – $1,700",
     neighborhoods: ["Hollywood", "Silver Lake", "Koreatown", "Downtown LA", "Culver City"],
     faqs: [
@@ -39,7 +39,7 @@ const CITY_DATA: Record<string, {
   "chicago-il": {
     name: "Chicago", state: "Illinois", stateCode: "IL", zip: "60007",
     tagline: "Apartments for Rent in Chicago, IL",
-    description: "Find your next apartment in Chicago, Illinois. From Wicker Park to Lincoln Park and the South Loop, Apartmento matches you with available 1-bedroom, 2-bedroom, and 3-bedroom rentals. Verified listings, real budgets.",
+    description: "Find your next apartment in Chicago, Illinois. From Wicker Park to Lincoln Park and the South Loop, Rentorce matches you with available 1-bedroom, 2-bedroom, and 3-bedroom rentals. Verified listings, real budgets.",
     avgRent: "$950 – $1,500",
     neighborhoods: ["Wicker Park", "Lincoln Park", "South Loop", "Logan Square", "Hyde Park"],
     faqs: [
@@ -51,7 +51,7 @@ const CITY_DATA: Record<string, {
   "miami-fl": {
     name: "Miami", state: "Florida", stateCode: "FL", zip: "33130",
     tagline: "Apartments for Rent in Miami, FL",
-    description: "Search for verified apartments in Miami, Florida. From Brickell to Wynwood and Little Havana, Apartmento connects renters with 1BR, 2BR, and 3BR units that match their exact budget, pet policy, and move-in timeline.",
+    description: "Search for verified apartments in Miami, Florida. From Brickell to Wynwood and Little Havana, Rentorce connects renters with 1BR, 2BR, and 3BR units that match their exact budget, pet policy, and move-in timeline.",
     avgRent: "$1,100 – $1,650",
     neighborhoods: ["Brickell", "Wynwood", "Little Havana", "Coral Gables", "Coconut Grove"],
     faqs: [
@@ -63,7 +63,7 @@ const CITY_DATA: Record<string, {
   "dallas-tx": {
     name: "Dallas", state: "Texas", stateCode: "TX", zip: "75201",
     tagline: "Apartments for Rent in Dallas, TX",
-    description: "Find apartments in Dallas, Texas. Browse verified 1BR, 2BR, and 3BR rentals across Uptown, Deep Ellum, Oak Cliff, and the Design District. Apartmento matches your location and budget to available Dallas rentals in minutes.",
+    description: "Find apartments in Dallas, Texas. Browse verified 1BR, 2BR, and 3BR rentals across Uptown, Deep Ellum, Oak Cliff, and the Design District. Rentorce matches your location and budget to available Dallas rentals in minutes.",
     avgRent: "$900 – $1,400",
     neighborhoods: ["Uptown", "Deep Ellum", "Oak Cliff", "Design District", "Knox/Henderson"],
     faqs: [
@@ -75,7 +75,7 @@ const CITY_DATA: Record<string, {
   "austin-tx": {
     name: "Austin", state: "Texas", stateCode: "TX", zip: "78701",
     tagline: "Apartments for Rent in Austin, TX",
-    description: "Looking for an apartment in Austin, Texas? Browse verified rentals in East Austin, South Congress, Downtown, and Round Rock. Apartmento instantly matches your budget and bedroom count with available Austin apartments.",
+    description: "Looking for an apartment in Austin, Texas? Browse verified rentals in East Austin, South Congress, Downtown, and Round Rock. Rentorce instantly matches your budget and bedroom count with available Austin apartments.",
     avgRent: "$1,000 – $1,600",
     neighborhoods: ["East Austin", "South Congress", "Downtown", "Mueller", "Round Rock"],
     faqs: [
@@ -87,7 +87,7 @@ const CITY_DATA: Record<string, {
   "houston-tx": {
     name: "Houston", state: "Texas", stateCode: "TX", zip: "77002",
     tagline: "Apartments for Rent in Houston, TX",
-    description: "Find verified apartments in Houston, Texas. Search 1-bedroom, 2-bedroom, and 3-bedroom rentals in Midtown, The Heights, Montrose, and the Medical Center area. Apartmento matches your exact needs to available Houston inventory.",
+    description: "Find verified apartments in Houston, Texas. Search 1-bedroom, 2-bedroom, and 3-bedroom rentals in Midtown, The Heights, Montrose, and the Medical Center area. Rentorce matches your exact needs to available Houston inventory.",
     avgRent: "$850 – $1,350",
     neighborhoods: ["Midtown", "The Heights", "Montrose", "Museum District", "Energy Corridor"],
     faqs: [
@@ -99,7 +99,7 @@ const CITY_DATA: Record<string, {
   "atlanta-ga": {
     name: "Atlanta", state: "Georgia", stateCode: "GA", zip: "30301",
     tagline: "Apartments for Rent in Atlanta, GA",
-    description: "Search verified apartments in Atlanta, Georgia. From Midtown and Virginia-Highland to West Midtown and Decatur, find 1BR, 2BR, and 3BR rentals matched to your exact budget through Apartmento.",
+    description: "Search verified apartments in Atlanta, Georgia. From Midtown and Virginia-Highland to West Midtown and Decatur, find 1BR, 2BR, and 3BR rentals matched to your exact budget through Rentorce.",
     avgRent: "$950 – $1,500",
     neighborhoods: ["Midtown", "Virginia-Highland", "West Midtown", "Decatur", "Old Fourth Ward"],
     faqs: [
@@ -111,7 +111,7 @@ const CITY_DATA: Record<string, {
   "seattle-wa": {
     name: "Seattle", state: "Washington", stateCode: "WA", zip: "98101",
     tagline: "Apartments for Rent in Seattle, WA",
-    description: "Find apartments for rent in Seattle, Washington. Browse verified 1BR, 2BR, and 3BR units in Capitol Hill, Ballard, South Lake Union, and Fremont. Apartmento matches Seattle renters with available inventory at their exact budget.",
+    description: "Find apartments for rent in Seattle, Washington. Browse verified 1BR, 2BR, and 3BR units in Capitol Hill, Ballard, South Lake Union, and Fremont. Rentorce matches Seattle renters with available inventory at their exact budget.",
     avgRent: "$1,200 – $1,800",
     neighborhoods: ["Capitol Hill", "Ballard", "South Lake Union", "Fremont", "Belltown"],
     faqs: [
@@ -123,7 +123,7 @@ const CITY_DATA: Record<string, {
   "denver-co": {
     name: "Denver", state: "Colorado", stateCode: "CO", zip: "80202",
     tagline: "Apartments for Rent in Denver, CO",
-    description: "Search for apartments in Denver, Colorado. Find verified 1-bedroom, 2-bedroom, and 3-bedroom rentals in RiNo, Capitol Hill, Cherry Creek, and LoDo. Apartmento matches your Denver apartment search to real available inventory.",
+    description: "Search for apartments in Denver, Colorado. Find verified 1-bedroom, 2-bedroom, and 3-bedroom rentals in RiNo, Capitol Hill, Cherry Creek, and LoDo. Rentorce matches your Denver apartment search to real available inventory.",
     avgRent: "$1,050 – $1,600",
     neighborhoods: ["RiNo", "Capitol Hill", "Cherry Creek", "LoDo", "Baker"],
     faqs: [
@@ -135,7 +135,7 @@ const CITY_DATA: Record<string, {
   "phoenix-az": {
     name: "Phoenix", state: "Arizona", stateCode: "AZ", zip: "85001",
     tagline: "Apartments for Rent in Phoenix, AZ",
-    description: "Find apartments for rent in Phoenix, Arizona. Discover 1-bedroom, 2-bedroom, and 3-bedroom rentals across Scottsdale, Tempe, Chandler, and Downtown Phoenix with Apartmento's intelligent rental matching system.",
+    description: "Find apartments for rent in Phoenix, Arizona. Discover 1-bedroom, 2-bedroom, and 3-bedroom rentals across Scottsdale, Tempe, Chandler, and Downtown Phoenix with Rentorce's intelligent rental matching system.",
     avgRent: "$900 – $1,400",
     neighborhoods: ["Scottsdale", "Tempe", "Chandler", "Downtown Phoenix", "Ahwatukee"],
     faqs: [
@@ -147,7 +147,7 @@ const CITY_DATA: Record<string, {
   "philadelphia-pa": {
     name: "Philadelphia", state: "Pennsylvania", stateCode: "PA", zip: "19103",
     tagline: "Apartments for Rent in Philadelphia, PA",
-    description: "Search verified apartments in Philadelphia, Pennsylvania. Browse 1BR, 2BR, and 3BR rentals in Center City, Fishtown, South Philly, and Manayunk. Apartmento matches Philadelphia renters with available inventory at their exact budget.",
+    description: "Search verified apartments in Philadelphia, Pennsylvania. Browse 1BR, 2BR, and 3BR rentals in Center City, Fishtown, South Philly, and Manayunk. Rentorce matches Philadelphia renters with available inventory at their exact budget.",
     avgRent: "$950 – $1,500",
     neighborhoods: ["Center City", "Fishtown", "South Philly", "Manayunk", "Northern Liberties"],
     faqs: [
@@ -167,15 +167,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city } = await params;
   const data = CITY_DATA[city];
-  if (!data) return { title: "Apartments for Rent | Apartmento" };
-  const title = `Apartments for Rent in ${data.name}, ${data.stateCode} | 1BR, 2BR, 3BR — Apartmento`;
+  if (!data) return { title: "Apartments for Rent | Rentorce" };
+  const title = `Apartments for Rent in ${data.name}, ${data.stateCode} | 1BR, 2BR, 3BR — Rentorce`;
   const description = `Find verified 1-bedroom, 2-bedroom, and 3-bedroom apartments for rent in ${data.name}, ${data.stateCode}. Average rent ${data.avgRent}/mo. Pet-friendly and furnished options available. Instant matching — no signup required.`;
   const canonicalUrl = `${BASE_URL}/apartments/location/${city}`;
   return {
     title, description,
     alternates: { canonical: canonicalUrl },
-    openGraph: { title, description, url: canonicalUrl, siteName: "Apartmento", images: [{ url: `${BASE_URL}/site-logo.png`, width: 1200, height: 630, alt: `Apartments in ${data.name}` }], locale: "en_US", type: "website" },
-    twitter: { card: "summary_large_image", title, description, images: [`${BASE_URL}/site-logo.png`] },
+    openGraph: { title, description, url: canonicalUrl, siteName: "Rentorce", images: [{ url: `${BASE_URL}/fulllogo.svg`, width: 1200, height: 630, alt: `Apartments in ${data.name}` }], locale: "en_US", type: "website" },
+    twitter: { card: "summary_large_image", title, description, images: [`${BASE_URL}/fulllogo.svg`] },
   };
 }
 
@@ -189,7 +189,7 @@ export default async function CityLandingPage({ params }: Props) {
 
   const citySchema = {
     "@context": "https://schema.org", "@type": "RealEstateAgent",
-    name: `Apartmento — ${data.name} Apartments`,
+    name: `Rentorce — ${data.name} Apartments`,
     description: data.description,
     url: `${BASE_URL}/apartments/location/${city}`,
     areaServed: { "@type": "City", name: data.name, containedInPlace: { "@type": "State", name: data.state } },

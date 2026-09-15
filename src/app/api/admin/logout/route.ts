@@ -5,6 +5,10 @@ import { getAdminSession } from "@/lib/auth-server";
 export async function POST() {
   const cookieStore = await cookies();
   cookieStore.delete({
+    name: "rentorce_admin_token",
+    path: "/",
+  });
+  cookieStore.delete({
     name: "apartmento_admin_token",
     path: "/",
   });

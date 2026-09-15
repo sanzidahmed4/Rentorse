@@ -222,12 +222,18 @@ export default function ApartmentFinderFunnel() {
       if (res.ok && data.success) {
         // Save search and matches into sessionStorage
         if (typeof window !== "undefined") {
+          sessionStorage.setItem("rentorce_last_search", JSON.stringify(submissionData));
+          sessionStorage.setItem("rentorce_last_matches", JSON.stringify(data.matches));
+          sessionStorage.setItem("rentorce_lead_id", data.leadId);
+          sessionStorage.setItem("rentorce_quiz_completed", "true");
+          // Also set legacy keys for backward compatibility
           sessionStorage.setItem("apartmento_last_search", JSON.stringify(submissionData));
           sessionStorage.setItem("apartmento_last_matches", JSON.stringify(data.matches));
           sessionStorage.setItem("apartmento_lead_id", data.leadId);
           sessionStorage.setItem("apartmento_quiz_completed", "true");
           if (targetApartment) {
             const aptKey = targetApartment.slug || targetApartment._id || targetApartment.id;
+            sessionStorage.setItem(`rentorce_unlocked_${aptKey}`, "true");
             sessionStorage.setItem(`apartmento_unlocked_${aptKey}`, "true");
           }
         }

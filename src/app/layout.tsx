@@ -4,10 +4,10 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://apartmento.us"),
-  title: "Apartmento — Find Verified USA Apartments For Rent | 1B, 2B, 3B Rentals",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com"),
+  title: "Rentorce — Find Verified USA Apartments For Rent | 1B, 2B, 3B Rentals",
   description:
-    "Find your next USA apartment with Apartmento. Verified 1-bed, 2-bed, and 3-bed apartments tailored to your exact city, ZIP code, pet policies, and budget from $800 to $1,800/month.",
+    "Find your next USA apartment with Rentorce. Verified 1-bed, 2-bed, and 3-bed apartments tailored to your exact city, ZIP code, pet policies, and budget from $800 to $1,800/month.",
   keywords: [
     "apartments for rent",
     "1 bedroom apartment",
@@ -19,30 +19,31 @@ export const metadata: Metadata = {
     "apartments in New York",
     "apartments in Chicago",
   ],
-  authors: [{ name: "Apartmento Team" }],
+  authors: [{ name: "Rentorce Team" }],
   icons: {
     icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico" },
       { url: "/favicon.png", type: "image/png" },
-      { url: "/apartmento-full-logo.png", sizes: "512x512", type: "image/png" },
     ],
-    shortcut: "/favicon.ico",
+    shortcut: "/favicon.svg",
     apple: [
+      { url: "/favicon.svg" },
       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
   openGraph: {
-    title: "Apartmento — Smart USA Apartment Rental Finder",
+    title: "Rentorce — Smart USA Apartment Rental Finder",
     description:
       "Match with verified 1, 2, and 3-bedroom rental properties across the USA in under 2 minutes. Free matching for renters.",
-    url: "https://apartmento.us",
-    siteName: "Apartmento",
+    url: "https://rentorce.com",
+    siteName: "Rentorce",
     images: [
       {
-        url: "/site-logo.png",
+        url: "/fulllogo.svg",
         width: 1200,
         height: 600,
-        alt: "Apartmento — Find Your Next Home",
+        alt: "Rentorce — Find Your Next Home",
       },
     ],
     locale: "en_US",
@@ -50,10 +51,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Apartmento — Smart USA Apartment Finder",
+    title: "Rentorce — Smart USA Apartment Finder",
     description:
       "Match with verified 1, 2, and 3-bedroom apartments tailored to your exact budget and location.",
-    images: ["/site-logo.png"],
+    images: ["/fulllogo.svg"],
   },
   robots: {
     index: true,
@@ -71,14 +72,14 @@ export default function RootLayout({
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: "Apartmento",
-      url: "https://apartmento.us",
+      name: "Rentorce",
+      url: "https://rentorce.com",
       description: "USA Apartment Rental Matching Platform — find verified 1BR, 2BR, and 3BR apartments nationwide.",
       potentialAction: {
         "@type": "SearchAction",
         target: {
           "@type": "EntryPoint",
-          urlTemplate: "https://apartmento.us/find-apartment?location={search_term_string}",
+          urlTemplate: "https://rentorce.com/find-apartment?location={search_term_string}",
         },
         "query-input": "required name=search_term_string",
       },
@@ -87,12 +88,12 @@ export default function RootLayout({
     {
       "@context": "https://schema.org",
       "@type": ["RealEstateAgent", "LocalBusiness"],
-      name: "Apartmento",
-      alternateName: "Apartmento USA",
-      description: "Apartmento is a nationwide USA apartment rental matching platform. Find verified 1-bedroom, 2-bedroom, and 3-bedroom rentals in any US city — matched to your exact budget, pet policy, and move-in date.",
-      url: "https://apartmento.us",
-      logo: "https://apartmento.us/apartmento-full-logo.png",
-      image: "https://apartmento.us/site-logo.png",
+      name: "Rentorce",
+      alternateName: "Rentorce USA",
+      description: "Rentorce is a nationwide USA apartment rental matching platform. Find verified 1-bedroom, 2-bedroom, and 3-bedroom rentals in any US city — matched to your exact budget, pet policy, and move-in date.",
+      url: "https://rentorce.com",
+      logo: "https://rentorce.com/fulllogo.svg",
+      image: "https://rentorce.com/fulllogo.svg",
       priceRange: "$800 – $1,800/mo",
       currenciesAccepted: "USD",
       areaServed: {
@@ -127,9 +128,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased font-sans">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="alternate icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicon.svg" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

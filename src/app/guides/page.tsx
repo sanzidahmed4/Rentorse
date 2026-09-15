@@ -2,18 +2,18 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, BookOpen } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://apartmento.us";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
 
 export const metadata: Metadata = {
-  title: "Apartment Renting Guides & Tips | Apartmento",
+  title: "Apartment Renting Guides & Tips | Rentorce",
   description: "Expert guides on renting apartments in the USA. Learn how to find your perfect 1BR, 2BR, or 3BR rental, negotiate rent, pass background checks, and more.",
   alternates: { canonical: `${BASE_URL}/guides` },
   openGraph: {
-    title: "Apartment Renting Guides & Tips | Apartmento",
+    title: "Apartment Renting Guides & Tips | Rentorce",
     description: "Expert guides on how to rent apartments in the USA. Budget tips, pet-friendly searches, furnished options, and more.",
     url: `${BASE_URL}/guides`,
-    siteName: "Apartmento",
-    images: [{ url: `${BASE_URL}/site-logo.png`, width: 1200, height: 630 }],
+    siteName: "Rentorce",
+    images: [{ url: `${BASE_URL}/fulllogo.svg`, width: 1200, height: 630 }],
     locale: "en_US", type: "website",
   },
 };

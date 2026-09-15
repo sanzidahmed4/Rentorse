@@ -153,7 +153,7 @@ export default function AdminDashboardPage() {
     propertiesListed: "4,200+",
     customersServed: "9,800+",
     satisfactionRate: "99.4%",
-    supportEmail: "leasing@apartmento.us",
+    supportEmail: "leasing@rentorce.com",
     supportPhone: "+1 (800) 492-7836",
   });
 
@@ -1256,8 +1256,8 @@ export default function AdminDashboardPage() {
           <div className="flex items-center gap-3.5">
             <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white border border-slate-200 p-2 flex items-center justify-center shadow-sm">
               <Image
-                src="/apartmento-full-logo.png"
-                alt="Apartmento Logo"
+                src="/fulllogo.svg"
+                alt="Rentorce Logo"
                 width={48}
                 height={48}
                 className="w-full h-full object-contain"
@@ -1266,7 +1266,7 @@ export default function AdminDashboardPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-black tracking-tight text-slate-900">
-                  Apartment<span className="text-blue-600">o</span>
+                  Rentorc<span className="text-blue-600">e</span>
                 </h1>
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                   Admin Back-Office
@@ -1408,7 +1408,7 @@ export default function AdminDashboardPage() {
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center space-y-3 text-slate-900">
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-            <p className="text-sm font-medium text-slate-500">Loading Apartmento Admin Portal...</p>
+            <p className="text-sm font-medium text-slate-500">Loading Rentorce Admin Portal...</p>
           </div>
         ) : (
           <>

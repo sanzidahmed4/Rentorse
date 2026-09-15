@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import { Clock, Loader2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Find Your Apartment — Smart Rental Matcher | Apartmento",
+  title: "Find Your Apartment — Smart Rental Matcher | Rentorce",
   description:
     "Match with verified 1, 2, and 3-bedroom apartments across the USA tailored to your exact budget, pet requirements, and preferred city or ZIP code in under 2 minutes.",
 };

@@ -13,7 +13,7 @@ const DEFAULT_STATS = {
   propertiesListed: "4,200+",
   customersServed: "9,800+",
   satisfactionRate: "99.4%",
-  supportEmail: "leasing@apartmento.us",
+  supportEmail: "leasing@rentorce.com",
   supportPhone: "+1 (800) 492-7836",
 };
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, Calendar, CheckCircle } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://apartmento.us";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
 
 interface GuideData {
   title: string;
@@ -19,7 +19,7 @@ interface GuideData {
 const GUIDES: Record<string, GuideData> = {
   "how-to-rent-apartment-usa": {
     title: "How to Rent an Apartment in the USA: Complete Step-by-Step Guide",
-    metaTitle: "How to Rent an Apartment in the USA (2025 Step-by-Step Guide) | Apartmento",
+    metaTitle: "How to Rent an Apartment in the USA (2025 Step-by-Step Guide) | Rentorce",
     metaDescription: "Learn how to rent an apartment in the USA step by step — from setting your budget and checking your credit to signing the lease and moving in. Complete 2025 guide.",
     category: "Getting Started",
     readTime: "8 min read",
@@ -89,7 +89,7 @@ Before searching, clarify your requirements:
 There are several ways to find apartments for rent in the USA:
 
 **Online platforms:**
-- Apartmento.us — instant matching to your budget and location
+- Rentorce.com — instant matching to your budget and location
 - Zillow, Realtor.com, Apartments.com
 - Facebook Marketplace (for private landlord listings)
 - Craigslist (use caution and verify listings)
@@ -191,13 +191,13 @@ This protects your security deposit when you move out.
 - **Know your tenant rights**: each state has different laws protecting renters
 - **Build a good relationship with your landlord** — it makes lease renewals easier
 
-Ready to start your apartment search? Use Apartmento's free instant matching tool to find verified 1BR, 2BR, and 3BR apartments in your city within minutes.
+Ready to start your apartment search? Use Rentorce's free instant matching tool to find verified 1BR, 2BR, and 3BR apartments in your city within minutes.
     `,
   },
 
   "1-bedroom-vs-2-bedroom-apartment": {
     title: "1 Bedroom vs 2 Bedroom Apartment: Which Is Right for You?",
-    metaTitle: "1 Bedroom vs 2 Bedroom Apartment: Full Comparison (2025) | Apartmento",
+    metaTitle: "1 Bedroom vs 2 Bedroom Apartment: Full Comparison (2025) | Rentorce",
     metaDescription: "Compare 1-bedroom and 2-bedroom apartments by cost, space, lifestyle, and value. Find out which option fits your budget and living situation in 2025.",
     category: "Apartment Types",
     readTime: "5 min read",
@@ -306,13 +306,13 @@ If you're considering a 2-bedroom to share with a roommate, here's how the numbe
 - **Rent a 1BR** if you live alone and prioritize budget over space, or if you're in an expensive city where 2BRs are significantly pricier.
 - **Rent a 2BR** if you have a roommate who can split costs, if you work from home, or if you have a child who needs their own space.
 
-Use Apartmento's apartment finder to instantly compare 1-bedroom and 2-bedroom options in your target city — filtered to your exact budget and move-in date.
+Use Rentorce's apartment finder to instantly compare 1-bedroom and 2-bedroom options in your target city — filtered to your exact budget and move-in date.
     `,
   },
 
   "pet-friendly-apartments-guide": {
     title: "How to Find Pet-Friendly Apartments in the USA",
-    metaTitle: "How to Find Pet-Friendly Apartments in the USA (2025 Guide) | Apartmento",
+    metaTitle: "How to Find Pet-Friendly Apartments in the USA (2025 Guide) | Rentorce",
     metaDescription: "A complete guide for pet owners searching for rental apartments in the USA. Learn what landlords require, how to negotiate pet policies, and find pet-friendly rentals fast.",
     category: "Pet Owners",
     readTime: "6 min read",
@@ -371,7 +371,7 @@ Even in "pet-friendly" buildings, many landlords restrict certain dog breeds due
 ## How to Find Pet-Friendly Apartments
 
 **1. Use apartment search filters**
-When searching on Apartmento, filter for "Pet Friendly" in the amenities section of the apartment finder. This narrows results to buildings that explicitly allow pets.
+When searching on Rentorce, filter for "Pet Friendly" in the amenities section of the apartment finder. This narrows results to buildings that explicitly allow pets.
 
 **2. Search in pet-friendly neighborhoods**
 Some neighborhoods are known for being more pet-accepting. In most cities, suburban apartment complexes are more likely to allow large dogs than downtown high-rises.
@@ -439,13 +439,13 @@ Before committing, ask your landlord:
 
 ## Ready to Find Your Pet-Friendly Apartment?
 
-Use Apartmento's apartment finder to search for pet-friendly rentals in your city. Our matching system lets you filter by pet policy — including buildings that specifically allow dogs, cats, or both.
+Use Rentorce's apartment finder to search for pet-friendly rentals in your city. Our matching system lets you filter by pet policy — including buildings that specifically allow dogs, cats, or both.
     `,
   },
 
   "apartment-hunting-checklist": {
     title: "Ultimate Apartment Hunting Checklist (2025)",
-    metaTitle: "Ultimate Apartment Hunting Checklist 2025 | Apartmento",
+    metaTitle: "Ultimate Apartment Hunting Checklist 2025 | Rentorce",
     metaDescription: "A comprehensive apartment hunting checklist covering budget, credit, search criteria, tour inspection, lease review, and move-in documentation. Print and use.",
     category: "Checklists",
     readTime: "7 min read",
@@ -480,7 +480,7 @@ Apartment hunting can be stressful and fast-moving, especially in competitive re
 ## ✅ Phase 2: The Apartment Search
 
 **Online Search**
-- [ ] Search on Apartmento.us for instant matching to your location and budget
+- [ ] Search on Rentorce.com for instant matching to your location and budget
 - [ ] Set price filters to stay within your budget
 - [ ] Filter by pet policy, furnished status, and amenities
 - [ ] Save listings and compare at least 5 apartments before deciding
@@ -593,13 +593,13 @@ Apartment hunting can be stressful and fast-moving, especially in competitive re
 
 ---
 
-Use this checklist on your next apartment search to find the right unit with confidence. Apartmento's free matching tool helps you discover verified rentals in your city in minutes.
+Use this checklist on your next apartment search to find the right unit with confidence. Rentorce's free matching tool helps you discover verified rentals in your city in minutes.
     `,
   },
 
   "furnished-vs-unfurnished-apartment": {
     title: "Furnished vs Unfurnished Apartment: Pros, Cons & Cost Comparison",
-    metaTitle: "Furnished vs Unfurnished Apartment: Which Is Cheaper? (2025) | Apartmento",
+    metaTitle: "Furnished vs Unfurnished Apartment: Which Is Cheaper? (2025) | Rentorce",
     metaDescription: "Compare furnished and unfurnished apartments in the USA. Understand the real cost difference, who should choose each option, and how to find the best deal.",
     category: "Cost & Budget",
     readTime: "5 min read",
@@ -732,7 +732,7 @@ Before signing a furnished apartment lease, confirm:
 
 ---
 
-Ready to search? Apartmento's apartment finder lets you filter specifically for furnished or unfurnished units in your target city, at your exact budget.
+Ready to search? Rentorce's apartment finder lets you filter specifically for furnished or unfurnished units in your target city, at your exact budget.
     `,
   },
 };
@@ -746,22 +746,22 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const guide = GUIDES[slug];
-  if (!guide) return { title: "Guide Not Found | Apartmento" };
+  if (!guide) return { title: "Guide Not Found | Rentorce" };
   const canonicalUrl = `${BASE_URL}/guides/${slug}`;
   const articleSchema = {
     "@context": "https://schema.org", "@type": "Article",
     headline: guide.title, description: guide.metaDescription,
     datePublished: guide.publishDate, dateModified: guide.publishDate,
-    author: { "@type": "Organization", name: "Apartmento", url: BASE_URL },
-    publisher: { "@type": "Organization", name: "Apartmento", url: BASE_URL, logo: { "@type": "ImageObject", url: `${BASE_URL}/site-logo.png` } },
+    author: { "@type": "Organization", name: "Rentorce", url: BASE_URL },
+    publisher: { "@type": "Organization", name: "Rentorce", url: BASE_URL, logo: { "@type": "ImageObject", url: `${BASE_URL}/fulllogo.svg` } },
     mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
   };
   return {
     title: guide.metaTitle,
     description: guide.metaDescription,
     alternates: { canonical: canonicalUrl },
-    openGraph: { title: guide.metaTitle, description: guide.metaDescription, url: canonicalUrl, siteName: "Apartmento", images: [{ url: `${BASE_URL}/site-logo.png`, width: 1200, height: 630 }], locale: "en_US", type: "article", publishedTime: guide.publishDate },
-    twitter: { card: "summary_large_image", title: guide.metaTitle, description: guide.metaDescription, images: [`${BASE_URL}/site-logo.png`] },
+    openGraph: { title: guide.metaTitle, description: guide.metaDescription, url: canonicalUrl, siteName: "Rentorce", images: [{ url: `${BASE_URL}/fulllogo.svg`, width: 1200, height: 630 }], locale: "en_US", type: "article", publishedTime: guide.publishDate },
+    twitter: { card: "summary_large_image", title: guide.metaTitle, description: guide.metaDescription, images: [`${BASE_URL}/fulllogo.svg`] },
     other: { "application/ld+json": JSON.stringify(articleSchema) },
   };
 }
@@ -865,8 +865,8 @@ export default async function GuidePage({ params }: Props) {
     "@context": "https://schema.org", "@type": "Article",
     headline: guide.title, description: guide.metaDescription,
     datePublished: guide.publishDate, dateModified: guide.publishDate,
-    author: { "@type": "Organization", name: "Apartmento", url: BASE_URL },
-    publisher: { "@type": "Organization", name: "Apartmento", url: BASE_URL },
+    author: { "@type": "Organization", name: "Rentorce", url: BASE_URL },
+    publisher: { "@type": "Organization", name: "Rentorce", url: BASE_URL },
   };
 
   return (

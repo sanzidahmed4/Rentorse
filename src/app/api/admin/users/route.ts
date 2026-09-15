@@ -220,14 +220,21 @@ export async function PATCH(req: Request) {
           role: result.user.role,
           displayName: result.user.displayName,
         });
-        cookieStore.set({
-          name: "apartmento_admin_token",
+        const cookieOpts = {
           value: updatedToken,
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
+          sameSite: "lax" as const,
           maxAge: 60 * 60 * 24 * 7,
           path: "/",
+        };
+        cookieStore.set({
+          name: "rentorce_admin_token",
+          ...cookieOpts,
+        });
+        cookieStore.set({
+          name: "apartmento_admin_token",
+          ...cookieOpts,
         });
       } catch (cookieErr) {
         console.warn("Could not refresh session cookie:", cookieErr);

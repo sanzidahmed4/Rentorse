@@ -41,9 +41,9 @@ export default function ResultsPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedMatches = sessionStorage.getItem("apartmento_last_matches");
-      const storedSearch = sessionStorage.getItem("apartmento_last_search");
-      const storedLeadId = sessionStorage.getItem("apartmento_lead_id");
+      const storedMatches = sessionStorage.getItem("rentorce_last_matches") || sessionStorage.getItem("apartmento_last_matches");
+      const storedSearch = sessionStorage.getItem("rentorce_last_search") || sessionStorage.getItem("apartmento_last_search");
+      const storedLeadId = sessionStorage.getItem("rentorce_lead_id") || sessionStorage.getItem("apartmento_lead_id");
 
       if (storedMatches) {
         try {
@@ -135,6 +135,7 @@ export default function ResultsPage() {
         const data = await res.json();
         if (data.success && data.lead?._id) {
           setLeadId(data.lead._id);
+          sessionStorage.setItem("rentorce_lead_id", data.lead._id);
           sessionStorage.setItem("apartmento_lead_id", data.lead._id);
         }
       }

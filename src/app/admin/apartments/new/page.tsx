@@ -102,7 +102,11 @@ export default function NewApartmentPage() {
 
   useEffect(() => {
     try {
-      const storedRole = sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role");
+      const storedRole =
+        sessionStorage.getItem("rentorce_user_role") ||
+        sessionStorage.getItem("apartmento_user_role") ||
+        localStorage.getItem("rentorce_user_role") ||
+        localStorage.getItem("apartmento_user_role");
       if (storedRole === "admin" || storedRole === "editor") {
         setCurrentUserRole(storedRole);
       }
@@ -308,6 +312,7 @@ export default function NewApartmentPage() {
       if (data.success) {
         const toastMsg = hasAddress ? "New real apartment created!" : "New chameleon apartment created!";
         try {
+          sessionStorage.setItem("rentorce_toast", toastMsg);
           sessionStorage.setItem("apartmento_toast", toastMsg);
         } catch (_) {}
         router.push("/admin?tab=apartments");

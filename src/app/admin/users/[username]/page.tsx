@@ -892,7 +892,7 @@ export default function AdminUserDetailPage() {
                                 {apt.title}
                               </h4>
                               <p className="text-xs text-slate-500 truncate mt-0.5">
-                                {apt.cityState || apt.addressTemplate || "Apartmento Property"}
+                                {apt.cityState || apt.addressTemplate || "Rentorce Property"}
                               </p>
                             </div>
 
@@ -982,7 +982,7 @@ export default function AdminUserDetailPage() {
                                       {apt.title}
                                     </Link>
                                     <p className="text-[11px] text-slate-400 truncate">
-                                      {apt.cityState || apt.addressTemplate || "Apartmento Property"} • ID: {(apt.id || apt._id || "").slice(-6)}
+                                      {apt.cityState || apt.addressTemplate || "Rentorce Property"} • ID: {(apt.id || apt._id || "").slice(-6)}
                                     </p>
                                   </div>
                                 </div>
@@ -1083,7 +1083,7 @@ export default function AdminUserDetailPage() {
                                 </span>
                               </div>
                               <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                                {apt.cityState || apt.addressTemplate || "Apartmento Property"} • {apt.bedrooms}B/{apt.bathrooms}Ba • ${apt.baseRent}/mo
+                                {apt.cityState || apt.addressTemplate || "Rentorce Property"} • {apt.bedrooms}B/{apt.bathrooms}Ba • ${apt.baseRent}/mo
                               </p>
                             </div>
                           </div>

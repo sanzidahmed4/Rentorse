@@ -933,7 +933,7 @@ export async function geocodeAreaLookup(
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(clean)}&format=json&addressdetails=1&limit=1`;
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { "User-Agent": "Apartmento-RealEstate/1.0" },
+      headers: { "User-Agent": "Rentorce-RealEstate/1.0" },
     });
     clearTimeout(timeoutId);
 

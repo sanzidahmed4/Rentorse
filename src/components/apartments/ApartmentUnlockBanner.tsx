@@ -18,8 +18,12 @@ function ApartmentUnlockBannerContent({ apartment }: ApartmentUnlockBannerProps)
     if (typeof window !== "undefined") {
       const urlUnlocked = searchParams.get("unlocked") === "true";
       const aptKey = apartment.slug || apartment._id || apartment.id;
-      const storedAptUnlocked = sessionStorage.getItem(`apartmento_unlocked_${aptKey}`) === "true";
-      const quizCompleted = sessionStorage.getItem("apartmento_quiz_completed") === "true";
+      const storedAptUnlocked =
+        sessionStorage.getItem(`rentorce_unlocked_${aptKey}`) === "true" ||
+        sessionStorage.getItem(`apartmento_unlocked_${aptKey}`) === "true";
+      const quizCompleted =
+        sessionStorage.getItem("rentorce_quiz_completed") === "true" ||
+        sessionStorage.getItem("apartmento_quiz_completed") === "true";
 
       const unlockedState = urlUnlocked || storedAptUnlocked || quizCompleted;
       setIsUnlocked(unlockedState);

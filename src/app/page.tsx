@@ -281,7 +281,7 @@ export default async function HomePage() {
               Simple & Transparent
             </h2>
             <h3 className="text-3xl sm:text-4xl font-black text-slate-900">
-              How Apartmento Connects You
+              How Rentorce Connects You
             </h3>
             <p className="text-slate-600 text-sm sm:text-base mt-3">
               We took the frustration out of finding an apartment in the United States.
@@ -356,7 +356,7 @@ export default async function HomePage() {
                 ))}
               </div>
               <p className="text-slate-700 text-sm italic">
-                “I was relocating to Chicago and couldn’t find honest listings in 60007. Apartmento matched me with a 2-bedroom with pet approval in 24 hours!”
+                “I was relocating to Chicago and couldn’t find honest listings in 60007. Rentorce matched me with a 2-bedroom with pet approval in 24 hours!”
               </p>
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                 <span className="font-bold text-slate-900">Sarah M.</span>

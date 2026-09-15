@@ -10,7 +10,7 @@ export function isCloudinaryConfigured(): boolean {
 
 export async function uploadToCloudinary(
   buffer: Buffer,
-  folder = "apartmento/apartments"
+  folder = "rentorce/apartments"
 ): Promise<{ url: string; publicId: string }> {
   if (!isCloudinaryConfigured()) {
     throw new Error("Cloudinary credentials are not configured in environment variables.");

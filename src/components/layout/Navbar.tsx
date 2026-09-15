@@ -81,11 +81,11 @@ export default function Navbar() {
             className="flex items-center group py-1"
           >
             <Image
-              src="/site-logo.png"
-              alt="Apartmento — Find Your Next Home"
-              width={220}
-              height={55}
-              className="h-9 sm:h-[45px] md:h-[46px] w-auto object-contain transition-transform group-hover:scale-[1.02]"
+              src="/fulllogo.svg"
+              alt="Rentorce — Find Your Next Home"
+              width={200}
+              height={59}
+              className="h-9 sm:h-[42px] md:h-[46px] w-auto object-contain transition-transform group-hover:scale-[1.02]"
               priority
             />
           </Link>

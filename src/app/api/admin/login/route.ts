@@ -136,13 +136,15 @@ export async function POST(req: Request) {
         displayName: verifiedUser.displayName,
       });
 
-      cookieStore.set("apartmento_admin_token", token, {
+      const cookieOpts = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "lax" as const,
         maxAge: 60 * 60 * 24 * 7, // 7 days
         path: "/",
-      });
+      };
+      cookieStore.set("rentorce_admin_token", token, cookieOpts);
+      cookieStore.set("apartmento_admin_token", token, cookieOpts);
 
       // Record successful login audit
       await recordAdminLogin({
@@ -183,13 +185,15 @@ export async function POST(req: Request) {
         displayName: matchedUser.username === "sihabali" || matchedUser.username === "sihab" ? "Sihab Ali" : "Sanzid",
       });
 
-      cookieStore.set("apartmento_admin_token", token, {
+      const fallbackCookieOpts = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "lax" as const,
         maxAge: 60 * 60 * 24 * 7,
         path: "/",
-      });
+      };
+      cookieStore.set("rentorce_admin_token", token, fallbackCookieOpts);
+      cookieStore.set("apartmento_admin_token", token, fallbackCookieOpts);
 
       await recordAdminLogin({
         username: matchedUser.username,

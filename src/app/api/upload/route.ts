@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     // 1. If Cloudinary is configured, upload directly to Cloudinary CDN!
     if (isCloudinaryConfigured()) {
       try {
-        const cloudResult = await uploadToCloudinary(buffer, "apartmento/apartments");
+        const cloudResult = await uploadToCloudinary(buffer, "rentorce/apartments");
         return NextResponse.json({
           success: true,
           url: cloudResult.url,

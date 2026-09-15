@@ -33,7 +33,11 @@ export default function AdminUsersPage() {
   const [currentUserRole, setCurrentUserRole] = useState<"admin" | "editor">(() => {
     if (typeof window !== "undefined") {
       try {
-        const storedRole = sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role");
+        const storedRole =
+          sessionStorage.getItem("rentorce_user_role") ||
+          sessionStorage.getItem("apartmento_user_role") ||
+          localStorage.getItem("rentorce_user_role") ||
+          localStorage.getItem("apartmento_user_role");
         if (storedRole === "admin" || storedRole === "editor") return storedRole;
       } catch (_) {}
     }
@@ -82,7 +86,11 @@ export default function AdminUsersPage() {
   useEffect(() => {
     isMountedRef.current = true;
     try {
-      const storedRole = sessionStorage.getItem("apartmento_user_role") || localStorage.getItem("apartmento_user_role");
+      const storedRole =
+        sessionStorage.getItem("rentorce_user_role") ||
+        sessionStorage.getItem("apartmento_user_role") ||
+        localStorage.getItem("rentorce_user_role") ||
+        localStorage.getItem("apartmento_user_role");
       if (storedRole === "editor") {
         router.replace("/admin?tab=apartments");
         return;

@@ -4,7 +4,7 @@ import { verifyAdminToken } from "@/lib/auth";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("apartmento_admin_token");
+  const token = request.cookies.get("rentorce_admin_token") || request.cookies.get("apartmento_admin_token");
 
   // Validate cryptographic token if present
   let isAuthenticated = false;
@@ -19,9 +19,8 @@ export async function proxy(request: NextRequest) {
       const loginUrl = new URL("/admin/login", request.url);
       const response = NextResponse.redirect(loginUrl);
       // Clean up stale or invalid token cookie
-      if (token?.value) {
-        response.cookies.delete("apartmento_admin_token");
-      }
+      response.cookies.delete("rentorce_admin_token");
+      response.cookies.delete("apartmento_admin_token");
       return response;
     }
   }
@@ -33,6 +32,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(adminUrl);
     } else if (token?.value) {
       const response = NextResponse.next();
+      response.cookies.delete("rentorce_admin_token");
       response.cookies.delete("apartmento_admin_token");
       return response;
     }

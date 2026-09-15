@@ -15,6 +15,10 @@ export async function POST(req: Request) {
   // Clear caller's cookie as well
   const cookieStore = await cookies();
   cookieStore.delete({
+    name: "rentorce_admin_token",
+    path: "/",
+  });
+  cookieStore.delete({
     name: "apartmento_admin_token",
     path: "/",
   });

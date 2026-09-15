@@ -61,7 +61,7 @@ export async function getAdminSession(req?: Request): Promise<AdminSession> {
   // 2. Check HTTP-only cookie
   try {
     const cookieStore = await cookies();
-    const tokenCookie = cookieStore.get("apartmento_admin_token");
+    const tokenCookie = cookieStore.get("rentorce_admin_token") || cookieStore.get("apartmento_admin_token");
     if (tokenCookie?.value) {
       const verified = await verifyAdminToken(tokenCookie.value);
       if (verified.valid) {

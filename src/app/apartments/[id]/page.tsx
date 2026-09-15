@@ -21,7 +21,7 @@ import {
   MapPin,
 } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://apartmento.us";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -46,8 +46,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   if (!apt) {
     return {
-      title: "Apartment Not Found | Apartmento",
-      description: "The apartment you are looking for is no longer available. Browse other verified USA rentals on Apartmento.",
+      title: "Apartment Not Found | Rentorce",
+      description: "The apartment you are looking for is no longer available. Browse other verified USA rentals on Rentorce.",
     };
   }
 
@@ -65,15 +65,15 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     ? locationParts.slice(-2).join(", ")
     : rawLocation || "USA";
 
-  // Dynamic title: "2 Bed 1 Bath Apartment in Los Angeles, CA | From $950/mo — Apartmento"
-  const dynamicTitle = `${beds} Bed ${baths} Bath Apartment in ${cityDisplay} | From $${rent}/mo — Apartmento`;
+  // Dynamic title: "2 Bed 1 Bath Apartment in Los Angeles, CA | From $950/mo — Rentorce"
+  const dynamicTitle = `${beds} Bed ${baths} Bath Apartment in ${cityDisplay} | From $${rent}/mo — Rentorce`;
 
   // Dynamic description: first 145 chars of description + key attributes
   const descSnippet = apt.description.replace(/\s+/g, " ").slice(0, 140).trim();
   const amenitiesSnippet = apt.amenities.slice(0, 3).join(", ");
   const dynamicDesc = `${descSnippet}... ${beds}-bedroom, ${baths}-bathroom rental in ${cityDisplay}. ${apt.furnished} | ${amenitiesSnippet}. From $${rent}/mo. Schedule a tour today.`;
 
-  const ogImage = apt.images?.[0] || `${BASE_URL}/site-logo.png`;
+  const ogImage = apt.images?.[0] || `${BASE_URL}/fulllogo.svg`;
   const canonicalUrl = `${BASE_URL}/apartments/${apt.slug || id}`;
 
   return {
@@ -86,13 +86,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
       title: dynamicTitle,
       description: `${beds} Bed / ${baths} Bath | ${cityDisplay} | From $${rent}/mo. ${apt.furnished}. ${amenitiesSnippet}.`,
       url: canonicalUrl,
-      siteName: "Apartmento",
+      siteName: "Rentorce",
       images: [
         {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: `${beds} Bed ${baths} Bath Apartment in ${cityDisplay} — Apartmento`,
+          alt: `${beds} Bed ${baths} Bath Apartment in ${cityDisplay} — Rentorce`,
         },
       ],
       locale: "en_US",
@@ -101,7 +101,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     twitter: {
       card: "summary_large_image",
       title: dynamicTitle,
-      description: `${beds} Bed / ${baths} Bath in ${cityDisplay} | From $${rent}/mo. Available now on Apartmento.`,
+      description: `${beds} Bed / ${baths} Bath in ${cityDisplay} | From $${rent}/mo. Available now on Rentorce.`,
       images: [ogImage],
     },
     robots: {
@@ -225,7 +225,7 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
     })),
     provider: {
       "@type": "RealEstateAgent",
-      name: "Apartmento",
+      name: "Rentorce",
       url: BASE_URL,
     },
   };

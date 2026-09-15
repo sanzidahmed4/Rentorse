@@ -41,20 +41,26 @@ export default function AdminLoginPage() {
       if (res.ok && data.success) {
         try {
           // 1. Wipe all stale cache from previous sessions immediately
-          sessionStorage.removeItem("apartmento_admin_cache");
-          localStorage.removeItem("apartmento_admin_cache");
-          sessionStorage.removeItem("apartmento_admin_selected_row");
-          localStorage.removeItem("apartmento_admin_selected_row");
-          localStorage.removeItem("apartmento_admin_lead_modal");
+          ["rentorce_admin_cache", "apartmento_admin_cache", "rentorce_admin_selected_row", "apartmento_admin_selected_row", "rentorce_admin_lead_modal", "apartmento_admin_lead_modal"].forEach((k) => {
+            sessionStorage.removeItem(k);
+            localStorage.removeItem(k);
+          });
 
           // 2. Store authenticated role and user details immediately
           const userRole = data.role === "editor" ? "editor" : "admin";
+          sessionStorage.setItem("rentorce_user_role", userRole);
+          sessionStorage.setItem("rentorce_user_name", data.user || "");
+          sessionStorage.setItem("rentorce_user_display_name", data.displayName || data.user || "");
+          localStorage.setItem("rentorce_user_role", userRole);
+          localStorage.setItem("rentorce_user_name", data.user || "");
+          localStorage.setItem("rentorce_admin_active_tab", "overview");
+
+          // Also set legacy apartmento_ keys
           sessionStorage.setItem("apartmento_user_role", userRole);
           sessionStorage.setItem("apartmento_user_name", data.user || "");
           sessionStorage.setItem("apartmento_user_display_name", data.displayName || data.user || "");
           localStorage.setItem("apartmento_user_role", userRole);
           localStorage.setItem("apartmento_user_name", data.user || "");
-
           localStorage.setItem("apartmento_admin_active_tab", "overview");
         } catch (_) {}
         // Navigate to the originally requested page, or overview as fallback
@@ -77,8 +83,8 @@ export default function AdminLoginPage() {
         <div className="text-center space-y-3">
           <div className="flex justify-center pb-1">
             <Image
-              src="/site-logo.png"
-              alt="Apartmento"
+              src="/fulllogo.svg"
+              alt="Rentorce"
               width={260}
               height={65}
               className="h-14 sm:h-16 w-auto object-contain"

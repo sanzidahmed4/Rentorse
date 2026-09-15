@@ -1,5 +1,5 @@
 /**
- * Apartmento Cryptographic Authentication & Rate Limiting Engine
+ * Rentorce Cryptographic Authentication & Rate Limiting Engine
  * Uses Web Cryptography API (crypto.subtle) - compatible with Node.js and Next.js Edge Runtime.
  */
 

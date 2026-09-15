@@ -10,7 +10,7 @@ const SiteStatSchema = new Schema<ISiteStatDocument>(
     propertiesListed: { type: String, default: "4,200+" },
     customersServed: { type: String, default: "9,800+" },
     satisfactionRate: { type: String, default: "99.4%" },
-    supportEmail: { type: String, default: "leasing@apartmento.us" },
+    supportEmail: { type: String, default: "leasing@rentorce.com" },
     supportPhone: { type: String, default: "+1 (800) 492-7836" },
   },
   {

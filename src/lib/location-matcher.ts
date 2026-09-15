@@ -1,4 +1,4 @@
-// Geographic & ZIP Code Location Matcher for Apartmento
+// Geographic & ZIP Code Location Matcher for Rentorce
 
 const US_STATES: Record<string, string> = {
   AL: "alabama",

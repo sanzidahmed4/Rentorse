@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ShieldCheck, Heart, MapPin, Mail, Phone } from "lucide-react";
 
-const DEFAULT_SUPPORT_EMAIL = "leasing@apartmento.us";
+const DEFAULT_SUPPORT_EMAIL = "leasing@rentorce.com";
 const DEFAULT_SUPPORT_PHONE = "+1 (800) 492-7836";
 
 export default function Footer() {
@@ -37,10 +37,12 @@ export default function Footer() {
     const handleUpdate = () => {
       loadStats();
     };
+    window.addEventListener("rentorce_stats_updated", handleUpdate);
     window.addEventListener("apartmento_stats_updated", handleUpdate);
 
     return () => {
       isMounted = false;
+      window.removeEventListener("rentorce_stats_updated", handleUpdate);
       window.removeEventListener("apartmento_stats_updated", handleUpdate);
     };
   }, []);
@@ -56,15 +58,15 @@ export default function Footer() {
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="inline-block group py-1">
               <Image
-                src="/site-logo.png"
-                alt="Apartmento — Find Your Next Home"
-                width={240}
-                height={60}
+                src="/fulllogo.svg"
+                alt="Rentorce — Find Your Next Home"
+                width={200}
+                height={59}
                 className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-[1.02]"
               />
             </Link>
             <p className="text-slate-600 text-sm leading-relaxed max-w-sm">
-              Apartmento is America’s premier smart apartment rental finder. We match qualified renters with verified 1-bed, 2-bed, and 3-bed apartments tailored to your exact budget and neighborhood in seconds.
+              Rentorce is America’s premier smart apartment rental finder. We match qualified renters with verified 1-bed, 2-bed, and 3-bed apartments tailored to your exact budget and neighborhood in seconds.
             </p>
             <div className="pt-2 flex items-center gap-3 text-xs text-slate-500">
               <span className="flex items-center gap-1">
@@ -217,7 +219,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Apartmento Platform Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Rentorce Platform Inc. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="/" className="hover:text-slate-900 transition">
               Privacy Policy
