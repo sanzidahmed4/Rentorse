@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, requireAdminRole } from "@/lib/auth-server";
 import { getApartmentByIdOrSlug, updateApartment, deleteApartment } from "@/lib/store";
+import { submitApartmentUrlToIndexNow, submitToIndexNow, getApartmentPublicUrl } from "@/lib/indexnow";
 
 export async function GET(
   req: Request,
@@ -34,6 +35,12 @@ export async function PATCH(
     if (!updated) {
       return NextResponse.json({ error: "Apartment not found" }, { status: 404 });
     }
+
+    // Server-side IndexNow notification for search engines (non-blocking)
+    submitApartmentUrlToIndexNow(updated).catch((err) => {
+      console.error("[IndexNow] Non-blocking submit error on update:", err);
+    });
+
     return NextResponse.json({ success: true, apartment: updated });
   } catch (error) {
     console.error("Error updating apartment:", error);
@@ -51,10 +58,23 @@ export async function DELETE(
     if (forbidden) return forbidden;
 
     const { id } = await params;
+
+    // Retrieve existing apartment details before deletion to determine the exact public URL
+    const existingApt = await getApartmentByIdOrSlug(id);
+    const deletedUrl = existingApt
+      ? getApartmentPublicUrl(existingApt)
+      : `https://rentorce.com/apartments/${id}`;
+
     const deleted = await deleteApartment(id);
     if (!deleted) {
       return NextResponse.json({ error: "Apartment not found or already deleted" }, { status: 404 });
     }
+
+    // Server-side IndexNow notification for deleted URL (non-blocking)
+    submitToIndexNow(deletedUrl).catch((err) => {
+      console.error("[IndexNow] Non-blocking submit error on delete:", err);
+    });
+
     return NextResponse.json({ success: true, message: "Apartment deleted successfully" });
   } catch (error) {
     console.error("Error deleting apartment:", error);

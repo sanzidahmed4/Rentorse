@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, getAdminSession } from "@/lib/auth-server";
 import { getApartments, createApartment } from "@/lib/store";
+import { submitApartmentUrlToIndexNow } from "@/lib/indexnow";
 
 export async function GET(req: Request) {
   try {
@@ -34,6 +35,12 @@ export async function POST(req: Request) {
       createdBy: session.username || "sanzid",
       createdByName: session.displayName || session.username || "Sanzid",
     });
+
+    // Server-side IndexNow notification for search engines (non-blocking)
+    submitApartmentUrlToIndexNow(created).catch((err) => {
+      console.error("[IndexNow] Non-blocking submit error:", err);
+    });
+
     return NextResponse.json({ success: true, apartment: created }, { status: 201 });
   } catch (error) {
     console.error("Error creating apartment:", error);
