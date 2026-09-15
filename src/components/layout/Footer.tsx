@@ -224,7 +224,7 @@ export default function Footer() {
             <Link href="/privacy-policy" className="hover:text-slate-900 transition">
               Privacy Policy
             </Link>
-            <Link href="/" className="hover:text-slate-900 transition">
+            <Link href="/terms-of-service" className="hover:text-slate-900 transition">
               Terms of Service
             </Link>
             <Link href="/" className="hover:text-slate-900 transition">
