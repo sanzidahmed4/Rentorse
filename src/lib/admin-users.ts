@@ -7,10 +7,13 @@ import { IAdminUser, AdminUserRole } from "@/types";
 import { updateApartmentsCreator } from "./store";
 import { updateAuditLogsUsername } from "./admin-audit";
 
+const isProduction = process.env.NODE_ENV === "production" || !!process.env.VERCEL;
+
 const DATA_DIR = path.join(process.cwd(), ".data");
 const USERS_FILE = path.join(DATA_DIR, "admin_users.json");
 
 function ensureDataDir() {
+  if (isProduction) return;
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -59,6 +62,10 @@ export function getDefaultSeedUsers(): IAdminUser[] {
 
 
 export function loadPersistedAdminUsers(): IAdminUser[] {
+  if (isProduction) {
+    // In production/Vercel, MongoDB is the primary source; return in-memory seed users as fallback without disk I/O
+    return getDefaultSeedUsers();
+  }
   ensureDataDir();
   try {
     if (fs.existsSync(USERS_FILE)) {
@@ -91,6 +98,10 @@ export function loadPersistedAdminUsers(): IAdminUser[] {
 }
 
 export function savePersistedAdminUsers(users: IAdminUser[]): void {
+  if (isProduction) {
+    // In production/Vercel, MongoDB is the primary persistent store; do not write to read-only disk
+    return;
+  }
   ensureDataDir();
   try {
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf-8");
@@ -130,7 +141,6 @@ export async function syncSeedUsersToDatabase(): Promise<void> {
  * Retrieve all registered admin users (from DB or local file)
  */
 export async function getAllAdminUsers(): Promise<IAdminUser[]> {
-  const localUsers = loadPersistedAdminUsers();
   try {
     const isDb = await connectToDatabase();
     if (isDb) {
@@ -149,10 +159,13 @@ export async function getAllAdminUsers(): Promise<IAdminUser[]> {
           updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : undefined,
         }));
 
-        // Merge with any local users not yet in DB
-        for (const local of localUsers) {
-          if (!mapped.some((m) => m.username.toLowerCase() === local.username.toLowerCase())) {
-            mapped.push(local);
+        // Merge with any local users not yet in DB (local development only)
+        if (!isProduction) {
+          const localUsers = loadPersistedAdminUsers();
+          for (const local of localUsers) {
+            if (!mapped.some((m) => m.username.toLowerCase() === local.username.toLowerCase())) {
+              mapped.push(local);
+            }
           }
         }
         return mapped;
@@ -167,7 +180,7 @@ export async function getAllAdminUsers(): Promise<IAdminUser[]> {
     console.error("Error reading admin users from MongoDB:", err);
   }
 
-  return localUsers;
+  return loadPersistedAdminUsers();
 }
 
 /**
@@ -330,11 +343,13 @@ export async function createAdminUser(data: {
     console.error("Error creating AdminUser in MongoDB:", err);
   }
 
-  // 2. Always persist to local storage cache
-  const localUsers = loadPersistedAdminUsers();
-  if (!localUsers.some((u) => u.username.toLowerCase() === cleanUsername)) {
-    localUsers.unshift(createdUser);
-    savePersistedAdminUsers(localUsers);
+  // 2. Persist to local storage cache (local development only)
+  if (!isProduction) {
+    const localUsers = loadPersistedAdminUsers();
+    if (!localUsers.some((u) => u.username.toLowerCase() === cleanUsername)) {
+      localUsers.unshift(createdUser);
+      savePersistedAdminUsers(localUsers);
+    }
   }
 
   return createdUser;
@@ -409,12 +424,14 @@ export async function deleteAdminUser(params: {
     console.error("Error deleting AdminUser from MongoDB:", err);
   }
 
-  // 3. Delete from local storage cache
-  try {
-    let users = loadPersistedAdminUsers();
-    users = users.filter((u) => u.username.toLowerCase() !== targetUsername && u.id !== target!.id && u._id !== target!._id);
-    savePersistedAdminUsers(users);
-  } catch (_) {}
+  // 3. Delete from local storage cache (local development only)
+  if (!isProduction) {
+    try {
+      let users = loadPersistedAdminUsers();
+      users = users.filter((u) => u.username.toLowerCase() !== targetUsername && u.id !== target!.id && u._id !== target!._id);
+      savePersistedAdminUsers(users);
+    } catch (_) {}
+  }
 
   // 4. Invalidate memory activity
   if (globalThis.__apartmento_admin_activity && globalThis.__apartmento_admin_activity[targetUsername]) {
@@ -481,16 +498,18 @@ export async function updateAdminUserRole(params: {
     console.error("Error updating AdminUser role in MongoDB:", err);
   }
 
-  // 3. Update in local storage cache
-  try {
-    const users = loadPersistedAdminUsers();
-    const localTarget = users.find((u) => u.username.toLowerCase() === cleanUsername);
-    if (localTarget) {
-      localTarget.role = newRole;
-      localTarget.updatedAt = new Date().toISOString();
-      savePersistedAdminUsers(users);
-    }
-  } catch (_) {}
+  // 3. Update in local storage cache (local development only)
+  if (!isProduction) {
+    try {
+      const users = loadPersistedAdminUsers();
+      const localTarget = users.find((u) => u.username.toLowerCase() === cleanUsername);
+      if (localTarget) {
+        localTarget.role = newRole;
+        localTarget.updatedAt = new Date().toISOString();
+        savePersistedAdminUsers(users);
+      }
+    } catch (_) {}
+  }
 
   return {
     success: true,
@@ -623,23 +642,25 @@ export async function updateAdminUserProfile(params: {
     console.error("Error updating AdminUser profile in MongoDB:", err);
   }
 
-  // Also update in local storage cache if available
-  try {
-    const users = loadPersistedAdminUsers();
-    const localTarget = users.find((u) => u.username.toLowerCase() === currentUsername);
-    if (localTarget) {
-      localTarget.displayName = target.displayName;
-      localTarget.role = target.role;
-      localTarget.updatedAt = target.updatedAt;
-      if (params.password && params.password.trim()) {
-        localTarget.password = target.password;
+  // Also update in local storage cache if available (local development only)
+  if (!isProduction) {
+    try {
+      const users = loadPersistedAdminUsers();
+      const localTarget = users.find((u) => u.username.toLowerCase() === currentUsername);
+      if (localTarget) {
+        localTarget.displayName = target.displayName;
+        localTarget.role = target.role;
+        localTarget.updatedAt = target.updatedAt;
+        if (params.password && params.password.trim()) {
+          localTarget.password = target.password;
+        }
+        if (usernameChanged) {
+          localTarget.username = target.username;
+        }
+        savePersistedAdminUsers(users);
       }
-      if (usernameChanged) {
-        localTarget.username = target.username;
-      }
-      savePersistedAdminUsers(users);
-    }
-  } catch (_) {}
+    } catch (_) {}
+  }
 
   // 5. Cascade updates to apartments & audit logs
   if (usernameChanged) {
