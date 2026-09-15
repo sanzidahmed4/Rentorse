@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
-const LAST_UPDATED = "March 15, 2025";
+const LAST_UPDATED = "September 16, 2026";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Rentorce",
