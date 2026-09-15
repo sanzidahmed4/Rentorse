@@ -12,11 +12,17 @@ declare global {
   var __apartmento_admin_logs_cache: IAdminLoginLog[] | undefined;
 }
 
+const isProduction = process.env.NODE_ENV === "production" || !!process.env.VERCEL;
+
 const DATA_DIR = path.join(process.cwd(), ".data");
 const LOGS_FILE = path.join(DATA_DIR, "admin_logs.json");
 const ACTIVITY_FILE = path.join(DATA_DIR, "admin_activity.json");
 
 function loadPersistedActivity(): Record<string, { lastActiveAt: number; lastIp?: string }> {
+  if (isProduction) {
+    // In production/Vercel, do not read local filesystem; use in-memory activity state
+    return {};
+  }
   ensureDataDir();
   try {
     if (fs.existsSync(ACTIVITY_FILE)) {
@@ -34,6 +40,10 @@ function loadPersistedActivity(): Record<string, { lastActiveAt: number; lastIp?
 }
 
 function savePersistedActivity(act: Record<string, { lastActiveAt: number; lastIp?: string }>) {
+  if (isProduction) {
+    // In production/Vercel, filesystem is read-only; activity state is held in-memory
+    return;
+  }
   ensureDataDir();
   try {
     fs.writeFileSync(ACTIVITY_FILE, JSON.stringify(act, null, 2), "utf-8");
@@ -43,6 +53,7 @@ function savePersistedActivity(act: Record<string, { lastActiveAt: number; lastI
 }
 
 function ensureDataDir() {
+  if (isProduction) return;
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -104,6 +115,10 @@ function getInitialSeedLogs(): IAdminLoginLog[] {
 }
 
 function loadPersistedLogs(): IAdminLoginLog[] {
+  if (isProduction) {
+    // In production/Vercel, MongoDB is the source of truth for audit logs
+    return getInitialSeedLogs();
+  }
   ensureDataDir();
   try {
     if (fs.existsSync(LOGS_FILE)) {
@@ -125,6 +140,10 @@ function loadPersistedLogs(): IAdminLoginLog[] {
 }
 
 function savePersistedLogs(logs: IAdminLoginLog[]) {
+  if (isProduction) {
+    // In production/Vercel, permanent audit logs are written to MongoDB AdminLog model; filesystem is read-only
+    return;
+  }
   ensureDataDir();
   try {
     // Keep most recent 200 logs
@@ -440,14 +459,16 @@ export async function clearAllAdminLogs(): Promise<{ success: boolean; count: nu
     console.error("Error clearing logs from MongoDB:", err);
   }
 
-  // 2. Clear persisted JSON file
-  ensureDataDir();
-  try {
-    const current = loadPersistedLogs();
-    if (!count) count = current.length;
-    fs.writeFileSync(LOGS_FILE, JSON.stringify([], null, 2), "utf-8");
-  } catch (err) {
-    console.error("Error clearing admin logs file:", err);
+  // 2. Clear persisted JSON file (local development only)
+  if (!isProduction) {
+    ensureDataDir();
+    try {
+      const current = loadPersistedLogs();
+      if (!count) count = current.length;
+      fs.writeFileSync(LOGS_FILE, JSON.stringify([], null, 2), "utf-8");
+    } catch (err) {
+      console.error("Error clearing admin logs file:", err);
+    }
   }
 
   // 3. Clear memory cache
