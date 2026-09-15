@@ -43,7 +43,12 @@ export async function submitToIndexNow(urls: string | string[]): Promise<boolean
       return false;
     }
 
-    const key = process.env.INDEXNOW_KEY || "4d8787d56e6a498fa69ea4ab9c475895";
+    const key = process.env.INDEXNOW_KEY?.trim();
+    if (!key) {
+      console.warn("[IndexNow] Submission skipped: INDEXNOW_KEY is not configured in environment variables.");
+      return false;
+    }
+
     const keyLocation = `https://${INDEXNOW_HOST}/${key}.txt`;
 
     const payload = {
