@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Clock, Calendar, CheckCircle } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://apartmento-ten.vercel.app");
 
 interface GuideData {
   title: string;
@@ -760,8 +762,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: guide.metaTitle,
     description: guide.metaDescription,
     alternates: { canonical: canonicalUrl },
-    openGraph: { title: guide.metaTitle, description: guide.metaDescription, url: canonicalUrl, siteName: "Rentorce", images: [{ url: `${BASE_URL}/fulllogo.svg`, width: 1200, height: 630 }], locale: "en_US", type: "article", publishedTime: guide.publishDate },
-    twitter: { card: "summary_large_image", title: guide.metaTitle, description: guide.metaDescription, images: [`${BASE_URL}/fulllogo.svg`] },
+    openGraph: { title: guide.metaTitle, description: guide.metaDescription, url: canonicalUrl, siteName: "Rentorce", images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630 }], locale: "en_US", type: "article", publishedTime: guide.publishDate },
+    twitter: { card: "summary_large_image", title: guide.metaTitle, description: guide.metaDescription, images: [`${BASE_URL}/og-image.png`] },
     other: { "application/ld+json": JSON.stringify(articleSchema) },
   };
 }

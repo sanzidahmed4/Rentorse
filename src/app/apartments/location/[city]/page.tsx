@@ -5,7 +5,9 @@ import { notFound } from "next/navigation";
 import { getApartments } from "@/lib/store";
 import { BedDouble, Bath, MapPin, ArrowRight, CheckCircle, Building2 } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://apartmento-ten.vercel.app");
 
 const CITY_DATA: Record<string, {
   name: string; state: string; stateCode: string; zip: string;
@@ -174,8 +176,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title, description,
     alternates: { canonical: canonicalUrl },
-    openGraph: { title, description, url: canonicalUrl, siteName: "Rentorce", images: [{ url: `${BASE_URL}/fulllogo.svg`, width: 1200, height: 630, alt: `Apartments in ${data.name}` }], locale: "en_US", type: "website" },
-    twitter: { card: "summary_large_image", title, description, images: [`${BASE_URL}/fulllogo.svg`] },
+    openGraph: { title, description, url: canonicalUrl, siteName: "Rentorce", images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630, alt: `Apartments in ${data.name}` }], locale: "en_US", type: "website" },
+    twitter: { card: "summary_large_image", title, description, images: [`${BASE_URL}/og-image.png`] },
   };
 }
 

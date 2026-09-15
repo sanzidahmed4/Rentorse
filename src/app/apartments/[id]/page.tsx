@@ -21,7 +21,9 @@ import {
   MapPin,
 } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://apartmento-ten.vercel.app");
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -73,7 +75,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const amenitiesSnippet = apt.amenities.slice(0, 3).join(", ");
   const dynamicDesc = `${descSnippet}... ${beds}-bedroom, ${baths}-bathroom rental in ${cityDisplay}. ${apt.furnished} | ${amenitiesSnippet}. From $${rent}/mo. Schedule a tour today.`;
 
-  const ogImage = apt.images?.[0] || `${BASE_URL}/fulllogo.svg`;
+  const ogImage = apt.images?.[0] || `${BASE_URL}/og-image.png`;
   const canonicalUrl = `${BASE_URL}/apartments/${apt.slug || id}`;
 
   return {

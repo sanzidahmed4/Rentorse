@@ -2,7 +2,9 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, BookOpen } from "lucide-react";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://apartmento-ten.vercel.app");
 
 export const metadata: Metadata = {
   title: "Apartment Renting Guides & Tips | Rentorce",
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
     description: "Expert guides on how to rent apartments in the USA. Budget tips, pet-friendly searches, furnished options, and more.",
     url: `${BASE_URL}/guides`,
     siteName: "Rentorce",
-    images: [{ url: `${BASE_URL}/fulllogo.svg`, width: 1200, height: 630 }],
+    images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630 }],
     locale: "en_US", type: "website",
   },
 };
