@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { ShieldCheck, Heart, MapPin, Mail, Phone } from "lucide-react";
 
-const DEFAULT_SUPPORT_EMAIL = "leasing@rentorce.com";
+const DEFAULT_SUPPORT_EMAIL = "support@rentorce.com";
 const DEFAULT_SUPPORT_PHONE = "+1 (800) 492-7836";
 
 export default function Footer() {
@@ -23,7 +23,8 @@ export default function Footer() {
         const data = await res.json();
         if (isMounted && data?.success && data?.stats) {
           if (data.stats.supportEmail) {
-            setSupportEmail(data.stats.supportEmail);
+            const email = data.stats.supportEmail.trim();
+            setSupportEmail(email === "leasing@rentorce.com" ? DEFAULT_SUPPORT_EMAIL : email);
           }
           if (data.stats.supportPhone) {
             setSupportPhone(data.stats.supportPhone);

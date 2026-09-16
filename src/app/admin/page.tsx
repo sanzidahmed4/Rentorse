@@ -153,7 +153,7 @@ export default function AdminDashboardPage() {
     propertiesListed: "4,200+",
     customersServed: "9,800+",
     satisfactionRate: "99.4%",
-    supportEmail: "leasing@rentorce.com",
+    supportEmail: "support@rentorce.com",
     supportPhone: "+1 (800) 492-7836",
   });
 
@@ -2408,7 +2408,7 @@ export default function AdminDashboardPage() {
                           type="email"
                           value={stats.supportEmail || ""}
                           onChange={(e) => setStats({ ...stats, supportEmail: e.target.value })}
-                          placeholder="e.g. leasing@apartmento.us"
+                          placeholder="e.g. support@rentorce.com"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-semibold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
                       </div>

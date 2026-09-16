@@ -130,12 +130,15 @@ function loadPersistedStats(): ISiteStat {
           propertiesListed: "4,200+",
           customersServed: "9,800+",
           satisfactionRate: "99.4%",
-          supportEmail: "leasing@rentorce.com",
+          supportEmail: "support@rentorce.com",
           supportPhone: "+1 (800) 492-7836",
         };
       }
       const parsed = JSON.parse(data);
       if (parsed && typeof parsed === "object") {
+        if (parsed.supportEmail === "leasing@rentorce.com") {
+          parsed.supportEmail = "support@rentorce.com";
+        }
         return {
           _id: "stat_default",
           activeApartments: "3,250+",
@@ -143,7 +146,7 @@ function loadPersistedStats(): ISiteStat {
           propertiesListed: "4,200+",
           customersServed: "9,800+",
           satisfactionRate: "99.4%",
-          supportEmail: "leasing@rentorce.com",
+          supportEmail: "support@rentorce.com",
           supportPhone: "+1 (800) 492-7836",
           ...parsed,
         };
@@ -159,7 +162,7 @@ function loadPersistedStats(): ISiteStat {
     propertiesListed: "4,200+",
     customersServed: "9,800+",
     satisfactionRate: "99.4%",
-    supportEmail: "leasing@rentorce.com",
+    supportEmail: "support@rentorce.com",
     supportPhone: "+1 (800) 492-7836",
   };
 }
@@ -780,6 +783,9 @@ export async function getSiteStats(): Promise<ISiteStat> {
       let stat = await SiteStat.findOne().lean().exec();
       if (!stat) {
         stat = await SiteStat.create(loadPersistedStats());
+      } else if (stat.supportEmail === "leasing@rentorce.com") {
+        await SiteStat.updateOne({}, { supportEmail: "support@rentorce.com" });
+        stat.supportEmail = "support@rentorce.com";
       }
       return {
         ...stat,

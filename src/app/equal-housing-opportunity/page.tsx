@@ -441,7 +441,7 @@ export default function EqualHousingOpportunityPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700 pt-1">
                     <div className="flex items-center gap-2">
                       <Mail className="w-4 h-4 text-blue-600 shrink-0" />
-                      <span>Email: <a href="mailto:leasing@rentorce.com" className="font-semibold text-blue-600 hover:underline">leasing@rentorce.com</a></span>
+                      <span>Email: <a href="mailto:support@rentorce.com" className="font-semibold text-blue-600 hover:underline">support@rentorce.com</a></span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Phone className="w-4 h-4 text-blue-600 shrink-0" />

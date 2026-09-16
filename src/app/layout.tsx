@@ -96,6 +96,8 @@ export default function RootLayout({
       alternateName: "Rentorce USA",
       description: "Rentorce is a nationwide USA apartment rental matching platform. Find verified 1-bedroom, 2-bedroom, and 3-bedroom rentals in any US city — matched to your exact budget, pet policy, and move-in date.",
       url: BASE_URL,
+      email: "support@rentorce.com",
+      telephone: "+1 (800) 492-7836",
       logo: `${BASE_URL}/fulllogo.svg`,
       image: `${BASE_URL}/og-image.png`,
       priceRange: "$800 – $1,800/mo",

@@ -186,10 +186,10 @@ export default function TermsOfServicePage() {
                 Our support team is available to help answer questions.
               </p>
               <a
-                href="mailto:leasing@rentorce.com"
+                href="mailto:support@rentorce.com"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700"
               >
-                <Mail className="w-3.5 h-3.5" /> leasing@rentorce.com
+                <Mail className="w-3.5 h-3.5" /> support@rentorce.com
               </a>
             </div>
           </aside>
@@ -419,7 +419,7 @@ export default function TermsOfServicePage() {
                 <p className="text-xs text-slate-600">
                   If you subscribe to our newsletter or rental alerts, you may receive periodic updates regarding newly
                   available apartments. You may opt out of marketing communications at any time by utilizing the unsubscribe
-                  link in any email or by contacting <a href="mailto:leasing@rentorce.com" className="text-blue-600 underline">leasing@rentorce.com</a>.
+                  link in any email or by contacting <a href="mailto:support@rentorce.com" className="text-blue-600 underline">support@rentorce.com</a>.
                 </p>
               </div>
             </section>
@@ -520,7 +520,7 @@ export default function TermsOfServicePage() {
                 </p>
                 <p className="text-xs text-slate-600">
                   To initiate informal resolution, you must send a written notice of dispute detailing the nature of the
-                  claim to <a href="mailto:leasing@rentorce.com" className="text-blue-600 underline font-medium">leasing@rentorce.com</a>.
+                  claim to <a href="mailto:support@rentorce.com" className="text-blue-600 underline font-medium">support@rentorce.com</a>.
                   Both parties will make reasonable efforts to resolve the dispute through direct communication within
                   thirty (30) days of receiving such notice.
                 </p>
@@ -591,7 +591,7 @@ export default function TermsOfServicePage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700 pt-1">
                     <div className="flex items-center gap-2">
                       <Mail className="w-4 h-4 text-blue-600 shrink-0" />
-                      <span>Email: <a href="mailto:leasing@rentorce.com" className="font-semibold text-blue-600 hover:underline">leasing@rentorce.com</a></span>
+                      <span>Email: <a href="mailto:support@rentorce.com" className="font-semibold text-blue-600 hover:underline">support@rentorce.com</a></span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Phone className="w-4 h-4 text-blue-600 shrink-0" />

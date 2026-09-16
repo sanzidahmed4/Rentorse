@@ -185,10 +185,10 @@ export default function PrivacyPolicyPage() {
                 Need to access or delete your rental inquiry data?
               </p>
               <a
-                href="mailto:leasing@rentorce.com"
+                href="mailto:support@rentorce.com"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700"
               >
-                <Mail className="w-3.5 h-3.5" /> leasing@rentorce.com
+                <Mail className="w-3.5 h-3.5" /> support@rentorce.com
               </a>
             </div>
           </aside>
@@ -520,7 +520,7 @@ export default function PrivacyPolicyPage() {
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-600">
                   <li><strong>Transactional Communications:</strong> Email notifications confirming your apartment tour appointment or responses to customer service inquiries. You cannot opt out of critical transactional messages relating directly to your active inquiries.</li>
-                  <li><strong>Rental Alerts & Marketing Newsletters:</strong> Updates about newly listed apartments matching your criteria or rental market tips. You may opt out at any time by clicking the &quot;Unsubscribe&quot; link present in any marketing email or by sending a request to <a href="mailto:leasing@rentorce.com" className="text-blue-600 underline">leasing@rentorce.com</a>.</li>
+                  <li><strong>Rental Alerts & Marketing Newsletters:</strong> Updates about newly listed apartments matching your criteria or rental market tips. You may opt out at any time by clicking the &quot;Unsubscribe&quot; link present in any marketing email or by sending a request to <a href="mailto:support@rentorce.com" className="text-blue-600 underline">support@rentorce.com</a>.</li>
                 </ul>
               </div>
             </section>
@@ -541,9 +541,9 @@ export default function PrivacyPolicyPage() {
                   <li><strong>Withdraw Consent:</strong> Revoke consent to receive apartment alerts or newsletters at any time.</li>
                 </ul>
                 <p className="text-xs text-slate-600">
-                  To exercise any of these rights, please email our leasing team at{" "}
-                  <a href="mailto:leasing@rentorce.com" className="text-blue-600 font-bold underline">
-                    leasing@rentorce.com
+                  To exercise any of these rights, please email our support team at{" "}
+                  <a href="mailto:support@rentorce.com" className="text-blue-600 font-bold underline">
+                    support@rentorce.com
                   </a>{" "}
                   with the subject line &quot;Privacy Rights Request&quot;. We will verify your request and respond in accordance with applicable legal requirements.
                 </p>
@@ -603,8 +603,8 @@ export default function PrivacyPolicyPage() {
                     </p>
                     <p>
                       If we learn that we have collected personal information from a child under 13, we will take reasonable steps to delete that information from our systems promptly. If you believe that a child under 13 has provided personal information to Rentorce, please contact us at{" "}
-                      <a href="mailto:leasing@rentorce.com" className="font-semibold underline">
-                        leasing@rentorce.com
+                      <a href="mailto:support@rentorce.com" className="font-semibold underline">
+                        support@rentorce.com
                       </a>.
                     </p>
                   </div>
@@ -672,7 +672,7 @@ export default function PrivacyPolicyPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700 pt-1">
                     <div className="flex items-center gap-2">
                       <Mail className="w-4 h-4 text-blue-600 shrink-0" />
-                      <span>Email: <a href="mailto:leasing@rentorce.com" className="font-semibold text-blue-600 hover:underline">leasing@rentorce.com</a></span>
+                      <span>Email: <a href="mailto:support@rentorce.com" className="font-semibold text-blue-600 hover:underline">support@rentorce.com</a></span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Phone className="w-4 h-4 text-blue-600 shrink-0" />
