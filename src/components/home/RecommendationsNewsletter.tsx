@@ -59,10 +59,6 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
           
           {/* Left Column: Heading, description, and newsletter subscription form */}
           <div className="lg:col-span-6 space-y-5 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">
-              <span>Instant Rental Alerts</span>
-            </div>
-
             <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-extrabold text-slate-900 tracking-tight whitespace-normal sm:whitespace-nowrap">
               Get apartment recommendations
             </h2>
