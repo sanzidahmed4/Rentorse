@@ -127,10 +127,10 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
           <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
             <div className="relative w-full max-w-[420px] sm:max-w-[440px] pt-14 pb-8 pr-6 pl-4">
               
-              {/* Floating Badge 1: Budget (Top Left) */}
-              <div className="absolute top-0 left-0 z-30 bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2.5 shadow-xl border border-slate-100 flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-500">
-                <div className="w-10 h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <PiggyBank className="w-5 h-5" />
+              {/* Floating Badge 1: Budget (Layered Behind / Top-Right Offset) */}
+              <div className="absolute -top-2 left-6 sm:left-8 z-20 bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2 sm:py-2.5 shadow-md border border-slate-200/80 flex items-center gap-3 scale-[0.96] sm:scale-[0.97] transition-all duration-300 hover:scale-100 hover:z-40 animate-in fade-in slide-in-from-top-2 duration-500">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
                   <div className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
@@ -142,10 +142,10 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
                 </div>
               </div>
 
-              {/* Floating Badge 2: Location (Slightly lower Left) */}
-              <div className="absolute top-14 -left-2 sm:-left-4 z-30 bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2.5 shadow-xl border border-slate-100 flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-700">
-                <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <MapPin className="w-5 h-5" />
+              {/* Floating Badge 2: Location (Layered Front / Lower-Left Focus) */}
+              <div className="absolute top-10 -left-2 sm:-left-4 z-30 bg-white backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2.5 shadow-xl border border-slate-100/90 flex items-center gap-3 transition-all duration-300 hover:scale-[1.02] animate-in fade-in slide-in-from-top-4 duration-700">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
                   <div className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
