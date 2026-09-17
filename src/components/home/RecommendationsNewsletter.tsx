@@ -15,6 +15,7 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [activeOnTop, setActiveOnTop] = useState<"budget" | "location" | null>(null);
 
   // Take up to 3 apartments
   const displayApartments = apartments.slice(0, 3);
@@ -127,8 +128,19 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
           <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
             <div className="relative w-full max-w-[420px] sm:max-w-[440px] pt-14 pb-8 pr-6 pl-4">
               
-              {/* Floating Badge 1: Budget (Layered Behind / Top-Right Offset) */}
-              <div className="absolute top-0 sm:-top-1 left-6 sm:left-8 z-20 bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2 sm:py-2.5 shadow-md border border-slate-200/80 flex items-center gap-3 transition-transform hover:-translate-y-0.5">
+              {/* Floating Badge 1: Budget (Green / PiggyBank) */}
+              <div 
+                onMouseEnter={() => setActiveOnTop("budget")}
+                onMouseLeave={() => setActiveOnTop(null)}
+                onClick={() => setActiveOnTop((prev) => (prev === "budget" ? null : "budget"))}
+                className={`absolute top-0 sm:-top-1 left-2 sm:left-3 bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2 sm:py-2.5 border border-slate-200/80 flex items-center gap-3 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:bg-white hover:z-40 ${
+                  activeOnTop === "budget"
+                    ? "z-40 shadow-2xl scale-105 bg-white ring-1 ring-emerald-500/20"
+                    : activeOnTop === "location"
+                    ? "z-10 shadow-sm opacity-90 scale-[0.98]"
+                    : "z-20 shadow-md scale-100"
+                }`}
+              >
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm">
                   <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
@@ -142,8 +154,19 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
                 </div>
               </div>
 
-              {/* Floating Badge 2: Location (Layered Front / Lower-Left Focus - Matching User Mockup) */}
-              <div className="absolute top-7 sm:top-8 -left-2 sm:-left-4 z-30 bg-white backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2.5 shadow-xl border border-slate-100 flex items-center gap-3 transition-transform hover:-translate-y-0.5">
+              {/* Floating Badge 2: Location (Orange / MapPin) */}
+              <div 
+                onMouseEnter={() => setActiveOnTop("location")}
+                onMouseLeave={() => setActiveOnTop(null)}
+                onClick={() => setActiveOnTop((prev) => (prev === "location" ? null : "location"))}
+                className={`absolute top-7 sm:top-8 -left-2 sm:-left-4 bg-white backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2.5 border border-slate-100 flex items-center gap-3 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:z-40 ${
+                  activeOnTop === "location"
+                    ? "z-40 shadow-2xl scale-105 bg-white ring-1 ring-orange-500/20"
+                    : activeOnTop === "budget"
+                    ? "z-20 shadow-md scale-[0.98]"
+                    : "z-30 shadow-xl scale-100"
+                }`}
+              >
                 <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
                   <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
