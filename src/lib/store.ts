@@ -192,6 +192,7 @@ export async function getApartments(filter?: {
   bedrooms?: number;
   bathrooms?: number;
   isActive?: boolean;
+  isManual?: boolean;
 }): Promise<IApartment[]> {
   const db = await connectToDatabase();
   if (db) {
@@ -201,6 +202,7 @@ export async function getApartments(filter?: {
       if (filter?.bedrooms) query.bedrooms = filter.bedrooms;
       if (filter?.bathrooms) query.bathrooms = filter.bathrooms;
       if (typeof filter?.isActive === "boolean") query.isActive = filter.isActive;
+      if (typeof filter?.isManual === "boolean") query.isManual = filter.isManual;
 
       const items = await Apartment.find(query).sort({ createdAt: 1, _id: 1 }).lean().exec();
       if (items.length > 0) {
@@ -250,6 +252,7 @@ export async function getApartments(filter?: {
     if (filter?.bedrooms && apt.bedrooms !== filter.bedrooms) return false;
     if (filter?.bathrooms && apt.bathrooms !== filter.bathrooms) return false;
     if (typeof filter?.isActive === "boolean" && apt.isActive !== filter.isActive) return false;
+    if (typeof filter?.isManual === "boolean" && apt.isManual !== filter.isManual) return false;
     return true;
   });
 }

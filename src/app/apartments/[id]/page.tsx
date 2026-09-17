@@ -1,6 +1,7 @@
 import { getApartmentByIdOrSlug, getApartments } from "@/lib/store";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { IApartment } from "@/types";
 import { cleanStreetOrIntersection } from "@/lib/us-locations";
@@ -19,6 +20,7 @@ import {
   PawPrint,
   Utensils,
   MapPin,
+  Building2,
 } from "lucide-react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
@@ -105,7 +107,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
       images: [ogImage],
     },
     robots: {
-      index: true,
+      index: Boolean(apt.isManual),
       follow: true,
     },
   };
@@ -131,9 +133,8 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
     queryLoc?.trim() ||
     apt.displayLocation?.trim() ||
     apt.cityState?.trim() ||
-    (apt.addressTemplate?.includes(",")
-      ? apt.addressTemplate.split(",").slice(-2).join(",").trim()
-      : "Philadelphia, PA")
+    apt.addressTemplate?.trim() ||
+    ""
   );
 
   let effectiveDescription = apt.description;
@@ -181,75 +182,140 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
     description: effectiveDescription,
   };
 
-  // Build Apartment JSON-LD schema for Google Rich Results
-  const apartmentSchema = {
-    "@context": "https://schema.org",
-    "@type": "Apartment",
-    name: effectiveApartment.title,
-    description: effectiveApartment.description.slice(0, 300),
-    url: `${BASE_URL}/apartments/${apt.slug || id}`,
-    image: apt.images?.[0] || `${BASE_URL}/site-logo.png`,
-    numberOfRooms: effectiveApartment.bedrooms,
-    numberOfBathroomsTotal: effectiveApartment.bathrooms,
-    floorSize: {
-      "@type": "QuantitativeValue",
-      value: effectiveApartment.squareFeet,
-      unitCode: "FTK",
-    },
-    petsAllowed: apt.petPolicy !== "No Pets",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: effectiveLocation,
-      addressCountry: "US",
-    },
-    offers: {
-      "@type": "Offer",
-      price: effectiveRent,
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-      priceSpecification: {
-        "@type": "UnitPriceSpecification",
-        price: effectiveRent,
-        priceCurrency: "USD",
-        referenceQuantity: {
+  const CITY_MAPPINGS: { slug: string; name: string; keyword: string }[] = [
+    { slug: "new-york-ny", name: "New York, NY", keyword: "new york" },
+    { slug: "los-angeles-ca", name: "Los Angeles, CA", keyword: "los angeles" },
+    { slug: "chicago-il", name: "Chicago, IL", keyword: "chicago" },
+    { slug: "miami-fl", name: "Miami, FL", keyword: "miami" },
+    { slug: "dallas-tx", name: "Dallas, TX", keyword: "dallas" },
+    { slug: "austin-tx", name: "Austin, TX", keyword: "austin" },
+    { slug: "houston-tx", name: "Houston, TX", keyword: "houston" },
+    { slug: "atlanta-ga", name: "Atlanta, GA", keyword: "atlanta" },
+    { slug: "seattle-wa", name: "Seattle, WA", keyword: "seattle" },
+    { slug: "denver-co", name: "Denver, CO", keyword: "denver" },
+    { slug: "phoenix-az", name: "Phoenix, AZ", keyword: "phoenix" },
+    { slug: "philadelphia-pa", name: "Philadelphia, PA", keyword: "philadelphia" },
+  ];
+
+  const matchedCity = CITY_MAPPINGS.find(
+    (c) =>
+      effectiveLocation.toLowerCase().includes(c.keyword) ||
+      (apt.cityState && apt.cityState.toLowerCase().includes(c.keyword))
+  );
+
+  // Fetch similar real listings for internal linking (no chameleons)
+  const allRealApartments = await getApartments({ isActive: true, isManual: true });
+  const similarApartments = allRealApartments
+    .filter((a) => String(a._id || a.id) !== String(apt._id || apt.id))
+    .slice(0, 3);
+
+  // Build Apartment JSON-LD schema for Google Rich Results ONLY for real physical listings
+  const apartmentSchema = apt.isManual
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Apartment",
+        name: effectiveApartment.title,
+        description: effectiveApartment.description.slice(0, 300),
+        url: `${BASE_URL}/apartments/${apt.slug || id}`,
+        image: apt.images?.[0] || `${BASE_URL}/site-logo.png`,
+        numberOfRooms: effectiveApartment.bedrooms,
+        numberOfBathroomsTotal: effectiveApartment.bathrooms,
+        floorSize: {
           "@type": "QuantitativeValue",
-          value: 1,
-          unitCode: "MON",
+          value: effectiveApartment.squareFeet,
+          unitCode: "FTK",
         },
-      },
-    },
-    amenityFeature: apt.amenities.map((a) => ({
-      "@type": "LocationFeatureSpecification",
-      name: a,
-      value: true,
-    })),
-    provider: {
-      "@type": "RealEstateAgent",
-      name: "Rentorce",
-      url: BASE_URL,
-    },
-  };
+        petsAllowed: apt.petPolicy !== "No Pets",
+        ...(effectiveLocation
+          ? {
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: effectiveLocation,
+                addressCountry: "US",
+              },
+            }
+          : {}),
+        offers: {
+          "@type": "Offer",
+          price: effectiveRent,
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: effectiveRent,
+            priceCurrency: "USD",
+            referenceQuantity: {
+              "@type": "QuantitativeValue",
+              value: 1,
+              unitCode: "MON",
+            },
+          },
+        },
+        amenityFeature: apt.amenities.map((a) => ({
+          "@type": "LocationFeatureSpecification",
+          name: a,
+          value: true,
+        })),
+        provider: {
+          "@type": "RealEstateAgent",
+          name: "Rentorce",
+          url: BASE_URL,
+        },
+      }
+    : null;
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
-      {/* Apartment JSON-LD Schema for Google Rich Results */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(apartmentSchema) }}
-      />
+      {/* Apartment JSON-LD Schema for Google Rich Results (real properties only) */}
+      {apartmentSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(apartmentSchema) }}
+        />
+      )}
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Navigation Breadcrumb */}
-        <div className="flex items-center justify-between">
-          <Link
-            href={isFromHome ? "/" : "/results"}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 transition"
-          >
-            <ArrowLeft className="w-4 h-4" /> {isFromHome ? "Back to Home" : "Back to Matched Results"}
-          </Link>
-          <div className="flex items-center gap-2">
-            <span className="text-xs px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-bold">
-              Verified Unit
+        {/* Navigation Breadcrumb with City Linking */}
+        <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 font-medium text-slate-500">
+            <Link href="/" className="hover:text-blue-600 transition">
+              Home
+            </Link>
+            <span>/</span>
+            {matchedCity ? (
+              <>
+                <Link href={`/apartments/location/${matchedCity.slug}`} className="hover:text-blue-600 transition">
+                  {matchedCity.name}
+                </Link>
+                <span>/</span>
+              </>
+            ) : (
+              <>
+                <Link href="/find-apartment" className="hover:text-blue-600 transition">
+                  Rentals
+                </Link>
+                <span>/</span>
+              </>
+            )}
+            <span className="text-slate-800 font-semibold truncate max-w-[180px] sm:max-w-xs">
+              {apt.title}
             </span>
+          </nav>
+          <div className="flex items-center gap-2">
+            <Link
+              href={isFromHome ? "/" : "/results"}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-blue-600 transition"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> {isFromHome ? "Back to Home" : "Back to Results"}
+            </Link>
+            {apt.isManual ? (
+              <span className="text-xs px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded-full font-bold">
+                Verified Property
+              </span>
+            ) : (
+              <span className="text-xs px-2.5 py-0.5 bg-blue-100 text-blue-800 rounded-full font-medium">
+                Rental Match
+              </span>
+            )}
           </div>
         </div>
 
@@ -478,6 +544,78 @@ export default async function ApartmentDetailPage({ params, searchParams }: Prop
             </div>
           </div>
         </div>
+
+        {/* Similar Real Apartments Section (Only Real/Manual Listings) */}
+        {similarApartments.length > 0 && (
+          <div className="pt-8 border-t border-slate-200">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                  Similar Verified Rentals
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Explore other active physical listings in our verified property network.
+                </p>
+              </div>
+              {matchedCity && (
+                <Link
+                  href={`/apartments/location/${matchedCity.slug}`}
+                  className="text-xs sm:text-sm font-semibold text-blue-600 hover:text-blue-700 transition"
+                >
+                  View all in {matchedCity.name} →
+                </Link>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {similarApartments.map((sApt) => (
+                <Link
+                  key={sApt._id || sApt.id}
+                  href={`/apartments/${sApt.slug || sApt.id || sApt._id}`}
+                  className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col"
+                >
+                  <div className="relative h-44 overflow-hidden bg-slate-100">
+                    {sApt.images?.[0] ? (
+                      <Image
+                        src={sApt.images[0]}
+                        alt={sApt.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-200">
+                        <Building2 className="w-10 h-10 text-slate-400" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-2 right-2 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-xs font-black shadow">
+                      ${sApt.baseRent.toLocaleString()}/mo
+                    </div>
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition line-clamp-1">
+                        {sApt.title}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span className="truncate">
+                          {sApt.displayLocation || sApt.cityState || sApt.addressTemplate || "USA"}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-slate-600 font-semibold pt-3 border-t border-slate-100 mt-3">
+                      <span>{sApt.bedrooms} bd</span>
+                      <span>•</span>
+                      <span>{sApt.bathrooms} ba</span>
+                      <span>•</span>
+                      <span>{sApt.squareFeet} sqft</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -21,12 +21,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
-      url: `${baseUrl}/results`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.7,
-    },
-    {
       url: `${baseUrl}/privacy-policy`,
       lastModified: new Date(),
       changeFrequency: "monthly",
@@ -46,12 +40,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // ── Apartment Detail Pages (dynamic from DB) ───────────────────────────────
+  // ── Apartment Detail Pages (Active Real/Manual Listings only) ───────────────
   let apartmentRoutes: MetadataRoute.Sitemap = [];
   try {
-    const activeApartments = await getApartments({ isActive: true });
-    apartmentRoutes = activeApartments
-      .filter((apt) => apt.slug || apt.id || apt._id)
+    const realApartments = await getApartments({ isActive: true, isManual: true });
+    apartmentRoutes = realApartments
+      .filter((apt) => apt.isManual && (apt.slug || apt.id || apt._id))
       .map((apt) => ({
         url: `${baseUrl}/apartments/${apt.slug || apt.id || apt._id}`,
         lastModified: apt.updatedAt ? new Date(apt.updatedAt) : new Date(),

@@ -185,7 +185,11 @@ export default async function CityLandingPage({ params }: Props) {
   if (!data) notFound();
 
   const allApartments = await getApartments({ isActive: true });
-  const sampleApartments = allApartments.slice(0, 6);
+  const realCityApartments = allApartments.filter(
+    (apt) => apt.isManual && apt.addressTemplate && apt.addressTemplate.toLowerCase().includes(data.name.toLowerCase())
+  );
+  const hasRealListings = realCityApartments.length > 0;
+  const sampleApartments = hasRealListings ? realCityApartments.slice(0, 6) : allApartments.slice(0, 6);
 
   const citySchema = {
     "@context": "https://schema.org", "@type": "RealEstateAgent",
@@ -249,35 +253,48 @@ export default async function CityLandingPage({ params }: Props) {
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900">Available Apartments in {data.name}</h2>
-              <p className="text-slate-500 text-sm mt-1">Units calibrated to your exact budget and bedroom count.</p>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                {hasRealListings
+                  ? `Verified Properties in ${data.name}`
+                  : `Representative Rental Layouts & Pricing in ${data.name}`}
+              </h2>
+              <p className="text-slate-500 text-sm mt-1">
+                {hasRealListings
+                  ? `Active listings available in our verified property network.`
+                  : `Metropolitan Rental Market Guide & Finder Service — match active inventory to your budget and specifications.`}
+              </p>
             </div>
             <Link href={`/find-apartment?location=${locationParam}`} className="hidden sm:inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-bold text-sm transition">
-              View All <ArrowRight className="w-4 h-4" />
+              Find Match <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {sampleApartments.map((apt) => (
-              <Link key={apt._id || apt.id} href={`/find-apartment?location=${locationParam}`} className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
-                <div className="relative h-44 overflow-hidden bg-slate-100">
-                  {apt.images?.[0] ? (
-                    <Image src={apt.images[0]} alt={`${apt.bedrooms} Bed ${apt.bathrooms} Bath Apartment in ${data.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-slate-200"><Building2 className="w-10 h-10 text-slate-400" /></div>
-                  )}
-                  <div className="absolute bottom-2 right-2 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-xs font-black shadow">From ${apt.baseRent}/mo</div>
-                </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <div className="flex items-center gap-1 text-xs text-slate-500 mb-1.5"><MapPin className="w-3 h-3 text-blue-500" /><span>{data.name}, {data.stateCode}</span></div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition mb-2 line-clamp-1">{apt.bedrooms} Bed {apt.bathrooms} Bath Apartment</h3>
-                  <div className="flex items-center gap-3 text-xs text-slate-600 mt-auto pt-2 border-t border-slate-100">
-                    <span className="flex items-center gap-0.5"><BedDouble className="w-3 h-3 text-blue-500" /> {apt.bedrooms} Bed</span>
-                    <span className="flex items-center gap-0.5"><Bath className="w-3 h-3 text-blue-500" /> {apt.bathrooms} Bath</span>
-                    <span className="ml-auto text-blue-600 font-bold">View →</span>
+            {sampleApartments.map((apt) => {
+              const targetHref = apt.isManual
+                ? `/apartments/${apt.slug || apt._id || apt.id}`
+                : `/find-apartment?location=${locationParam}`;
+              return (
+                <Link key={apt._id || apt.id} href={targetHref} className="group bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col">
+                  <div className="relative h-44 overflow-hidden bg-slate-100">
+                    {apt.images?.[0] ? (
+                      <Image src={apt.images[0]} alt={`${apt.bedrooms} Bed ${apt.bathrooms} Bath Apartment in ${data.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-200"><Building2 className="w-10 h-10 text-slate-400" /></div>
+                    )}
+                    <div className="absolute bottom-2 right-2 bg-blue-600 text-white px-2.5 py-1 rounded-lg text-xs font-black shadow">From ${apt.baseRent}/mo</div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <div className="flex items-center gap-1 text-xs text-slate-500 mb-1.5"><MapPin className="w-3 h-3 text-blue-500" /><span>{data.name}, {data.stateCode}</span></div>
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition mb-2 line-clamp-1">{apt.bedrooms} Bed {apt.bathrooms} Bath Apartment</h3>
+                    <div className="flex items-center gap-3 text-xs text-slate-600 mt-auto pt-2 border-t border-slate-100">
+                      <span className="flex items-center gap-0.5"><BedDouble className="w-3 h-3 text-blue-500" /> {apt.bedrooms} Bed</span>
+                      <span className="flex items-center gap-0.5"><Bath className="w-3 h-3 text-blue-500" /> {apt.bathrooms} Bath</span>
+                      <span className="ml-auto text-blue-600 font-bold">View →</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
           <div className="mt-8 text-center">
             <Link href={`/find-apartment?location=${locationParam}`} className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl transition shadow-lg text-sm">

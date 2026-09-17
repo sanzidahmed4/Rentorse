@@ -4,10 +4,13 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://rentorce.com";
+const SITE_URL = "https://rentorce.com";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: SITE_URL,
+  },
   title: "Rentorce — Find Verified USA Apartments For Rent | 1B, 2B, 3B Rentals",
   description:
     "Find your next USA apartment with Rentorce. Verified 1-bed, 2-bed, and 3-bed apartments tailored to your exact city, ZIP code, pet policies, and budget from $800 to $1,800/month.",
@@ -39,7 +42,7 @@ export const metadata: Metadata = {
     title: "Rentorce — Smart USA Apartment Rental Finder",
     description:
       "Match with verified 1, 2, and 3-bedroom rental properties across the USA in under 2 minutes. Free matching for renters.",
-    url: BASE_URL,
+    url: SITE_URL,
     siteName: "Rentorce",
     images: [
       {
@@ -72,62 +75,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const jsonLd = [
-    // WebSite schema with SearchAction → enables Google Sitelinks Search Box
+    // WebSite schema
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
       name: "Rentorce",
-      url: BASE_URL,
+      url: `${SITE_URL}/`,
       description: "USA Apartment Rental Matching Platform — find verified 1BR, 2BR, and 3BR apartments nationwide.",
-      potentialAction: {
-        "@type": "SearchAction",
-        target: {
-          "@type": "EntryPoint",
-          urlTemplate: `${BASE_URL}/find-apartment?location={search_term_string}`,
-        },
-        "query-input": "required name=search_term_string",
+      publisher: {
+        "@id": `${SITE_URL}/#organization`,
       },
     },
-    // LocalBusiness / RealEstateAgent schema — full service details
+    // Organization schema
     {
       "@context": "https://schema.org",
-      "@type": ["RealEstateAgent", "LocalBusiness"],
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
       name: "Rentorce",
-      alternateName: "Rentorce USA",
-      description: "Rentorce is a nationwide USA apartment rental matching platform. Find verified 1-bedroom, 2-bedroom, and 3-bedroom rentals in any US city — matched to your exact budget, pet policy, and move-in date.",
-      url: BASE_URL,
+      url: `${SITE_URL}/`,
+      logo: `${SITE_URL}/fulllogo.svg`,
+      description: "Rentorce is a nationwide USA apartment rental matching platform helping renters discover apartment options across the United States based on location, budget, bedrooms, amenities, and lifestyle needs.",
       email: "support@rentorce.com",
       telephone: "+1 (800) 492-7836",
-      logo: `${BASE_URL}/fulllogo.svg`,
-      image: `${BASE_URL}/og-image.png`,
-      priceRange: "$800 – $1,800/mo",
-      currenciesAccepted: "USD",
-      areaServed: {
-        "@type": "Country",
-        name: "United States",
-      },
-      serviceType: [
-        "Apartment Rental Matching",
-        "Leasing Assistance",
-        "Pet-Friendly Apartment Search",
-        "Furnished Apartment Search",
-        "1 Bedroom Apartment Search",
-        "2 Bedroom Apartment Search",
-        "3 Bedroom Apartment Search",
-      ],
-      hasOfferCatalog: {
-        "@type": "OfferCatalog",
-        name: "USA Apartment Rentals",
-        itemListElement: [
-          { "@type": "Offer", name: "1 Bed / 1 Bath Apartment", priceCurrency: "USD", priceRange: "$800–$1,200/mo" },
-          { "@type": "Offer", name: "2 Bed / 1 Bath Apartment", priceCurrency: "USD", priceRange: "$900–$1,400/mo" },
-          { "@type": "Offer", name: "2 Bed / 2 Bath Apartment", priceCurrency: "USD", priceRange: "$1,000–$1,600/mo" },
-          { "@type": "Offer", name: "3 Bed / 2 Bath Apartment", priceCurrency: "USD", priceRange: "$1,100–$1,800/mo" },
-        ],
-      },
-      sameAs: [
-        "https://apartmento-ten.vercel.app",
-      ],
     },
   ];
 

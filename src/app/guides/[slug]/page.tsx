@@ -748,21 +748,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const guide = GUIDES[slug];
   if (!guide) return { title: "Guide Not Found | Rentorce" };
   const canonicalUrl = `${BASE_URL}/guides/${slug}`;
-  const articleSchema = {
-    "@context": "https://schema.org", "@type": "Article",
-    headline: guide.title, description: guide.metaDescription,
-    datePublished: guide.publishDate, dateModified: guide.publishDate,
-    author: { "@type": "Organization", name: "Rentorce", url: BASE_URL },
-    publisher: { "@type": "Organization", name: "Rentorce", url: BASE_URL, logo: { "@type": "ImageObject", url: `${BASE_URL}/fulllogo.svg` } },
-    mainEntityOfPage: { "@type": "WebPage", "@id": canonicalUrl },
-  };
   return {
     title: guide.metaTitle,
     description: guide.metaDescription,
     alternates: { canonical: canonicalUrl },
     openGraph: { title: guide.metaTitle, description: guide.metaDescription, url: canonicalUrl, siteName: "Rentorce", images: [{ url: `${BASE_URL}/og-image.png`, width: 1200, height: 630 }], locale: "en_US", type: "article", publishedTime: guide.publishDate },
     twitter: { card: "summary_large_image", title: guide.metaTitle, description: guide.metaDescription, images: [`${BASE_URL}/og-image.png`] },
-    other: { "application/ld+json": JSON.stringify(articleSchema) },
   };
 }
 
@@ -862,11 +853,30 @@ export default async function GuidePage({ params }: Props) {
     .filter(Boolean);
 
   const articleSchema = {
-    "@context": "https://schema.org", "@type": "Article",
-    headline: guide.title, description: guide.metaDescription,
-    datePublished: guide.publishDate, dateModified: guide.publishDate,
-    author: { "@type": "Organization", name: "Rentorce", url: BASE_URL },
-    publisher: { "@type": "Organization", name: "Rentorce", url: BASE_URL },
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: guide.title,
+    description: guide.metaDescription,
+    datePublished: guide.publishDate,
+    dateModified: guide.publishDate,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${BASE_URL}/guides/${slug}`,
+    },
+    author: {
+      "@type": "Organization",
+      name: "Rentorce Editorial Team",
+      url: BASE_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Rentorce",
+      url: BASE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${BASE_URL}/fulllogo.svg`,
+      },
+    },
   };
 
   return (

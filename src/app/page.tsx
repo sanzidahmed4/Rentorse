@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -21,6 +22,15 @@ import HeroSearchBox from "@/components/home/HeroSearchBox";
 import RecommendationsNewsletter from "@/components/home/RecommendationsNewsletter";
 
 export const revalidate = 60; // ISR cache revalidation
+
+export const metadata: Metadata = {
+  title: "Rentorce — Find Apartments for Rent Across the USA",
+  description:
+    "Rentorce helps renters discover apartment options across the United States based on location, budget, bedrooms, amenities, and lifestyle needs.",
+  alternates: {
+    canonical: "https://rentorce.com",
+  },
+};
 
 export default async function HomePage() {
   const stats = await getSiteStats();
