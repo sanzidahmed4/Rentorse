@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { IApartment } from "@/types";
@@ -15,6 +15,16 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [activeBadge, setActiveBadge] = useState<0 | 1>(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (isHovered) return;
+    const timer = setInterval(() => {
+      setActiveBadge((prev) => (prev === 0 ? 1 : 0));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [isHovered]);
 
   // Take up to 3 apartments
   const displayApartments = apartments.slice(0, 3);
@@ -127,32 +137,53 @@ export default function RecommendationsNewsletter({ apartments }: Props) {
           <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
             <div className="relative w-full max-w-[420px] sm:max-w-[440px] pt-14 pb-8 pr-6 pl-4">
               
-              {/* Floating Badge 1: Budget (Layered Behind / Top-Right Offset) */}
-              <div className="absolute -top-2 left-6 sm:left-8 z-20 bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2 sm:py-2.5 shadow-md border border-slate-200/80 flex items-center gap-3 scale-[0.96] sm:scale-[0.97] transition-all duration-300 hover:scale-100 hover:z-40 animate-in fade-in slide-in-from-top-2 duration-500">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div>
-                  <div className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
-                    Recommended apartments
+              {/* Floating Badges: 8px (X, Y) Stacked Deck matching apartment card stack */}
+              <div 
+                className="absolute -top-3 -left-2 sm:-left-4 z-30 h-[62px] w-[295px] sm:w-[330px] group cursor-pointer select-none"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                onClick={() => setActiveBadge((prev) => (prev === 0 ? 1 : 0))}
+                title="Click to toggle recommendations"
+              >
+                {/* Badge 1: Budget */}
+                <div
+                  className={`absolute inset-0 rounded-2xl sm:rounded-full px-4 py-2.5 flex items-center gap-3 transition-all duration-500 ease-out ${
+                    activeBadge === 0
+                      ? "z-20 translate-x-0 translate-y-0 bg-white shadow-xl border border-slate-100 opacity-100"
+                      : "z-10 translate-x-2 translate-y-2 bg-white/95 backdrop-blur-md shadow-md border border-slate-200/80 opacity-90 group-hover:translate-x-2.5 group-hover:translate-y-2.5"
+                  }`}
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <div className="text-[11px] text-slate-500 leading-tight">
-                    based on your monthly budget
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                      Recommended apartments
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-tight">
+                      based on your monthly budget
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Floating Badge 2: Location (Layered Front / Lower-Left Focus) */}
-              <div className="absolute top-10 -left-2 sm:-left-4 z-30 bg-white backdrop-blur-md rounded-2xl sm:rounded-full px-4 py-2.5 shadow-xl border border-slate-100/90 flex items-center gap-3 transition-all duration-300 hover:scale-[1.02] animate-in fade-in slide-in-from-top-4 duration-700">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div>
-                  <div className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
-                    Recommended apartments
+                {/* Badge 2: Location */}
+                <div
+                  className={`absolute inset-0 rounded-2xl sm:rounded-full px-4 py-2.5 flex items-center gap-3 transition-all duration-500 ease-out ${
+                    activeBadge === 1
+                      ? "z-20 translate-x-0 translate-y-0 bg-white shadow-xl border border-slate-100 opacity-100"
+                      : "z-10 translate-x-2 translate-y-2 bg-white/95 backdrop-blur-md shadow-md border border-slate-200/80 opacity-90 group-hover:translate-x-2.5 group-hover:translate-y-2.5"
+                  }`}
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <div className="text-[11px] text-slate-500 leading-tight">
-                    based on your preferred location
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                      Recommended apartments
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-tight">
+                      based on your preferred location
+                    </div>
                   </div>
                 </div>
               </div>
