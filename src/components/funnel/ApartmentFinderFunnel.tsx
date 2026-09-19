@@ -121,6 +121,13 @@ export default function ApartmentFinderFunnel() {
       is_target_apartment: Boolean(targetApartmentParam),
     });
 
+    // Step-specific event name for seamless GA4 funnel selection without parameter setup
+    trackGAEvent(`quiz_step_${currentStep}_view`, {
+      step_number: currentStep,
+      step_name: stepName,
+      total_steps: totalSteps,
+    });
+
     if (currentStep === 1) {
       trackGAEvent("quiz_start", {
         total_steps: totalSteps,
@@ -212,6 +219,9 @@ export default function ApartmentFinderFunnel() {
         step_number: currentStep,
         step_name: stepName,
         total_steps: totalSteps,
+      });
+      trackGAEvent(`quiz_step_${currentStep}_complete`, {
+        step_name: stepName,
       });
 
       if (currentStep < totalSteps) {
