@@ -123,6 +123,7 @@ export interface FunnelFormData {
   selectedApartmentId?: string;
   selectedApartmentTitle?: string;
   selectedApartmentPrice?: number;
+  seenApartmentIds?: string[];
 }
 
 export interface IAdminLoginLog {

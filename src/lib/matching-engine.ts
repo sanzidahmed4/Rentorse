@@ -10,14 +10,75 @@ export interface MatchedApartmentResult extends IApartment {
   matchHighlights: string[];
 }
 
+export interface VisitorMatchingContext {
+  clientIp?: string;
+  seenApartmentIds?: string[];
+}
+
+// In-memory cache to track which chameleon IDs each IP has seen recently (prevents repeating apartments)
+const ipSeenCache = new Map<string, { seenIds: Set<string>; lastUpdated: number }>();
+
+function getSeenIdsForVisitor(clientIp?: string, providedSeenIds?: string[]): Set<string> {
+  const combined = new Set<string>(providedSeenIds || []);
+  if (clientIp) {
+    const cached = ipSeenCache.get(clientIp);
+    if (cached) {
+      cached.seenIds.forEach((id) => combined.add(id));
+    }
+  }
+  return combined;
+}
+
+function recordSeenIdsForVisitor(clientIp: string | undefined, matchedIds: string[]) {
+  if (!clientIp) return;
+  const now = Date.now();
+  let entry = ipSeenCache.get(clientIp);
+  if (!entry) {
+    // Avoid memory leak by limiting cache size to 5,000 active IPs
+    if (ipSeenCache.size > 5000) {
+      const oldestKey = ipSeenCache.keys().next().value;
+      if (oldestKey) ipSeenCache.delete(oldestKey);
+    }
+    entry = { seenIds: new Set(), lastUpdated: now };
+    ipSeenCache.set(clientIp, entry);
+  }
+  matchedIds.forEach((id) => entry.seenIds.add(id));
+  entry.lastUpdated = now;
+}
+
+function computeDynamicTargetCount(queryLocation: string, clientIp: string = ""): number {
+  const norm = (queryLocation + "_" + (clientIp || "rentorce")).toLowerCase().replace(/[^a-z0-9]/g, "");
+  let hash = 0;
+  for (let i = 0; i < norm.length; i++) {
+    hash = ((hash << 5) - hash) + norm.charCodeAt(i);
+    hash |= 0;
+  }
+  const abs = Math.abs(hash);
+
+  const isHighDensity =
+    /10001|10002|90012|90028|60601|77002|33101|33139|30301|75201|94102|new york|los angeles|chicago|miami|houston|dallas|austin|seattle|atlanta|san francisco/i.test(
+      queryLocation
+    );
+
+  if (isHighDensity) {
+    // High-demand metropolitan hubs show 8 to 12 apartments
+    return 8 + (abs % 5); // 8, 9, 10, 11, or 12
+  }
+
+  // Standard cities and regional ZIPs show 6 to 10 apartments
+  return 6 + (abs % 5); // 6, 7, 8, 9, or 10
+}
+
 export async function matchApartments(
-  criteria: FunnelFormData
+  criteria: FunnelFormData,
+  context?: VisitorMatchingContext
 ): Promise<MatchedApartmentResult[]> {
   const queryLocation = (criteria.desiredLocation || "").trim();
+  const clientIp = context?.clientIp || "";
   const targetBedrooms = Number(criteria.bedrooms) || 1;
   const targetBathrooms = Number(criteria.bathrooms) || 1;
 
-  // 1. Fetch base inventory from store (MongoDB or memory)
+  // 1. Fetch base inventory from store (MongoDB or memory) - dynamically gets all active units!
   const allApartments = await getApartments({ isActive: true });
 
   // 2. CHECK FOR REAL / MANUAL APARTMENT MATCHES (Must match location AND requested bedroom count)
@@ -77,13 +138,12 @@ export async function matchApartments(
   // Sort real matches by score descending
   matchedManualUnits.sort((a, b) => b.matchScore - a.matchScore);
 
-  // 3. TARGET INVENTORY COUNT
-  // If we have manual matches, we still provide additional chameleon units so the list is full (total 6 to 8 units)
-  const targetTotalCount = 7;
+  // 3. DYNAMIC INVENTORY COUNT PER LOCATION & VISITOR (6 to 12)
+  const targetTotalCount = computeDynamicTargetCount(queryLocation, clientIp);
   const remainingSlots = Math.max(0, targetTotalCount - matchedManualUnits.length);
 
   // Chameleon Pool:
-  // Any active apartment that is NOT in matchedManualUnits, and either has NO fixed location or is marked as chameleon
+  // Any active apartment that is NOT in matchedManualUnits, and has NO fixed location (Chameleon)
   const matchedIds = new Set(matchedManualUnits.map((m) => m._id || m.id));
   const chameleonPool = allApartments.filter(
     (apt) => !matchedIds.has(apt._id || apt.id) && (!apt.isManual || !apt.addressTemplate || !apt.addressTemplate.trim())
@@ -99,10 +159,13 @@ export async function matchApartments(
     return copy;
   };
 
-  // Prioritize candidates:
+  // 4. ZERO-DUPLICATION ROTATION: Avoid showing the same chameleon apartment to the same user across searches
+  const seenSet = getSeenIdsForVisitor(clientIp, context?.seenApartmentIds || criteria.seenApartmentIds);
+
+  // Prioritize layout candidates:
   // 1. Exact match on BOTH bedrooms AND bathrooms
   // 2. Exact match on bedrooms
-  // 3. Fallback to general pool if needed
+  // 3. Fallback to other chameleon units
   const exactLayoutPool = chameleonPool.filter(
     (apt) => apt.bedrooms === targetBedrooms && apt.bathrooms === targetBathrooms
   );
@@ -119,9 +182,28 @@ export async function matchApartments(
     ...shuffle(fallbackPool),
   ];
 
-  const candidatePool = prioritizedCandidates.length > 0
-    ? prioritizedCandidates.slice(0, Math.max(remainingSlots, 8))
-    : allApartments.filter((apt) => !matchedIds.has(apt._id || apt.id)).slice(0, remainingSlots);
+  // Partition candidates into FRESH (unseen) vs ALREADY SEEN by this visitor
+  const freshUnseen = prioritizedCandidates.filter((apt) => {
+    const key = String(apt._id || apt.id || apt.slug);
+    return !seenSet.has(key);
+  });
+  const alreadySeen = prioritizedCandidates.filter((apt) => {
+    const key = String(apt._id || apt.id || apt.slug);
+    return seenSet.has(key);
+  });
+
+  // Pick candidates: prioritize freshUnseen units!
+  let candidatePool: IApartment[] = [];
+  if (freshUnseen.length >= remainingSlots) {
+    candidatePool = freshUnseen.slice(0, remainingSlots);
+  } else {
+    // If unseen units are fewer than needed, take all unseen and cycle back through alreadySeen
+    candidatePool = [...freshUnseen, ...alreadySeen].slice(0, remainingSlots);
+  }
+
+  // Record newly picked chameleon IDs for this visitor's IP
+  const newlyPickedIds = candidatePool.map((c) => String(c._id || c.id || c.slug));
+  recordSeenIdsForVisitor(clientIp, newlyPickedIds);
 
   // Score chameleon candidates
   const scoredChameleons = candidatePool.map((apt) => {

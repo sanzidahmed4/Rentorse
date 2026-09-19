@@ -264,12 +264,23 @@ export default function ApartmentFinderFunnel() {
     setSubmitting(true);
     setErrorMsg("");
 
+    let seenApartmentIds: string[] = [];
+    if (typeof window !== "undefined") {
+      try {
+        const rawSeen = sessionStorage.getItem("rentorce_seen_apartments") || sessionStorage.getItem("apartmento_seen_apartments");
+        if (rawSeen) seenApartmentIds = JSON.parse(rawSeen);
+      } catch {
+        seenApartmentIds = [];
+      }
+    }
+
     const submissionData = {
       ...formData,
       desiredLocation: effectiveLocation,
       selectedApartmentId: targetApartment?._id || targetApartment?.id || formData.selectedApartmentId,
       selectedApartmentTitle: targetApartment?.title || formData.selectedApartmentTitle,
       selectedApartmentPrice: targetApartment?.baseRent || formData.selectedApartmentPrice,
+      seenApartmentIds,
     };
 
     try {
@@ -300,6 +311,15 @@ export default function ApartmentFinderFunnel() {
 
         // Save search and matches into sessionStorage
         if (typeof window !== "undefined") {
+          // Track seen chameleon/matched apartments so consecutive searches rotate to fresh units
+          const newMatchedIds: string[] = (data.matches || [])
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .map((m: any) => m._id || m.id)
+            .filter(Boolean);
+          const updatedSeen = Array.from(new Set([...seenApartmentIds, ...newMatchedIds]));
+          sessionStorage.setItem("rentorce_seen_apartments", JSON.stringify(updatedSeen));
+          sessionStorage.setItem("apartmento_seen_apartments", JSON.stringify(updatedSeen));
+
           sessionStorage.setItem("rentorce_last_search", JSON.stringify(submissionData));
           sessionStorage.setItem("rentorce_last_matches", JSON.stringify(data.matches));
           sessionStorage.setItem("rentorce_lead_id", data.leadId);

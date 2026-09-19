@@ -14,8 +14,17 @@ export async function POST(req: Request) {
       );
     }
 
-    // 1. Run Dynamic Chameleon Matching Engine
-    const matches = await matchApartments(body);
+    // Extract client IP from headers for IP-based dynamic inventory & zero-duplicate rotation
+    const forwardedFor = req.headers.get("x-forwarded-for");
+    const realIp = req.headers.get("x-real-ip");
+    const cfConnectingIp = req.headers.get("cf-connecting-ip");
+    const clientIp = forwardedFor?.split(",")[0]?.trim() || realIp || cfConnectingIp || "127.0.0.1";
+
+    // 1. Run Dynamic Chameleon Matching Engine with IP and seen-cache context
+    const matches = await matchApartments(body, {
+      clientIp,
+      seenApartmentIds: Array.isArray(body.seenApartmentIds) ? body.seenApartmentIds : [],
+    });
 
     // 2. Save Lead into MongoDB
     const matchedApartmentIds = matches.map((m) => m._id || m.id || "").filter(Boolean);
