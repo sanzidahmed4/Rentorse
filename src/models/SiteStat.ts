@@ -11,7 +11,7 @@ const SiteStatSchema = new Schema<ISiteStatDocument>(
     customersServed: { type: String, default: "9,800+" },
     satisfactionRate: { type: String, default: "99.4%" },
     supportEmail: { type: String, default: "support@rentorce.com" },
-    supportPhone: { type: String, default: "+1 (800) 492-7836" },
+    supportPhone: { type: String, default: "" },
   },
   {
     timestamps: true,

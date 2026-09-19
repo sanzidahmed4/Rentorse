@@ -131,13 +131,16 @@ function loadPersistedStats(): ISiteStat {
           customersServed: "9,800+",
           satisfactionRate: "99.4%",
           supportEmail: "support@rentorce.com",
-          supportPhone: "+1 (800) 492-7836",
+          supportPhone: "",
         };
       }
       const parsed = JSON.parse(data);
       if (parsed && typeof parsed === "object") {
         if (parsed.supportEmail === "leasing@rentorce.com") {
           parsed.supportEmail = "support@rentorce.com";
+        }
+        if (parsed.supportPhone === "+1 (800) 492-7836") {
+          parsed.supportPhone = "";
         }
         return {
           _id: "stat_default",
@@ -147,7 +150,7 @@ function loadPersistedStats(): ISiteStat {
           customersServed: "9,800+",
           satisfactionRate: "99.4%",
           supportEmail: "support@rentorce.com",
-          supportPhone: "+1 (800) 492-7836",
+          supportPhone: "",
           ...parsed,
         };
       }
@@ -163,7 +166,7 @@ function loadPersistedStats(): ISiteStat {
     customersServed: "9,800+",
     satisfactionRate: "99.4%",
     supportEmail: "support@rentorce.com",
-    supportPhone: "+1 (800) 492-7836",
+    supportPhone: "",
   };
 }
 
@@ -786,9 +789,22 @@ export async function getSiteStats(): Promise<ISiteStat> {
       let stat = await SiteStat.findOne().lean().exec();
       if (!stat) {
         stat = await SiteStat.create(loadPersistedStats());
-      } else if (stat.supportEmail === "leasing@rentorce.com") {
-        await SiteStat.updateOne({}, { supportEmail: "support@rentorce.com" });
-        stat.supportEmail = "support@rentorce.com";
+      } else {
+        let needsUpdate = false;
+        const updates: Partial<ISiteStat> = {};
+        if (stat.supportEmail === "leasing@rentorce.com") {
+          updates.supportEmail = "support@rentorce.com";
+          stat.supportEmail = "support@rentorce.com";
+          needsUpdate = true;
+        }
+        if (stat.supportPhone === "+1 (800) 492-7836") {
+          updates.supportPhone = "";
+          stat.supportPhone = "";
+          needsUpdate = true;
+        }
+        if (needsUpdate) {
+          await SiteStat.updateOne({}, updates);
+        }
       }
       return {
         ...stat,

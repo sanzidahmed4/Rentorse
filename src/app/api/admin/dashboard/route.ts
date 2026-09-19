@@ -14,7 +14,7 @@ const DEFAULT_STATS = {
   customersServed: "9,800+",
   satisfactionRate: "99.4%",
   supportEmail: "support@rentorce.com",
-  supportPhone: "+1 (800) 492-7836",
+  supportPhone: "",
 };
 
 export async function GET(req: Request) {

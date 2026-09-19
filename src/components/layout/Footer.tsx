@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { ShieldCheck, Heart, MapPin, Mail, Phone } from "lucide-react";
 
 const DEFAULT_SUPPORT_EMAIL = "support@rentorce.com";
-const DEFAULT_SUPPORT_PHONE = "+1 (800) 492-7836";
+const DEFAULT_SUPPORT_PHONE = "";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -26,8 +26,14 @@ export default function Footer() {
             const email = data.stats.supportEmail.trim();
             setSupportEmail(email === "leasing@rentorce.com" ? DEFAULT_SUPPORT_EMAIL : email);
           }
-          if (data.stats.supportPhone) {
-            setSupportPhone(data.stats.supportPhone);
+          if (
+            data.stats.supportPhone &&
+            data.stats.supportPhone.trim() &&
+            data.stats.supportPhone.trim() !== "+1 (800) 492-7836"
+          ) {
+            setSupportPhone(data.stats.supportPhone.trim());
+          } else {
+            setSupportPhone("");
           }
         }
       } catch (_) {}
@@ -204,16 +210,18 @@ export default function Footer() {
                   {supportEmail}
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-slate-600">
-                <Phone className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <a
-                  href={`tel:${supportPhone.replace(/[^0-9+]/g, "")}`}
-                  className="hover:text-blue-600 transition"
-                  title="Call Leasing Support Hotline"
-                >
-                  {supportPhone}
-                </a>
-              </li>
+              {supportPhone && supportPhone.trim() ? (
+                <li className="flex items-center gap-2 text-slate-600">
+                  <Phone className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                  <a
+                    href={`tel:${supportPhone.replace(/[^0-9+]/g, "")}`}
+                    className="hover:text-blue-600 transition"
+                    title="Call Leasing Support Hotline"
+                  >
+                    {supportPhone}
+                  </a>
+                </li>
+              ) : null}
             </ul>
           </div>
         </div>

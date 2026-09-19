@@ -444,8 +444,8 @@ export default function EqualHousingOpportunityPage() {
                       <span>Email: <a href="mailto:support@rentorce.com" className="font-semibold text-blue-600 hover:underline">support@rentorce.com</a></span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-blue-600 shrink-0" />
-                      <span>Support Hotline: <a href="tel:18004927836" className="font-semibold text-slate-900 hover:underline">+1 (800) 492-7836</a></span>
+                      <Globe className="w-4 h-4 text-blue-600 shrink-0" />
+                      <span>Support Portal: <a href="https://rentorce.com/find-apartment" className="font-semibold text-blue-600 hover:underline">Apartment Finder Desk</a></span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Globe className="w-4 h-4 text-blue-600 shrink-0" />

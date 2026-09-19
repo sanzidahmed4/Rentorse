@@ -154,7 +154,7 @@ export default function AdminDashboardPage() {
     customersServed: "9,800+",
     satisfactionRate: "99.4%",
     supportEmail: "support@rentorce.com",
-    supportPhone: "+1 (800) 492-7836",
+    supportPhone: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -403,7 +403,10 @@ export default function AdminDashboardPage() {
             }
           }
           if (parsed.apartments) setApartments(parsed.apartments);
-          if (parsed.stats) setStats(parsed.stats);
+          if (parsed.stats) {
+            const cleanPhone = parsed.stats.supportPhone === "+1 (800) 492-7836" ? "" : (parsed.stats.supportPhone || "");
+            setStats({ ...parsed.stats, supportPhone: cleanPhone });
+          }
           if (parsed.adminUsers) setAdminUsers(parsed.adminUsers);
           if (parsed.adminLogs) setAdminLogs(parsed.adminLogs);
           if (parsed.currentUser && parsed.currentUser.toLowerCase() !== "admin") {
@@ -494,7 +497,10 @@ export default function AdminDashboardPage() {
           });
         }
         if (data.apartments) setApartments(data.apartments);
-        if (data.stats) setStats(data.stats);
+        if (data.stats) {
+          const cleanPhone = data.stats.supportPhone === "+1 (800) 492-7836" ? "" : (data.stats.supportPhone || "");
+          setStats({ ...data.stats, supportPhone: cleanPhone });
+        }
         if (data.currentUser) {
           setCurrentUser(data.currentUser);
           try {
@@ -2416,15 +2422,18 @@ export default function AdminDashboardPage() {
                       <div>
                         <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
                           <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                          Support / Leasing Phone Number
+                          Support / Leasing Phone Number (Optional)
                         </label>
                         <input
                           type="text"
                           value={stats.supportPhone || ""}
                           onChange={(e) => setStats({ ...stats, supportPhone: e.target.value })}
-                          placeholder="Enter support phone number"
+                          placeholder="Enter support phone number (optional)"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-semibold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
+                        <span className="text-[11px] text-slate-400 mt-1 block">
+                          Leave blank if you do not want to show any phone number in the website footer.
+                        </span>
                       </div>
                     </div>
                   </div>

@@ -97,7 +97,6 @@ export default function RootLayout({
       logo: `${SITE_URL}/fulllogo.svg`,
       description: "Rentorce is a nationwide USA apartment rental matching platform helping renters discover apartment options across the United States based on location, budget, bedrooms, amenities, and lifestyle needs.",
       email: "support@rentorce.com",
-      telephone: "+1 (800) 492-7836",
     },
   ];
 
