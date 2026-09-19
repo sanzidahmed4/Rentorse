@@ -307,20 +307,20 @@ export default async function HomePage() {
             {/* 1. Complete 8-Step Quiz */}
             <Link
               href="/find-apartment"
-              className="group p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-blue-300 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col justify-between text-center space-y-4"
+              className="p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition flex flex-col justify-between text-center space-y-4"
             >
               <div className="space-y-4">
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xl shadow-sm group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xl shadow-sm">
                   1
                 </div>
-                <h4 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                <h4 className="text-lg font-bold text-slate-900">
                   Complete 8-Step Quiz
                 </h4>
                 <p className="text-slate-600 text-sm leading-relaxed">
                   Provide your preferred location (any ZIP code or city), bedroom count, pets, and target budget from $800 to $1,800.
                 </p>
               </div>
-              <div className="pt-2 text-xs font-bold text-blue-600 flex items-center justify-center gap-1 group-hover:gap-1.5 transition-all">
+              <div className="pt-2 text-xs font-bold text-blue-600 flex items-center justify-center gap-1">
                 <span>Start Quiz</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
@@ -329,20 +329,20 @@ export default async function HomePage() {
             {/* 2. Dynamic Matching */}
             <Link
               href="/guides/how-rentorce-works#dynamic-matching"
-              className="group p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-indigo-300 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col justify-between text-center space-y-4"
+              className="p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition flex flex-col justify-between text-center space-y-4"
             >
               <div className="space-y-4">
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-xl shadow-sm group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xl shadow-sm">
                   2
                 </div>
-                <h4 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                <h4 className="text-lg font-bold text-slate-900">
                   Dynamic Matching
                 </h4>
                 <p className="text-slate-600 text-sm leading-relaxed">
                   Our algorithm scans verified properties and adapts location details and calibrated prices matching your exact criteria.
                 </p>
               </div>
-              <div className="pt-2 text-xs font-bold text-indigo-600 flex items-center justify-center gap-1 group-hover:gap-1.5 transition-all">
+              <div className="pt-2 text-xs font-bold text-blue-600 flex items-center justify-center gap-1">
                 <span>Matching Process</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
@@ -351,20 +351,20 @@ export default async function HomePage() {
             {/* 3. Schedule Tour & Lease */}
             <Link
               href="/guides/how-rentorce-works#schedule-tour-lease"
-              className="group p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-emerald-300 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col justify-between text-center space-y-4"
+              className="p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition flex flex-col justify-between text-center space-y-4"
             >
               <div className="space-y-4">
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center font-black text-xl shadow-sm group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xl shadow-sm">
                   3
                 </div>
-                <h4 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                <h4 className="text-lg font-bold text-slate-900">
                   Schedule Tour & Lease
                 </h4>
                 <p className="text-slate-600 text-sm leading-relaxed">
                   Pick your preferred apartment and schedule an in-person or virtual walkthrough directly with leasing agents.
                 </p>
               </div>
-              <div className="pt-2 text-xs font-bold text-emerald-600 flex items-center justify-center gap-1 group-hover:gap-1.5 transition-all">
+              <div className="pt-2 text-xs font-bold text-blue-600 flex items-center justify-center gap-1">
                 <span>Tour & Lease Guide</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
@@ -373,20 +373,20 @@ export default async function HomePage() {
             {/* 4. How Rentorce Works */}
             <Link
               href="/guides/how-rentorce-works"
-              className="group p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-amber-300 hover:bg-white hover:shadow-xl transition-all duration-300 flex flex-col justify-between text-center space-y-4"
+              className="p-7 rounded-3xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition flex flex-col justify-between text-center space-y-4"
             >
               <div className="space-y-4">
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center font-black text-xl shadow-sm group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xl shadow-sm">
                   4
                 </div>
-                <h4 className="text-lg font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
+                <h4 className="text-lg font-bold text-slate-900">
                   How Rentorce Works
                 </h4>
                 <p className="text-slate-600 text-sm leading-relaxed">
                   Explore our complete guide explaining our customer service, renter profiling, property verification, and matching process.
                 </p>
               </div>
-              <div className="pt-2 text-xs font-bold text-amber-600 flex items-center justify-center gap-1 group-hover:gap-1.5 transition-all">
+              <div className="pt-2 text-xs font-bold text-blue-600 flex items-center justify-center gap-1">
                 <span>Read Full Article</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </div>
