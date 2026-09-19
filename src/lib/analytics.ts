@@ -18,11 +18,19 @@ export const GA_MEASUREMENT_ID = "G-LNBHKWE17R";
  * such as full names, email addresses, or phone numbers to Google Analytics.
  */
 export function trackGAEvent(eventName: string, params?: Record<string, any>) {
-  if (typeof window !== "undefined" && typeof window.gtag === "function") {
-    try {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.dataLayer = window.dataLayer || [];
+    if (typeof window.gtag === "function") {
       window.gtag("event", eventName, params);
-    } catch (err) {
-      console.warn("GA4 event error:", err);
+    } else {
+      window.dataLayer.push({
+        event: eventName,
+        ...params,
+      });
     }
+  } catch (err) {
+    console.warn("GA4 event error:", err);
   }
 }
