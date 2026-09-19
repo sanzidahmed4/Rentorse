@@ -27,7 +27,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { FunnelFormData, IApartment } from "@/types";
-import { trackGAEvent } from "@/lib/analytics";
+import { trackGAEvent, trackFBPixel } from "@/lib/analytics";
 
 const getStepName = (step: number, total: number) => {
   const names: Record<number, string> = {
@@ -290,6 +290,12 @@ export default function ApartmentFinderFunnel() {
           budget_min: formData.budgetMin,
           budget_max: formData.budgetMax,
           has_pets: formData.hasPets,
+        });
+
+        trackFBPixel("Lead", {
+          content_name: "Apartment Match Quiz",
+          currency: "USD",
+          value: formData.budgetMax || 1200,
         });
 
         // Save search and matches into sessionStorage

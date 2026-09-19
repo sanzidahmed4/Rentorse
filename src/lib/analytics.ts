@@ -7,10 +7,13 @@ declare global {
   interface Window {
     gtag?: (...args: any[]) => void;
     dataLayer?: any[];
+    fbq?: (...args: any[]) => void;
+    _fbq?: any;
   }
 }
 
 export const GA_MEASUREMENT_ID = "G-LNBHKWE17R";
+export const FB_PIXEL_ID = "1306981108071575";
 
 /**
  * Safely sends a custom event to GA4.
@@ -32,5 +35,24 @@ export function trackGAEvent(eventName: string, params?: Record<string, any>) {
     }
   } catch (err) {
     console.warn("GA4 event error:", err);
+  }
+}
+
+/**
+ * Safely track Meta / Facebook Pixel event
+ */
+export function trackFBPixel(eventName: string, params?: Record<string, any>) {
+  if (typeof window === "undefined") return;
+
+  try {
+    if (typeof window.fbq === "function") {
+      if (params) {
+        window.fbq("track", eventName, params);
+      } else {
+        window.fbq("track", eventName);
+      }
+    }
+  } catch (err) {
+    console.warn("FB Pixel event error:", err);
   }
 }
