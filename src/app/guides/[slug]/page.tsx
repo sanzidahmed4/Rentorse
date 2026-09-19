@@ -219,7 +219,7 @@ Instead of considering location alone, Rentorce can use the information you prov
 
 ---
 
-## Review Your Available Properties
+## Review Your Available Properties & Dynamic Matching {#dynamic-matching}
 
 After completing the apartment finder, you can view the available properties associated with your search.
 
@@ -252,7 +252,7 @@ This gives you an opportunity to review the available information about a proper
 
 ---
 
-## Found an Apartment You Like? Schedule a Tour
+## Found an Apartment You Like? Schedule a Tour & Lease {#schedule-tour-lease}
 
 If you find a property that interests you, you can select Schedule a Tour or Book, depending on the option available for that property.
 
@@ -1198,9 +1198,51 @@ function renderContent(content: string) {
     }
 
     if (line.startsWith("## ")) {
-      elements.push(<h2 key={i} className="text-xl sm:text-2xl font-black text-slate-900 mt-10 mb-4 pb-2 border-b border-slate-100">{line.slice(3)}</h2>);
+      let headingText = line.slice(3).trim();
+      let headingId = "";
+      const match = headingText.match(/\{#([a-zA-Z0-9_-]+)\}/);
+      if (match) {
+        headingId = match[1];
+        headingText = headingText.replace(/\{#([a-zA-Z0-9_-]+)\}/, "").trim();
+      } else {
+        headingId = headingText
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-");
+      }
+      elements.push(
+        <h2
+          key={i}
+          id={headingId}
+          className="text-xl sm:text-2xl font-black text-slate-900 mt-10 mb-4 pb-2 border-b border-slate-100 scroll-mt-24"
+        >
+          {headingText}
+        </h2>
+      );
     } else if (line.startsWith("### ")) {
-      elements.push(<h3 key={i} className="text-lg font-bold text-slate-800 mt-6 mb-3">{line.slice(4)}</h3>);
+      let headingText = line.slice(4).trim();
+      let headingId = "";
+      const match = headingText.match(/\{#([a-zA-Z0-9_-]+)\}/);
+      if (match) {
+        headingId = match[1];
+        headingText = headingText.replace(/\{#([a-zA-Z0-9_-]+)\}/, "").trim();
+      } else {
+        headingId = headingText
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-");
+      }
+      elements.push(
+        <h3
+          key={i}
+          id={headingId}
+          className="text-lg font-bold text-slate-800 mt-6 mb-3 scroll-mt-24"
+        >
+          {headingText}
+        </h3>
+      );
     } else if (line.startsWith("**") && line.endsWith("**")) {
       elements.push(<p key={i} className="font-bold text-slate-800 mt-4 mb-1">{line.slice(2, -2)}</p>);
     } else if (line.startsWith("- [ ] ")) {
