@@ -20,6 +20,13 @@ export const metadata: Metadata = {
 
 const GUIDES = [
   {
+    slug: "how-rentorce-works",
+    title: "How Rentorce Works: Our Apartment Search & Matching Process",
+    excerpt: "Learn how Rentorce works and how our apartment search process uses location, budget, household needs, and preferences to match you with properties.",
+    readTime: "7 min read",
+    category: "How It Works",
+  },
+  {
     slug: "how-to-rent-apartment-usa",
     title: "How to Rent an Apartment in the USA: Complete Step-by-Step Guide",
     excerpt: "Everything you need to know about renting your first or next apartment in the United States — from credit checks to lease signing.",

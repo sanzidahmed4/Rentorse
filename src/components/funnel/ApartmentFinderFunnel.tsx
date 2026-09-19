@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -1095,6 +1096,17 @@ export default function ApartmentFinderFunnel() {
               </>
             )}
           </button>
+        </div>
+
+        {/* Learn More Link */}
+        <div className="mt-5 pt-2 text-center text-xs text-slate-500">
+          Learn more about how it works:{" "}
+          <Link
+            href="/guides/how-rentorce-works"
+            className="text-blue-600 hover:text-blue-800 font-semibold underline underline-offset-2 transition"
+          >
+            Click here
+          </Link>
         </div>
       </div>
     </div>

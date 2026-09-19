@@ -81,6 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ── Guide / Blog Pages ─────────────────────────────────────────────────────
   const guideSlugs = [
+    "how-rentorce-works",
     "how-to-rent-apartment-usa",
     "1-bedroom-vs-2-bedroom-apartment",
     "pet-friendly-apartments-guide",

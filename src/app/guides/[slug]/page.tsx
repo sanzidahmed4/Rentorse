@@ -17,6 +17,401 @@ interface GuideData {
 }
 
 const GUIDES: Record<string, GuideData> = {
+  "how-rentorce-works": {
+    title: "How Rentorce Works: Our Apartment Search & Matching Process",
+    metaTitle: "How Rentorce Works: Apartment Search & Matching Process | Rentorce",
+    metaDescription: "Learn how Rentorce works and how our apartment search process uses location, budget, household needs, apartment preferences, and other requirements to help renters find relevant properties.",
+    category: "How It Works",
+    readTime: "7 min read",
+    publishDate: "2025-01-20",
+    relatedSlugs: ["how-to-rent-apartment-usa", "apartment-hunting-checklist", "1-bedroom-vs-2-bedroom-apartment"],
+    content: `
+## Introduction
+
+Finding the right apartment is not always as simple as searching for a location and choosing the first available listing.
+
+Your ideal apartment may depend on several factors—where you want to live, how much you want to spend, who will be living with you, whether you have pets, what apartment features you need, and other personal preferences.
+
+At Rentorce, we use a structured apartment search and matching process to understand these requirements before presenting available properties.
+
+Instead of relying only on a location or price search, our apartment finder collects information about your housing needs and creates a more detailed renter profile. This allows you to explore properties based on a broader set of requirements.
+
+Whether you arrive at Rentorce through Google, Facebook, social media, or another source, you can begin your apartment search directly from our platform.
+
+---
+
+## Two Ways to Start Your Apartment Search
+
+Rentorce gives you multiple ways to begin your search.
+
+You can start through:
+- [Find Your Apartment](/find-apartment)
+- [Start Apartment Finder](/find-apartment)
+- [Take 2 Min Quiz](/find-apartment)
+- The search box on the Rentorce dashboard
+
+There are two primary ways to enter the process.
+
+### Option 1: Start With Your ZIP Code or Location
+
+If you already know where you want to live, you can begin by entering your ZIP code, city, area, or location in the search box.
+
+Your selected location becomes part of your search from the beginning.
+
+You then continue through the apartment finder and provide the remaining information about your housing requirements.
+
+Because your location has already been provided, you do not need to enter it again at the end of the process.
+
+### Option 2: Start With the Apartment Finder
+
+If you would rather begin by describing the type of apartment you need, you can start directly through [Find Your Apartment](/find-apartment), Start Apartment Finder, or Take 2 Min Quiz.
+
+In this flow, Rentorce first collects information about you and your housing requirements. Your desired location is then provided as part of the search process.
+
+Both paths lead to the same objective: creating a structured search profile that can be used to present available properties relevant to the information you provide.
+
+---
+
+## Step 1: Tell Us About Yourself
+
+The first part of the apartment finder collects basic information about you.
+
+You may be asked to provide:
+- **Full Name**: Connects your search with your request
+- **Phone Number**: For text and voice tour scheduling
+- **Email Address**: For instant match notifications and property details
+
+This information connects your apartment search with your request and provides the contact information needed for communication if you later request information or a property tour.
+
+---
+
+## Step 2: Confirm Your U.S. Residency or Relocation Status
+
+Next, Rentorce asks about your current status in relation to the United States.
+
+This may include whether you are:
+- Currently residing in the United States
+- Relocating to the United States
+- Traveling or temporarily visiting
+- In another relocation-related situation
+
+This information provides additional context about your apartment search and housing situation. For renters new to the country, check our guide on [How to Rent an Apartment in the USA](/guides/how-to-rent-apartment-usa).
+
+---
+
+## Step 3: Provide Your Age
+
+The next step asks for your age.
+
+Age information is included as part of the renter profile associated with your apartment search.
+
+This step is completed before moving into household and apartment-specific requirements.
+
+---
+
+## Step 4: Tell Us About Your Household
+
+The right apartment can depend heavily on who will be living there.
+
+In the Household & Family Size section, you can provide information about your household.
+
+For example, you may indicate whether:
+- You are searching for an apartment by yourself
+- You live with a partner
+- You have children
+- You are searching for housing for a larger household
+
+This information helps make your apartment search more specific to your household requirements.
+
+---
+
+## Step 5: Tell Us About Your Pets
+
+If you have pets, you can provide that information during the apartment-finding process.
+
+Pet policies can vary from one property to another, making this an important consideration for many renters.
+
+By including your pet information in your search profile, Rentorce can take this requirement into account when available properties are considered. Check out our [Pet-Friendly Apartments Guide](/guides/pet-friendly-apartments-guide) for more tips on pet policies.
+
+---
+
+## Step 6: Define Your Apartment Specifications
+
+Now you can describe the type of apartment you are looking for.
+
+The Apartment Specifications section allows you to provide preferences and requirements related to the property itself.
+
+Depending on your needs, you can provide preferences such as:
+- Number of bedrooms (Studio, 1BR, 2BR, 3BR)
+- Number of bathrooms
+- Furnished or unfurnished — compare options in our [Furnished vs. Unfurnished Apartment Guide](/guides/furnished-vs-unfurnished-apartment)
+- Kitchen requirements
+- Amenities (in-unit laundry, parking, fitness center, balcony)
+- Other apartment features
+
+You can identify the features that matter most to you and distinguish them from features that are not essential.
+
+This helps create a more detailed apartment-search profile rather than relying only on location.
+
+---
+
+## Step 7: Set Your Monthly Rental Budget
+
+Your monthly rental budget is another important part of your search.
+
+Rentorce asks for your preferred monthly rental budget range so your search can be focused around the price range you provide.
+
+Instead of browsing properties across a broad range of rental prices, your budget becomes one of the criteria used when presenting available properties.
+
+This helps make the search more focused and easier to navigate.
+
+---
+
+## Step 8: Provide Your Credit Status
+
+The final qualification-related step asks for your self-reported credit status.
+
+This information becomes part of your renter profile and provides additional context for your apartment search.
+
+**Important**: Your credit status is self-reported and should not be interpreted as a guaranteed approval or acceptance by a property. Individual landlords, property managers, and leasing providers may have their own qualification requirements.
+
+---
+
+## Step 9: Enter Your Location
+
+If you did not begin the process by entering a ZIP code or location, you will provide your desired location during the final stage of the apartment finder.
+
+You can provide:
+- City (browse our [Apartment Location Pages](/apartments/location/new-york-ny))
+- ZIP Code
+- Area
+- Location
+
+Once the required information has been submitted, Rentorce uses your search profile and selected location to present available properties relevant to the criteria you provided.
+
+### Already Entered Your ZIP Code?
+
+If you started the process by entering your ZIP code or location from the dashboard, you do not need to enter your location again.
+
+Your initial location is already part of your search profile.
+
+---
+
+## How Your Apartment Search Profile Comes Together
+
+By completing the apartment finder, you provide Rentorce with several pieces of information about what you are looking for.
+
+Your search profile can include:
+- Location
+- Monthly Budget
+- Bedrooms & Bathrooms
+- Apartment Features
+- Furnishing Preferences
+- Amenities
+- Household Size
+- Pet Requirements
+- Self-Reported Credit Status
+- Other Housing Preferences
+
+These factors work together to create a more detailed picture of your apartment requirements.
+
+Instead of considering location alone, Rentorce can use the information you provide to present available properties relevant to your search criteria. Review our [Ultimate Apartment Hunting Checklist](/guides/apartment-hunting-checklist) to stay organized.
+
+---
+
+## Review Your Available Properties
+
+After completing the apartment finder, you can view the available properties associated with your search.
+
+Your property results are based on the information you provided, including factors such as:
+
+**Location + Budget + Apartment Specifications + Household Requirements + Other Preferences**
+
+You can browse the available properties and select individual listings to learn more about them.
+
+The purpose of this process is to move from a broad apartment search toward properties that are more relevant to the requirements you entered.
+
+---
+
+## Explore Property Details
+
+When you find a property that interests you, you can open its individual property page.
+
+Depending on the listing, you may be able to review:
+- Apartment type
+- Bedrooms and bathrooms
+- Monthly rent
+- Location
+- Furnishing information
+- Kitchen information
+- Amenities
+- Property photos
+- Other available property details
+
+This gives you an opportunity to review the available information about a property before deciding whether you want to request a tour.
+
+---
+
+## Found an Apartment You Like? Schedule a Tour
+
+If you find a property that interests you, you can select Schedule a Tour or Book, depending on the option available for that property.
+
+You can then provide your:
+- Preferred Date
+- Preferred Time
+
+Once submitted, your tour request is recorded for follow-up.
+
+---
+
+## What Happens After You Request a Tour?
+
+Submitting a tour request begins the next stage of the process: agent follow-up and tour confirmation.
+
+The typical communication flow is:
+
+**Tour Request**
+
+↓
+
+**Email Follow-Up**
+
+↓
+
+**Phone/Text Follow-Up if Needed**
+
+↓
+
+**Direct Communication With a Leasing Agent**
+
+↓
+
+**Tour Confirmation**
+
+A Rentorce leasing agent will initially attempt to contact you by email regarding your request.
+
+If there is no response to the email, a follow-up may be made using the phone number you provided during your apartment search.
+
+The agent can then communicate directly with you to discuss and confirm the tour details, including your preferred date and time.
+
+---
+
+## Why Rentorce Uses a Structured Search Process
+
+A traditional apartment search often begins with two simple questions:
+- Where do you want to live?
+- How much do you want to spend?
+
+Those are important questions, but they are only part of the picture.
+
+Your household size, pets, preferred apartment specifications, furnishing requirements, amenities, budget, location, and other preferences can all influence the type of apartment you are looking for.
+
+That is why Rentorce uses a structured renter-profile and matching process.
+
+Rather than relying solely on a location search, the platform collects multiple pieces of information and uses them to build a more complete understanding of your apartment requirements.
+
+---
+
+## The Complete Rentorce Apartment-Finding Journey
+
+Here is the complete process from your first visit to your tour request:
+
+**01 — Start Your Search**
+Choose Find Your Apartment, Start Apartment Finder, Take 2 Min Quiz, or use the dashboard search box.
+
+↓
+
+**02 — Choose Your Starting Point**
+Enter your ZIP code/location first, or start directly with the apartment finder.
+
+↓
+
+**03 — Provide Your Personal Information**
+Enter your name, phone number, and email.
+
+↓
+
+**04 — Confirm Your U.S. Status**
+Provide your U.S. residency or relocation status.
+
+↓
+
+**05 — Provide Your Age**
+Enter your age.
+
+↓
+
+**06 — Tell Us About Your Household**
+Provide your household and family-size information.
+
+↓
+
+**07 — Tell Us About Your Pets**
+Provide relevant pet information.
+
+↓
+
+**08 — Define Your Apartment Requirements**
+Select your preferred apartment specifications, features, and amenities.
+
+↓
+
+**09 — Set Your Monthly Budget**
+Provide your preferred rental budget range.
+
+↓
+
+**10 — Provide Your Credit Status**
+Provide your self-reported credit status.
+
+↓
+
+**11 — Enter Your Location**
+If you did not start with a ZIP code/location, enter your desired location.
+
+↓
+
+**12 — View Available Properties**
+Review properties relevant to your search criteria.
+
+↓
+
+**13 — Explore Property Details**
+Review available property information, photos, pricing, location, and amenities.
+
+↓
+
+**14 — Schedule a Tour**
+Choose Schedule a Tour or Book and provide your preferred date and time.
+
+↓
+
+**15 — Connect With a Rentorce Agent**
+A leasing agent follows up with you to discuss and confirm the tour request.
+
+---
+
+## A More Structured Way to Search for Your Next Apartment
+
+Rentorce is built around a simple idea:
+
+The more we understand about what you are looking for, the more focused your apartment search can become.
+
+By combining location, budget, household information, apartment specifications, pet requirements, and other renter-provided preferences, Rentorce creates a structured search profile that can be used to present available properties relevant to the information you provide.
+
+Whether you are already living in the United States or preparing for a relocation, you can start your apartment search by telling Rentorce what you need.
+
+From your first search to exploring properties and requesting a tour, the process is designed to keep your apartment search organized around your requirements.
+
+---
+
+## Ready to Start Your Apartment Search?
+
+Tell us what you're looking for, explore available properties, and request a tour when you find a place that interests you.
+
+[Find Your Apartment →](/find-apartment)
+`,
+  },
   "how-to-rent-apartment-usa": {
     title: "How to Rent an Apartment in the USA: Complete Step-by-Step Guide",
     metaTitle: "How to Rent an Apartment in the USA (2025 Step-by-Step Guide) | Rentorce",
@@ -24,7 +419,7 @@ const GUIDES: Record<string, GuideData> = {
     category: "Getting Started",
     readTime: "8 min read",
     publishDate: "2025-01-15",
-    relatedSlugs: ["apartment-hunting-checklist", "furnished-vs-unfurnished-apartment"],
+    relatedSlugs: ["how-rentorce-works", "apartment-hunting-checklist", "furnished-vs-unfurnished-apartment"],
     content: `
 ## Introduction
 
@@ -816,14 +1211,23 @@ function renderContent(content: string) {
         </div>
       );
     } else if (line.startsWith("- ")) {
+      const formatted = line.slice(2)
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\[(.+?)\]\((.+?)\)/g, "<a href='$2' class='text-blue-600 hover:text-blue-800 font-semibold underline underline-offset-2 transition'>$1</a>");
       elements.push(
         <div key={i} className="flex items-start gap-2 py-0.5">
           <CheckCircle className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-          <span className="text-slate-600 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: line.slice(2).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") }} />
+          <span className="text-slate-600 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatted }} />
         </div>
       );
     } else if (line.startsWith("---")) {
       elements.push(<hr key={i} className="my-8 border-slate-100" />);
+    } else if (line.trim() === "↓") {
+      elements.push(
+        <div key={i} className="flex justify-center py-2 text-blue-500 font-bold text-lg select-none">
+          ↓
+        </div>
+      );
     } else if (line.startsWith("🚩 ")) {
       elements.push(
         <div key={i} className="flex items-center gap-2 py-1 text-sm text-red-700">
@@ -831,8 +1235,11 @@ function renderContent(content: string) {
         </div>
       );
     } else if (line.trim().length > 0) {
+      const formatted = line
+        .replace(/\*\*(.+?)\*\*/g, "<strong class='text-slate-800'>$1</strong>")
+        .replace(/\[(.+?)\]\((.+?)\)/g, "<a href='$2' class='text-blue-600 hover:text-blue-800 font-semibold underline underline-offset-2 transition'>$1</a>");
       elements.push(
-        <p key={i} className="text-slate-600 leading-relaxed mb-3 text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.+?)\*\*/g, "<strong class='text-slate-800'>$1</strong>") }} />
+        <p key={i} className="text-slate-600 leading-relaxed mb-3 text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: formatted }} />
       );
     }
   });
