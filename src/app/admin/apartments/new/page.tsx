@@ -422,7 +422,7 @@ export default function NewApartmentPage() {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. The Lexington Modern Suite"
+                    placeholder="Enter apartment title"
                     value={apartment.title}
                     onChange={(e) => setApartment({ ...apartment, title: e.target.value })}
                     className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium outline-none focus:bg-white focus:border-blue-500 transition text-xs"
@@ -440,7 +440,7 @@ export default function NewApartmentPage() {
                     <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                     <input
                       type="text"
-                      placeholder="e.g. 18 Nantucket Dr, Medford, NY 11763 or Paterson, NJ 07501"
+                      placeholder="Enter property address or leave blank"
                       value={apartment.addressTemplate || ""}
                       onChange={(e) => setApartment({ ...apartment, addressTemplate: e.target.value })}
                       className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium text-xs"
@@ -511,7 +511,7 @@ export default function NewApartmentPage() {
                       <span className="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">$</span>
                       <input
                         type="number"
-                        placeholder="e.g. 1250"
+                        placeholder="Enter monthly rent"
                         value={apartment.baseRent ? apartment.baseRent : ""}
                         onChange={(e) =>
                           setApartment({
@@ -528,7 +528,7 @@ export default function NewApartmentPage() {
                     <label className="block text-slate-700 font-semibold mb-1">Square Feet</label>
                     <input
                       type="number"
-                      placeholder="e.g. 750"
+                      placeholder="Enter square feet"
                       value={apartment.squareFeet ? apartment.squareFeet : ""}
                       onChange={(e) =>
                         setApartment({

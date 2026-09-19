@@ -235,7 +235,7 @@ export default function ApartmentBookingModal({
                   <input
                     type="text"
                     required
-                    placeholder="Full Name"
+                    placeholder="Enter your name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900"
@@ -248,7 +248,7 @@ export default function ApartmentBookingModal({
                     <input
                       type="tel"
                       required
-                      placeholder="Phone Number"
+                      placeholder="Enter your phone number"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900"
@@ -260,7 +260,7 @@ export default function ApartmentBookingModal({
                     <input
                       type="email"
                       required
-                      placeholder="Email Address"
+                      placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900"
@@ -338,7 +338,7 @@ export default function ApartmentBookingModal({
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Planning to move next month, have a cat..."
+                  placeholder="Enter move-in date, preferences, or special requests..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="w-full p-2.5 text-xs rounded-xl border border-slate-200 text-slate-900 outline-none focus:border-blue-500"

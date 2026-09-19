@@ -699,7 +699,7 @@ export default function AdminUsersPage() {
                     required
                     value={newUserData.displayName}
                     onChange={(e) => setNewUserData({ ...newUserData, displayName: e.target.value })}
-                    placeholder="e.g. John Doe"
+                    placeholder="Enter display name"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-blue-500 transition"
                   />
                 </div>
@@ -716,7 +716,7 @@ export default function AdminUsersPage() {
                         username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""),
                       })
                     }
-                    placeholder="e.g. johndoe"
+                    placeholder="Enter username"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono outline-none focus:border-blue-500 transition"
                   />
                 </div>

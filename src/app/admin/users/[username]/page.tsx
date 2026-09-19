@@ -1309,7 +1309,7 @@ export default function AdminUserDetailPage() {
                   required
                   value={editFormData.displayName}
                   onChange={(e) => setEditFormData({ ...editFormData, displayName: e.target.value })}
-                  placeholder="e.g. Sanzid Ahmed"
+                  placeholder="Enter display name"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-blue-500 transition"
                 />
               </div>
@@ -1337,7 +1337,7 @@ export default function AdminUserDetailPage() {
                         username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""),
                       })
                     }
-                    placeholder="username"
+                    placeholder="Enter username"
                     className={`w-full pl-8 pr-3.5 py-2.5 rounded-xl border text-xs font-mono outline-none transition ${
                       isRootFounder
                         ? "bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed"

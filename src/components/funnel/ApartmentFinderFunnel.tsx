@@ -1012,7 +1012,7 @@ export default function ApartmentFinderFunnel() {
                           const val = e.target.value === "" ? 0 : Number(e.target.value);
                           updateField("budgetMin", val);
                         }}
-                        placeholder="e.g. 800"
+                        placeholder="Enter min rent"
                         className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
@@ -1035,7 +1035,7 @@ export default function ApartmentFinderFunnel() {
                           const val = e.target.value === "" ? 0 : Number(e.target.value);
                           updateField("budgetMax", val);
                         }}
-                        placeholder="e.g. 1500"
+                        placeholder="Enter max rent"
                         className="w-full pl-7 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
@@ -1103,7 +1103,7 @@ export default function ApartmentFinderFunnel() {
                     type="text"
                     required
                     data-field="desiredLocation"
-                    placeholder="e.g. NY 11004 or Chicago 60007 or Austin, TX"
+                    placeholder="Enter city, state, or ZIP code"
                     value={formData.desiredLocation}
                     onChange={(e) => updateField("desiredLocation", e.target.value)}
                     className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-slate-900 font-medium transition"

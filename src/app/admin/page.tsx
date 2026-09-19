@@ -2333,7 +2333,7 @@ export default function AdminDashboardPage() {
                           type="text"
                           value={stats.activeApartments}
                           onChange={(e) => setStats({ ...stats, activeApartments: e.target.value })}
-                          placeholder="e.g. 3,250+"
+                          placeholder="Enter active apartments count"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
                       </div>
@@ -2346,7 +2346,7 @@ export default function AdminDashboardPage() {
                           type="text"
                           value={stats.activeRenters}
                           onChange={(e) => setStats({ ...stats, activeRenters: e.target.value })}
-                          placeholder="e.g. 12,500+"
+                          placeholder="Enter active renters count"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
                       </div>
@@ -2359,7 +2359,7 @@ export default function AdminDashboardPage() {
                           type="text"
                           value={stats.propertiesListed}
                           onChange={(e) => setStats({ ...stats, propertiesListed: e.target.value })}
-                          placeholder="e.g. 4,200+"
+                          placeholder="Enter properties listed count"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
                       </div>
@@ -2372,7 +2372,7 @@ export default function AdminDashboardPage() {
                           type="text"
                           value={stats.customersServed}
                           onChange={(e) => setStats({ ...stats, customersServed: e.target.value })}
-                          placeholder="e.g. 9,800+"
+                          placeholder="Enter customers served count"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-bold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
                       </div>
@@ -2408,7 +2408,7 @@ export default function AdminDashboardPage() {
                           type="email"
                           value={stats.supportEmail || ""}
                           onChange={(e) => setStats({ ...stats, supportEmail: e.target.value })}
-                          placeholder="e.g. support@rentorce.com"
+                          placeholder="Enter support email"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-semibold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
                       </div>
@@ -2422,7 +2422,7 @@ export default function AdminDashboardPage() {
                           type="text"
                           value={stats.supportPhone || ""}
                           onChange={(e) => setStats({ ...stats, supportPhone: e.target.value })}
-                          placeholder="e.g. +1 (800) 492-7836"
+                          placeholder="Enter support phone number"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 font-semibold outline-none focus:bg-white focus:border-blue-500 transition"
                         />
                       </div>
@@ -3273,7 +3273,7 @@ export default function AdminDashboardPage() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. The Lexington Modern Suite"
+                      placeholder="Enter apartment title"
                       value={editingApt.title}
                       onChange={(e) => setEditingApt({ ...editingApt, title: e.target.value })}
                       className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium outline-none focus:bg-white focus:border-blue-500 transition"
@@ -3289,7 +3289,7 @@ export default function AdminDashboardPage() {
                       <MapPin className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                       <input
                         type="text"
-                        placeholder="e.g. 18 Nantucket Dr, Medford, NY 11763 or Paterson, NJ 07501"
+                        placeholder="Enter property address or leave blank"
                         value={editingApt.addressTemplate || ""}
                         onChange={(e) => setEditingApt({ ...editingApt, addressTemplate: e.target.value })}
                         className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 outline-none focus:bg-white focus:border-blue-500 transition font-medium"
@@ -3355,7 +3355,7 @@ export default function AdminDashboardPage() {
                         <span className="absolute left-3 top-2.5 text-slate-400 font-bold text-xs">$</span>
                         <input
                           type="number"
-                          placeholder="e.g. 1250"
+                          placeholder="Enter monthly rent"
                           value={editingApt.baseRent ? editingApt.baseRent : ""}
                           onChange={(e) =>
                             setEditingApt({
@@ -3372,7 +3372,7 @@ export default function AdminDashboardPage() {
                       <label className="block text-slate-700 font-medium mb-1">Square Feet</label>
                       <input
                         type="number"
-                        placeholder="e.g. 750"
+                        placeholder="Enter square feet"
                         value={editingApt.squareFeet ? editingApt.squareFeet : ""}
                         onChange={(e) =>
                           setEditingApt({
@@ -3863,7 +3863,7 @@ export default function AdminDashboardPage() {
                     required
                     value={newUserData.displayName}
                     onChange={(e) => setNewUserData({ ...newUserData, displayName: e.target.value })}
-                    placeholder="e.g. Sihab Ali or Rahim"
+                    placeholder="Enter display name"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-blue-500 transition"
                   />
                 </div>
@@ -3875,7 +3875,7 @@ export default function AdminDashboardPage() {
                     required
                     value={newUserData.username}
                     onChange={(e) => setNewUserData({ ...newUserData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, "") })}
-                    placeholder="e.g. sihab or rahim"
+                    placeholder="Enter username"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-mono outline-none focus:border-blue-500 transition"
                   />
                 </div>

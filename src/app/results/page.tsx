@@ -387,7 +387,7 @@ export default function ResultsPage() {
                     <input
                       type="text"
                       required
-                      placeholder="Full Name"
+                      placeholder="Enter your name"
                       value={renterName}
                       onChange={(e) => setRenterName(e.target.value)}
                       className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900"
@@ -396,7 +396,7 @@ export default function ResultsPage() {
                       <input
                         type="tel"
                         required
-                        placeholder="Phone Number"
+                        placeholder="Enter your phone number"
                         value={renterPhone}
                         onChange={(e) => setRenterPhone(e.target.value)}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900"
@@ -404,7 +404,7 @@ export default function ResultsPage() {
                       <input
                         type="email"
                         required
-                        placeholder="Email Address"
+                        placeholder="Enter your email"
                         value={renterEmail}
                         onChange={(e) => setRenterEmail(e.target.value)}
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:border-blue-600 outline-none text-slate-900"
