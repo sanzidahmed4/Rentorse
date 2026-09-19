@@ -27,6 +27,22 @@ import {
   Sparkles,
 } from "lucide-react";
 import { FunnelFormData, IApartment } from "@/types";
+import { trackGAEvent } from "@/lib/analytics";
+
+const getStepName = (step: number, total: number) => {
+  const names: Record<number, string> = {
+    1: "Personal Info",
+    2: "US Residency",
+    3: "Age",
+    4: "Household Size",
+    5: "Pets",
+    6: "Apartment Specs",
+    7: "Rental Budget",
+    8: total === 8 ? "Credit Status & Pre-filled Location" : "Credit Status",
+    9: "Location Selection",
+  };
+  return names[step] || `Step ${step}`;
+};
 
 const ALL_AMENITIES = [
   "Parking",
@@ -94,6 +110,25 @@ export default function ApartmentFinderFunnel() {
       setFormData((prev) => ({ ...prev, desiredLocation: urlLocation.trim() }));
     }
   }, [urlLocation]);
+
+  // GA4: Track funnel step view and start
+  useEffect(() => {
+    const stepName = getStepName(currentStep, totalSteps);
+    trackGAEvent("quiz_step_view", {
+      step_number: currentStep,
+      step_name: stepName,
+      total_steps: totalSteps,
+      is_target_apartment: Boolean(targetApartmentParam),
+    });
+
+    if (currentStep === 1) {
+      trackGAEvent("quiz_start", {
+        total_steps: totalSteps,
+        is_target_apartment: Boolean(targetApartmentParam),
+        has_preselected_location: hasPreselectedLocation,
+      });
+    }
+  }, [currentStep, totalSteps, targetApartmentParam, hasPreselectedLocation]);
 
   // Load target apartment details if routed from featured apartment cards
   useEffect(() => {
@@ -172,17 +207,33 @@ export default function ApartmentFinderFunnel() {
   const handleNext = () => {
     if (submitting) return;
     if (validateStep(currentStep)) {
+      const stepName = getStepName(currentStep, totalSteps);
+      trackGAEvent("quiz_step_complete", {
+        step_number: currentStep,
+        step_name: stepName,
+        total_steps: totalSteps,
+      });
+
       if (currentStep < totalSteps) {
         setCurrentStep((prev) => prev + 1);
       } else {
         handleSubmit();
       }
+    } else {
+      trackGAEvent("quiz_step_validation_error", {
+        step_number: currentStep,
+        step_name: getStepName(currentStep, totalSteps),
+      });
     }
   };
 
   const handleBack = () => {
     if (submitting) return;
     if (currentStep > 1) {
+      trackGAEvent("quiz_step_back", {
+        from_step: currentStep,
+        to_step: currentStep - 1,
+      });
       setErrorMsg("");
       setCurrentStep((prev) => prev - 1);
     }
@@ -221,6 +272,16 @@ export default function ApartmentFinderFunnel() {
       const data = await res.json();
 
       if (res.ok && data.success) {
+        trackGAEvent("quiz_complete", {
+          total_steps: totalSteps,
+          has_target_apartment: Boolean(targetApartment),
+          bedrooms: formData.bedrooms,
+          bathrooms: formData.bathrooms,
+          budget_min: formData.budgetMin,
+          budget_max: formData.budgetMax,
+          has_pets: formData.hasPets,
+        });
+
         // Save search and matches into sessionStorage
         if (typeof window !== "undefined") {
           sessionStorage.setItem("rentorce_last_search", JSON.stringify(submissionData));
@@ -246,11 +307,17 @@ export default function ApartmentFinderFunnel() {
           router.push("/results");
         }
       } else {
+        trackGAEvent("quiz_submission_error", {
+          error_message: data.error || "Failed to search apartments",
+        });
         setErrorMsg(data.error || "Failed to search apartments. Please retry.");
         setSubmitting(false);
       }
     } catch (err) {
       console.error(err);
+      trackGAEvent("quiz_submission_error", {
+        error_message: "Network error",
+      });
       setErrorMsg("Network error. Please check your connection and try again.");
       setSubmitting(false);
     }

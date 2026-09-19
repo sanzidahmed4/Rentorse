@@ -1,0 +1,28 @@
+/**
+ * Google Analytics 4 (GA4) custom event tracking utility
+ * Measurement ID: G-LNBHKWE17R
+ */
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+    dataLayer?: any[];
+  }
+}
+
+export const GA_MEASUREMENT_ID = "G-LNBHKWE17R";
+
+/**
+ * Safely sends a custom event to GA4.
+ * CRITICAL PRIVACY RULE: Never pass Personally Identifiable Information (PII)
+ * such as full names, email addresses, or phone numbers to Google Analytics.
+ */
+export function trackGAEvent(eventName: string, params?: Record<string, any>) {
+  if (typeof window !== "undefined" && typeof window.gtag === "function") {
+    try {
+      window.gtag("event", eventName, params);
+    } catch (err) {
+      console.warn("GA4 event error:", err);
+    }
+  }
+}
