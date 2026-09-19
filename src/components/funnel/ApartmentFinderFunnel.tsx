@@ -459,7 +459,7 @@ export default function ApartmentFinderFunnel() {
                     type="text"
                     required
                     data-field="fullName"
-                    placeholder="e.g. John Doe"
+                    placeholder="Enter your name"
                     value={formData.fullName}
                     onChange={(e) => updateField("fullName", e.target.value)}
                     className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-slate-800 transition"
@@ -478,7 +478,7 @@ export default function ApartmentFinderFunnel() {
                     type="tel"
                     required
                     data-field="phone"
-                    placeholder="e.g. (555) 123-4567"
+                    placeholder="Enter your phone number"
                     value={formData.phone}
                     onChange={(e) => updateField("phone", e.target.value)}
                     className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-slate-800 transition"
@@ -500,7 +500,7 @@ export default function ApartmentFinderFunnel() {
                     type="email"
                     required
                     data-field="email"
-                    placeholder="e.g. john@example.com"
+                    placeholder="Enter your email"
                     value={formData.email}
                     onChange={(e) => updateField("email", e.target.value)}
                     className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none text-slate-800 transition"
