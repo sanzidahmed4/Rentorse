@@ -307,14 +307,14 @@ export default async function HomePage() {
             {/* 1. Complete 8-Step Quiz */}
             <Link
               href="/find-apartment"
-              className="group p-6 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition flex flex-col justify-between"
+              className="group p-6 rounded-2xl bg-blue-50/35 hover:bg-blue-50/70 border border-blue-100/80 hover:border-blue-300/80 transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono font-bold text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded">
                     01
                   </span>
-                  <span className="text-[11px] font-medium text-slate-400 group-hover:text-blue-600 transition-colors">
+                  <span className="text-[11px] font-medium text-slate-500 group-hover:text-blue-600 transition-colors">
                     2 Min Quiz
                   </span>
                 </div>
@@ -325,7 +325,7 @@ export default async function HomePage() {
                   Provide your preferred location, bedroom count, pets, and target budget from $800 to $1,800.
                 </p>
               </div>
-              <div className="pt-5 mt-auto flex items-center gap-1 text-xs font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
+              <div className="pt-5 mt-auto flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:text-blue-700 transition-colors">
                 <span>Start Quiz</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </div>
@@ -334,14 +334,14 @@ export default async function HomePage() {
             {/* 2. Dynamic Matching */}
             <Link
               href="/guides/how-rentorce-works#dynamic-matching"
-              className="group p-6 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition flex flex-col justify-between"
+              className="group p-6 rounded-2xl bg-blue-50/35 hover:bg-blue-50/70 border border-blue-100/80 hover:border-blue-300/80 transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono font-bold text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded">
                     02
                   </span>
-                  <span className="text-[11px] font-medium text-slate-400 group-hover:text-blue-600 transition-colors">
+                  <span className="text-[11px] font-medium text-slate-500 group-hover:text-blue-600 transition-colors">
                     Smart Match
                   </span>
                 </div>
@@ -352,7 +352,7 @@ export default async function HomePage() {
                   Our algorithm scans verified properties and adapts location details and calibrated prices matching your exact criteria.
                 </p>
               </div>
-              <div className="pt-5 mt-auto flex items-center gap-1 text-xs font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
+              <div className="pt-5 mt-auto flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:text-blue-700 transition-colors">
                 <span>Matching Process</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </div>
@@ -361,14 +361,14 @@ export default async function HomePage() {
             {/* 3. Schedule Tour & Lease */}
             <Link
               href="/guides/how-rentorce-works#schedule-tour-lease"
-              className="group p-6 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition flex flex-col justify-between"
+              className="group p-6 rounded-2xl bg-blue-50/35 hover:bg-blue-50/70 border border-blue-100/80 hover:border-blue-300/80 transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono font-bold text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded">
                     03
                   </span>
-                  <span className="text-[11px] font-medium text-slate-400 group-hover:text-blue-600 transition-colors">
+                  <span className="text-[11px] font-medium text-slate-500 group-hover:text-blue-600 transition-colors">
                     Tour & Lease
                   </span>
                 </div>
@@ -379,7 +379,7 @@ export default async function HomePage() {
                   Pick your preferred apartment and schedule an in-person or virtual walkthrough directly with leasing agents.
                 </p>
               </div>
-              <div className="pt-5 mt-auto flex items-center gap-1 text-xs font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
+              <div className="pt-5 mt-auto flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:text-blue-700 transition-colors">
                 <span>Tour & Lease Guide</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </div>
@@ -388,14 +388,14 @@ export default async function HomePage() {
             {/* 4. How Rentorce Works */}
             <Link
               href="/guides/how-rentorce-works"
-              className="group p-6 rounded-2xl bg-white border border-slate-200/80 hover:border-slate-300 transition flex flex-col justify-between"
+              className="group p-6 rounded-2xl bg-blue-50/35 hover:bg-blue-50/70 border border-blue-100/80 hover:border-blue-300/80 transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono font-bold text-blue-600 bg-blue-100/70 px-2 py-0.5 rounded">
                     04
                   </span>
-                  <span className="text-[11px] font-medium text-slate-400 group-hover:text-blue-600 transition-colors">
+                  <span className="text-[11px] font-medium text-slate-500 group-hover:text-blue-600 transition-colors">
                     Full Guide
                   </span>
                 </div>
@@ -406,7 +406,7 @@ export default async function HomePage() {
                   Explore our complete guide explaining customer service, renter profiling, property verification, and matching.
                 </p>
               </div>
-              <div className="pt-5 mt-auto flex items-center gap-1 text-xs font-semibold text-slate-700 group-hover:text-blue-600 transition-colors">
+              <div className="pt-5 mt-auto flex items-center gap-1 text-xs font-semibold text-blue-600 group-hover:text-blue-700 transition-colors">
                 <span>Read Full Article</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
               </div>
