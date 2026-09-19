@@ -14,17 +14,25 @@ export async function matchApartments(
   criteria: FunnelFormData
 ): Promise<MatchedApartmentResult[]> {
   const queryLocation = (criteria.desiredLocation || "").trim();
+  const targetBedrooms = Number(criteria.bedrooms) || 1;
+  const targetBathrooms = Number(criteria.bathrooms) || 1;
 
   // 1. Fetch base inventory from store (MongoDB or memory)
   const allApartments = await getApartments({ isActive: true });
 
-  // 2. CHECK FOR REAL / MANUAL APARTMENT MATCHES (Only those with a specified location/address)
+  // 2. CHECK FOR REAL / MANUAL APARTMENT MATCHES (Must match location AND requested bedroom count)
   const matchedManualUnits: MatchedApartmentResult[] = [];
   const manualApartments = allApartments.filter(
     (apt) => apt.isManual && apt.addressTemplate && apt.addressTemplate.trim().length > 0
   );
 
   for (const apt of manualApartments) {
+    // If renter searched for a specific bedroom count, only include manual units that match it!
+    // (Prevents 1-Bed apartments from overwhelming a 3-Bed search)
+    if (criteria.bedrooms && apt.bedrooms !== targetBedrooms) {
+      continue;
+    }
+
     const locMatch = matchLocation(apt.addressTemplate || "", queryLocation);
     if (locMatch.matches) {
       let score = 88;
@@ -43,11 +51,11 @@ export async function matchApartments(
         highlights.push("⭐ Verified Local Property");
       }
 
-      if (apt.bedrooms === criteria.bedrooms) {
+      if (apt.bedrooms === targetBedrooms) {
         score += 5;
         highlights.push(`${apt.bedrooms} Bed Layout Match`);
       }
-      if (apt.bathrooms === criteria.bathrooms) {
+      if (apt.bathrooms === targetBathrooms) {
         highlights.push(`${apt.bathrooms} Bath`);
       }
       if (apt.hasKitchen && criteria.kitchenRequired) {
@@ -80,9 +88,6 @@ export async function matchApartments(
   const chameleonPool = allApartments.filter(
     (apt) => !matchedIds.has(apt._id || apt.id) && (!apt.isManual || !apt.addressTemplate || !apt.addressTemplate.trim())
   );
-
-  const targetBedrooms = Number(criteria.bedrooms) || 1;
-  const targetBathrooms = Number(criteria.bathrooms) || 1;
 
   // Helper to shuffle an array organically
   const shuffle = <T>(arr: T[]): T[] => {
@@ -242,6 +247,22 @@ export async function matchApartments(
 
   // 4. COMBINE: REAL MANUAL UNITS FIRST, CHAMELEON UNITS SECOND
   const finalResults: MatchedApartmentResult[] = [...matchedManualUnits, ...adaptedChameleons];
+
+  // Final priority sort:
+  // 1. Exact bedroom match
+  // 2. Exact bathroom match
+  // 3. Match score descending
+  finalResults.sort((a, b) => {
+    const aBed = a.bedrooms === targetBedrooms ? 1 : 0;
+    const bBed = b.bedrooms === targetBedrooms ? 1 : 0;
+    if (aBed !== bBed) return bBed - aBed;
+
+    const aBath = a.bathrooms === targetBathrooms ? 1 : 0;
+    const bBath = b.bathrooms === targetBathrooms ? 1 : 0;
+    if (aBath !== bBath) return bBath - aBath;
+
+    return b.matchScore - a.matchScore;
+  });
 
   return finalResults;
 }

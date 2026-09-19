@@ -229,11 +229,7 @@ export default function ResultsPage() {
           {matches.map((apt, index) => (
             <div
               key={apt.id || apt._id || index}
-              className={`bg-white rounded-3xl overflow-hidden border ${
-                apt.isManual
-                  ? "border-blue-500/60 ring-2 ring-blue-500/15 shadow-lg"
-                  : "border-slate-200/80 shadow-sm"
-              } hover:shadow-xl transition-all duration-300 flex flex-col group`}
+              className="bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col group"
             >
               {/* Image Preview */}
               <div className="relative h-60 w-full overflow-hidden bg-slate-100">
@@ -244,6 +240,14 @@ export default function ResultsPage() {
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 380px"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
+
+                {/* Verified Property Badge */}
+                {apt.isManual && (
+                  <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-800 flex items-center gap-1 shadow-sm border border-slate-200/60">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Verified Property</span>
+                  </div>
+                )}
 
                 {/* Rent Badge */}
                 <div className="absolute bottom-3 right-3 bg-blue-600 text-white px-3.5 py-1.5 rounded-xl font-black text-base shadow-lg">
