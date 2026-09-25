@@ -27,7 +27,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { FunnelFormData, IApartment } from "@/types";
-import { trackGAEvent, trackFBPixel } from "@/lib/analytics";
+import { trackGAEvent, trackFBPixel, trackLeadGenerated } from "@/lib/analytics";
 
 const getStepName = (step: number, total: number) => {
   const names: Record<number, string> = {
@@ -303,10 +303,14 @@ export default function ApartmentFinderFunnel() {
           has_pets: formData.hasPets,
         });
 
-        trackFBPixel("Lead", {
-          content_name: "Apartment Match Quiz",
-          currency: "USD",
+        // GA4 standard conversion event + Meta Pixel Lead
+        trackLeadGenerated({
+          leadId: data.leadId,
           value: formData.budgetMax || 1200,
+          currency: "USD",
+          source: targetApartment ? "apartment_inquiry_quiz" : "general_finder_quiz",
+          bedrooms: formData.bedrooms,
+          location: submissionData.desiredLocation,
         });
 
         // Save search and matches into sessionStorage

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { MatchedApartmentResult } from "@/lib/matching-engine";
 import { FunnelFormData } from "@/types";
+import { trackGAEvent, trackFBPixel, trackTourScheduled } from "@/lib/analytics";
 
 export default function ResultsPage() {
   const [matches, setMatches] = useState<MatchedApartmentResult[]>([]);
@@ -49,6 +50,24 @@ export default function ResultsPage() {
         try {
           const parsed = JSON.parse(storedMatches);
           setMatches(parsed);
+
+          // Track standard GA4 view_item_list & Meta ViewContent
+          trackGAEvent("view_item_list", {
+            item_list_id: "matched_apartments",
+            item_list_name: "Search Results",
+            items: parsed.slice(0, 10).map((apt: MatchedApartmentResult, idx: number) => ({
+              item_id: apt._id || apt.id,
+              item_name: apt.title,
+              index: idx + 1,
+              price: apt.displayRent || apt.baseRent,
+              item_category: `${apt.bedrooms} Bed`,
+            })),
+          });
+
+          trackFBPixel("ViewContent", {
+            content_name: "Apartment Search Results",
+            content_category: "Rental Search",
+          });
         } catch (e) {
           console.error(e);
         }
@@ -139,6 +158,17 @@ export default function ResultsPage() {
           sessionStorage.setItem("apartmento_lead_id", data.lead._id);
         }
       }
+
+      // Track tour booking conversion in GA4 & Meta Pixel
+      trackTourScheduled({
+        apartmentId: selectedApt._id || selectedApt.id,
+        apartmentTitle: selectedApt.title,
+        rent: selectedApt.displayRent || selectedApt.baseRent,
+        tourType,
+        tourDate,
+        tourTime,
+      });
+
       setTourSubmitted(true);
     } catch (err) {
       console.error("Error updating lead with tour interest:", err);
@@ -294,6 +324,16 @@ export default function ResultsPage() {
                   <button
                     type="button"
                     onClick={() => {
+                      trackGAEvent("select_item", {
+                        item_list_id: "matched_apartments",
+                        item_list_name: "Search Results",
+                        action: "schedule_tour_click",
+                        items: [{
+                          item_id: apt._id || apt.id,
+                          item_name: apt.title,
+                          price: apt.displayRent || apt.baseRent,
+                        }],
+                      });
                       setSelectedApt(apt);
                       setTourSubmitted(false);
                     }}
@@ -310,6 +350,18 @@ export default function ResultsPage() {
                       baths: String(apt.bathrooms),
                       rent: String(apt.displayRent),
                     }).toString()}`}
+                    onClick={() => {
+                      trackGAEvent("select_item", {
+                        item_list_id: "matched_apartments",
+                        item_list_name: "Search Results",
+                        action: "view_details_click",
+                        items: [{
+                          item_id: apt._id || apt.id,
+                          item_name: apt.title,
+                          price: apt.displayRent || apt.baseRent,
+                        }],
+                      });
+                    }}
                     className="py-3 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
                     title="View Apartment Specs"
                   >

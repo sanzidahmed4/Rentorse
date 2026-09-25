@@ -18,6 +18,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { IApartment } from "@/types";
+import { trackTourScheduled } from "@/lib/analytics";
 
 interface ApartmentBookingModalProps {
   apartment: IApartment;
@@ -120,6 +121,17 @@ export default function ApartmentBookingModal({
           sessionStorage.setItem("rentorce_lead_id", data.lead._id);
           sessionStorage.setItem("apartmento_lead_id", data.lead._id);
         }
+
+        // Track conversion in GA4 & Meta Pixel
+        trackTourScheduled({
+          apartmentId: apartment._id || apartment.id,
+          apartmentTitle: apartment.title,
+          rent: apartment.baseRent,
+          tourType,
+          tourDate,
+          tourTime,
+        });
+
         setSuccess(true);
       } else {
         setErrorMsg(data.error || "Failed to book tour. Please try again.");

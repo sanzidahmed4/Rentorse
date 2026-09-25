@@ -56,3 +56,60 @@ export function trackFBPixel(eventName: string, params?: Record<string, any>) {
     console.warn("FB Pixel event error:", err);
   }
 }
+
+/**
+ * Standard GA4 Funnel & Conversion Helpers
+ */
+export function trackLeadGenerated(params: {
+  leadId?: string;
+  value?: number;
+  currency?: string;
+  source?: string;
+  bedrooms?: number;
+  location?: string;
+}) {
+  trackGAEvent("generate_lead", {
+    currency: params.currency || "USD",
+    value: params.value || 1200,
+    lead_id: params.leadId,
+    source: params.source || "quiz_funnel",
+    bedrooms: params.bedrooms,
+    location: params.location,
+  });
+
+  trackFBPixel("Lead", {
+    content_name: params.source || "Apartment Match Quiz",
+    currency: params.currency || "USD",
+    value: params.value || 1200,
+  });
+}
+
+export function trackTourScheduled(params: {
+  apartmentId?: string;
+  apartmentTitle?: string;
+  rent?: number;
+  tourType?: string;
+  tourDate?: string;
+  tourTime?: string;
+}) {
+  trackGAEvent("schedule_tour", {
+    apartment_id: params.apartmentId,
+    apartment_title: params.apartmentTitle,
+    rent: params.rent,
+    tour_type: params.tourType,
+    tour_date: params.tourDate,
+    tour_time: params.tourTime,
+  });
+
+  trackGAEvent("generate_lead", {
+    currency: "USD",
+    value: params.rent || 1000,
+    lead_type: "Tour Schedule",
+  });
+
+  trackFBPixel("Schedule", {
+    content_name: params.apartmentTitle || "Apartment Tour",
+    currency: "USD",
+    value: params.rent || 1000,
+  });
+}

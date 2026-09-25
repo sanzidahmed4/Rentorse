@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Loader2, Building2 } from "lucide-react";
+import { trackGAEvent } from "@/lib/analytics";
 
 interface LocationSuggestion {
   name: string;
@@ -60,6 +61,15 @@ export default function HeroSearchBox() {
   };
 
   const handleSelectLocation = (locationName: string, count: number) => {
+    trackGAEvent("search", {
+      search_term: locationName,
+      available_units: count,
+    });
+    trackGAEvent("quiz_start_click", {
+      source: "hero_search",
+      location: locationName,
+    });
+
     setQuery(locationName);
     setMatchedCount(count);
     setIsSubmitting(true);

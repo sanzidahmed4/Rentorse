@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Sparkles, ArrowRight, Calendar, Star } from "lucide-react";
 import { IApartment } from "@/types";
+import { trackGAEvent, trackFBPixel } from "@/lib/analytics";
 
 interface ApartmentUnlockBannerProps {
   apartment: IApartment;
@@ -27,6 +28,28 @@ function ApartmentUnlockBannerContent({ apartment }: ApartmentUnlockBannerProps)
 
       const unlockedState = urlUnlocked || storedAptUnlocked || quizCompleted;
       setIsUnlocked(unlockedState);
+
+      // Track standard GA4 view_item & Meta ViewContent
+      trackGAEvent("view_item", {
+        currency: "USD",
+        value: apartment.baseRent,
+        items: [
+          {
+            item_id: aptKey,
+            item_name: apartment.title,
+            price: apartment.baseRent,
+            item_category: `${apartment.bedrooms} Bed`,
+          },
+        ],
+      });
+
+      trackFBPixel("ViewContent", {
+        content_name: apartment.title,
+        content_ids: [aptKey],
+        content_type: "product",
+        value: apartment.baseRent,
+        currency: "USD",
+      });
     }
   }, [searchParams, apartment]);
 
@@ -88,6 +111,13 @@ function ApartmentUnlockBannerContent({ apartment }: ApartmentUnlockBannerProps)
 
       <Link
         href={`/find-apartment?apartment=${apartment.slug || apartment._id || apartment.id}`}
+        onClick={() => {
+          trackGAEvent("quiz_start_click", {
+            source: "apartment_detail_banner",
+            apartment_id: apartment.slug || apartment._id || apartment.id,
+            apartment_title: apartment.title,
+          });
+        }}
         className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-md shadow-blue-500/25 shrink-0 flex items-center gap-1.5 cursor-pointer"
       >
         <span>Take 2-Min Quiz</span>
