@@ -1,129 +1,63 @@
 <div align="center">
-  <img src="public/fulllogo.svg" alt="Rentorce" width="320" />
+  <a href="https://rentorce.com">
+    <img src="public/fulllogo.svg" alt="Rentorce" width="320" />
+  </a>
 
-  <h1>Find a place that feels like home.</h1>
+  <h1>Find an apartment that fits your life.</h1>
 
-  <p>A smarter way to discover apartments that fit your budget, space, and neighborhood.</p>
+  <p>Discover rental options across the United States, matched to your location, budget, and lifestyle.</p>
+
+  <p><a href="https://rentorce.com"><strong>Visit Rentorce →</strong></a></p>
 </div>
 
 ---
 
-## About Rentorce
+## What is Rentorce?
 
-Rentorce is an apartment-finding platform built to help renters discover homes across the United States. Search for verified listings and find 1-bedroom, 2-bedroom, and 3-bedroom apartments matched to your preferences.
+Rentorce is an online apartment-finding service designed to make the search for a new home simpler. Renters can explore apartment listings, tell us what they are looking for, and see options that align with their preferred location, monthly budget, apartment size, and lifestyle needs.
 
-The application includes an apartment discovery experience, personalized matching flow, listing details, tour-request and lead forms, location-based browsing, renter guides, and an admin area for managing listings and users.
+Whether you are moving across town or relocating to a new city, Rentorce helps you move from searching to discovering places worth exploring.
 
-## Features
+## What you can do with Rentorce
 
-- Browse apartments and explore listings by location.
-- Find rental matches based on renter preferences.
-- View apartment details, photos, and tour-request options.
-- Submit renter inquiries and newsletter signups.
-- Manage apartments and admin users through protected admin tools.
-- Responsive web experience built with Next.js.
+### Find apartments that fit your preferences
 
-## Tech stack
+Use the Apartment Finder to share where you want to live and what matters to you. You can provide your city, state, or ZIP code; monthly rent range; bedroom and bathroom preferences; household size; and preferences such as pets, furnishings, kitchen setup, and amenities. Rentorce uses these details to find relevant apartment options.
 
-- **Framework:** Next.js 16 (App Router)
-- **Language:** TypeScript
-- **UI:** React 19, Tailwind CSS 4, Framer Motion, Lucide React
-- **Data:** MongoDB with Mongoose
-- **Validation and forms:** Zod, React Hook Form
-- **Image storage:** Cloudinary (optional configuration)
+### Browse available listings
 
-## Getting started
+Explore featured apartments and browse listings by location. Listing cards show key details such as rent, bedrooms, bathrooms, approximate square footage, furnishings, pet policy, and selected amenities, so you can compare options at a glance.
 
-### Prerequisites
+### Explore a property in more detail
 
-- Node.js compatible with the installed Next.js version
-- npm
-- A MongoDB database for persistent application data
+Open an apartment listing to see additional property information and photos. When a listing interests you, use its inquiry or tour-request options to express interest and take the next step toward connecting about the property.
 
-### 1. Clone the repository
+### Get recommendations for a selected apartment
 
-```bash
-git clone https://github.com/sanzidahmed4/Rentorse.git
-cd Rentorse
-```
+Already found a place that caught your eye? Start the finder from that apartment to share your renter preferences in context and request more information about the selected listing.
 
-### 2. Install dependencies
+### Learn about renting
 
-```bash
-npm install
-```
+Visit the renter guides for information about the apartment-finding process and related topics. You can also sign up for recommendations and updates through the newsletter form.
 
-### 3. Configure environment variables
+## How it works
 
-Create a local environment file from the example:
+1. **Tell us what you need** — Share your preferred location, budget, apartment layout, household details, and desired features.
+2. **Explore relevant options** — Review apartment results and compare the listing details that matter to you.
+3. **Choose a property to explore** — View the listing photos and additional information for apartments you like.
+4. **Send an inquiry or request a tour** — Share your interest and follow the listing's next steps.
 
-```bash
-cp .env.example .env.local
-```
+## Designed for renters
 
-Set the values for your environment:
+Rentorce is built around the details that shape an apartment search—from finding a place within a monthly budget to checking whether a home fits your household, pet, and amenity preferences. The apartment-finding service is free for renters; property availability, pricing, and leasing terms are determined by the respective property or leasing team.
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `MONGODB_URI` | Yes | MongoDB connection string. |
-| `ADMIN_USERS` | Yes | Comma-separated `username:password` pairs for admin access. Use strong, unique passwords. |
-| `ADMIN_JWT_SECRET` | Yes | Secret used for admin authentication; use a cryptographically secure value of at least 32 characters. |
-| `NEXT_PUBLIC_APP_URL` | Recommended | Base URL of the application, such as `http://localhost:3000`. |
-| `CLOUDINARY_CLOUD_NAME` | Optional | Cloudinary cloud name for image storage. |
-| `CLOUDINARY_API_KEY` | Optional | Cloudinary API key. |
-| `CLOUDINARY_API_SECRET` | Optional | Cloudinary API secret. |
-| `INDEXNOW_KEY` | Optional | IndexNow key for notifying search engines about URLs. |
+## Explore Rentorce
 
-Alternatively, configure `CLOUDINARY_URL` instead of the individual Cloudinary variables. Keep secrets in `.env.local` or your hosting provider's secret manager—never commit real credentials.
+- **[Find an apartment](https://rentorce.com/find-apartment)** — Tell us what you're looking for.
+- **[Browse apartments](https://rentorce.com/apartments)** — Explore available listings.
+- **[Browse renter guides](https://rentorce.com/guides)** — Read helpful rental information.
+- **[Equal Housing Opportunity](https://rentorce.com/equal-housing-opportunity)**
+- **[Privacy Policy](https://rentorce.com/privacy-policy)**
+- **[Terms of Service](https://rentorce.com/terms-of-service)**
 
-### 4. Start the development server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Available scripts
-
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the development server using webpack. |
-| `npm run build` | Create a production build. |
-| `npm run start` | Run the production server (after building). |
-| `npm run lint` | Run ESLint. |
-
-## Project structure
-
-```text
-src/
-├── app/            # Next.js pages, layouts, and API routes
-│   ├── admin/      # Admin pages
-│   ├── api/        # API endpoints
-│   ├── apartments/ # Apartment listing pages
-│   ├── guides/     # Renter guides
-│   └── ...         # Search, results, and policy pages
-├── components/     # Reusable UI components
-├── lib/            # Database, matching, auth, and application utilities
-├── models/         # Mongoose data models
-└── types/          # Shared TypeScript types
-```
-
-## Production deployment
-
-Rentorce is a Next.js application and can be deployed to a Node.js host or a platform such as [Vercel](https://vercel.com/). Configure the required environment variables in the deployment environment, connect a production MongoDB database, and then build and start the application:
-
-```bash
-npm run build
-npm run start
-```
-
-For platform-specific guidance, see the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
-
-## Contributing
-
-Contributions and suggestions are welcome. For substantial changes, please open an issue first to discuss the proposal. Before submitting a pull request, run the lint command and ensure the production build succeeds.
-
-## License
-
-No license is currently specified for this repository. Unless a license is added, all rights are reserved by the copyright holder.
+Questions? Contact [support@rentorce.com](mailto:support@rentorce.com).
