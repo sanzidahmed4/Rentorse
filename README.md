@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="public/fulllogo.svg" alt="Rentorce" width="320" />
 
-## Getting Started
+  <h1>Find a place that feels like home.</h1>
 
-First, run the development server:
+  <p>A smarter way to discover apartments that fit your budget, space, and neighborhood.</p>
+</div>
+
+---
+
+## About Rentorce
+
+Rentorce is an apartment-finding platform built to help renters discover homes across the United States. Search for verified listings and find 1-bedroom, 2-bedroom, and 3-bedroom apartments matched to your preferences.
+
+The application includes an apartment discovery experience, personalized matching flow, listing details, tour-request and lead forms, location-based browsing, renter guides, and an admin area for managing listings and users.
+
+## Features
+
+- Browse apartments and explore listings by location.
+- Find rental matches based on renter preferences.
+- View apartment details, photos, and tour-request options.
+- Submit renter inquiries and newsletter signups.
+- Manage apartments and admin users through protected admin tools.
+- Responsive web experience built with Next.js.
+
+## Tech stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **UI:** React 19, Tailwind CSS 4, Framer Motion, Lucide React
+- **Data:** MongoDB with Mongoose
+- **Validation and forms:** Zod, React Hook Form
+- **Image storage:** Cloudinary (optional configuration)
+
+## Getting started
+
+### Prerequisites
+
+- Node.js compatible with the installed Next.js version
+- npm
+- A MongoDB database for persistent application data
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/sanzidahmed4/Rentorse.git
+cd Rentorse
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a local environment file from the example:
+
+```bash
+cp .env.example .env.local
+```
+
+Set the values for your environment:
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `MONGODB_URI` | Yes | MongoDB connection string. |
+| `ADMIN_USERS` | Yes | Comma-separated `username:password` pairs for admin access. Use strong, unique passwords. |
+| `ADMIN_JWT_SECRET` | Yes | Secret used for admin authentication; use a cryptographically secure value of at least 32 characters. |
+| `NEXT_PUBLIC_APP_URL` | Recommended | Base URL of the application, such as `http://localhost:3000`. |
+| `CLOUDINARY_CLOUD_NAME` | Optional | Cloudinary cloud name for image storage. |
+| `CLOUDINARY_API_KEY` | Optional | Cloudinary API key. |
+| `CLOUDINARY_API_SECRET` | Optional | Cloudinary API secret. |
+| `INDEXNOW_KEY` | Optional | IndexNow key for notifying search engines about URLs. |
+
+Alternatively, configure `CLOUDINARY_URL` instead of the individual Cloudinary variables. Keep secrets in `.env.local` or your hosting provider's secret manager—never commit real credentials.
+
+### 4. Start the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the development server using webpack. |
+| `npm run build` | Create a production build. |
+| `npm run start` | Run the production server (after building). |
+| `npm run lint` | Run ESLint. |
 
-## Learn More
+## Project structure
 
-To learn more about Next.js, take a look at the following resources:
+```text
+src/
+├── app/            # Next.js pages, layouts, and API routes
+│   ├── admin/      # Admin pages
+│   ├── api/        # API endpoints
+│   ├── apartments/ # Apartment listing pages
+│   ├── guides/     # Renter guides
+│   └── ...         # Search, results, and policy pages
+├── components/     # Reusable UI components
+├── lib/            # Database, matching, auth, and application utilities
+├── models/         # Mongoose data models
+└── types/          # Shared TypeScript types
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Production deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Rentorce is a Next.js application and can be deployed to a Node.js host or a platform such as [Vercel](https://vercel.com/). Configure the required environment variables in the deployment environment, connect a production MongoDB database, and then build and start the application:
 
-## Deploy on Vercel
+```bash
+npm run build
+npm run start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+For platform-specific guidance, see the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contributing
+
+Contributions and suggestions are welcome. For substantial changes, please open an issue first to discuss the proposal. Before submitting a pull request, run the lint command and ensure the production build succeeds.
+
+## License
+
+No license is currently specified for this repository. Unless a license is added, all rights are reserved by the copyright holder.
